@@ -14,7 +14,6 @@
 (defsrc
   f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
   caps a   s   d   f   j   k   l   ;
-  fn
 )
 
 
@@ -35,27 +34,24 @@
   )
 )
 
-(defalias
-  fnl (tap-hold 200 200 fn (layer-toggle fn))
-)
+;;(defalias
+;; fnl (tap-hold 200 200 fn (layer-toggle fn))
+;;)
 
 (deflayer base
   f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
   lctl @a  @s  @d  @f  @j  @k  @l  @;
-  @fnl
 )
 
 (deflayer fn
   brdn brup  _ _ _ _ prev pp next mute vold volu
   _ _ _ _ _ _ _ _ _
-  _
 )
 
 
 (deflayer nomods
   f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
   lctl a s d f j k l ;
-  fn
 )
 
 (deffakekeys
