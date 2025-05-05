@@ -37,10 +37,10 @@ function Wifi() {
       {wifi.as(
         (wifi) =>
           wifi && (
-            <button onClicked="echo whatever">
+            <button className="wifi-button">
               <icon
                 tooltipText={bind(wifi, "ssid").as(String)}
-                className="Wifi"
+                className="wifi"
                 icon={bind(wifi, "iconName")}
                 focusOnClick
               />
@@ -84,6 +84,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
 
   return (
     <window
+      name="statusbar"
       className="Bar"
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}

@@ -10,8 +10,7 @@
 # bold_font        auto
 # italic_font      auto
 # bold_italic_font auto
-
-font_family Berkeley Mono
+# font_family BerkeleyMono Nerd Font Plus Codicons
 #: You can specify different fonts for the bold/italic/bold-italic
 #: variants. To get a full list of supported fonts use the `kitty
 #: +list-fonts` command. By default they are derived automatically, by
@@ -24,9 +23,12 @@ font_family Berkeley Mono
 #:     bold_font        Operator Mono Medium
 #:     italic_font      Operator Mono Book Italic
 #:     bold_italic_font Operator Mono Medium Italic
+#
+#
+
 
 # font_size 11.0
-font_size 16.0
+font_size 13.0
 
 #: Font size (in pts)
 
@@ -795,7 +797,7 @@ cursor_trail_decay 0.1 0.4
 #: set the vertical and horizontal sides. Three values set top,
 #: horizontal and bottom. Four values set top, right, bottom and left.
 
-# window_padding_width 0
+window_padding_width 4
 
 #: The window padding (in pts) (blank area between the text and the
 #: window border). A single value sets all four sides. Two values set
@@ -1072,7 +1074,7 @@ hide_window_decorations yes
 #: }}}
 
 # background_opacity 1.0
-background_opacity 0.8
+background_opacity 1.0
 
 #: The opacity of the background. A number between zero and one, where
 #: one is opaque and zero is fully transparent. This will only work if
@@ -2354,6 +2356,16 @@ map cmd+t new_tab_with_cwd
 
 
 # BEGIN_KITTY_THEME
-# Rosé Pine Moon
+# Kanagawa_dragon
 include current-theme.conf
 # END_KITTY_THEME
+
+
+
+
+# BEGIN_KITTY_FONTS
+font_family      family="BerkeleyMono Nerd Font Plus Weather Icons"
+bold_font        auto
+italic_font      auto
+bold_italic_font auto
+# END_KITTY_FONTS

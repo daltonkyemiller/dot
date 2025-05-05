@@ -1,0 +1,17 @@
+:root {
+  --fg: rgba(200, 192, 147, 1);
+  --bg: #181616;
+  --border: rgba(220, 215, 186, 1);
+  
+  --zen-main-browser-background: var(--bg) !important;
+  --zen-colors-border: var(--border) !important;
+  --toolbar-color: var(--fg) !important;
+}
+
+#urlbar[zen-floating-urlbar] #urlbar-background {
+  border-color: var(--border) !important;
+}
+
+.urlbarView-body-inner {
+  border-color: var(--border) !important;
+}
