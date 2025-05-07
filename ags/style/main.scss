@@ -1,3 +1,12 @@
 @use "bar";
 @use "app-launcher";
 @use "notification";
+@use "vars" as v;
+
+button {
+  all: unset;
+  color: v.$fg-color;
+  border-radius: 1px;
+  border: 1px solid v.$border-color;
+  padding: 8px;
+}

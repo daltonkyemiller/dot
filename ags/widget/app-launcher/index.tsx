@@ -41,6 +41,7 @@ export default function Applauncher(gdkmonitor: Gdk.Monitor) {
   const width = Variable(1000);
 
   const text = Variable("");
+
   const list = text((text) => apps.fuzzy_query(text).slice(0, MAX_ITEMS));
   const onEnter = () => {
     apps.fuzzy_query(text.get())?.[0].launch();
@@ -71,15 +72,27 @@ export default function Applauncher(gdkmonitor: Gdk.Monitor) {
         <box hexpand={false} vertical>
           <eventbox heightRequest={100} onClick={hide} />
           <box widthRequest={500} className="app-launcher" vertical>
-            <entry
-              placeholderText="Search"
-              text={text()}
-              onChanged={(self) => text.set(self.text)}
-              onActivate={onEnter}
-            />
+            <box className="search-bar" spacing={10}>
+              <icon icon="system-search-symbolic" valign={Gtk.Align.BASELINE} />
+              <entry
+                valign={Gtk.Align.BASELINE}
+                placeholderText="Search"
+                text={text()}
+                onChanged={(self) => text.set(self.text)}
+                onActivate={onEnter}
+                canFocus
+                setup={(self) => {
+                  self.hook(App, "window-toggled", (self, win) => {
+                    self.grab_focus();
+                  });
+                }}
+              />
+            </box>
+
             <box vertical visible={list.as((l) => l.length > 0)}>
               {list.as((list) => list.map((app) => <AppButton app={app} />))}
             </box>
+
             <box
               halign={CENTER}
               className="not-found"

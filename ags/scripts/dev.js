@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { spawn } = require("child_process");
+const { spawn, execSync } = require("child_process");
 
 function debounce(func, wait = 500, immediate) {
   let timeout;
@@ -40,6 +40,8 @@ const reload = debounce(async () => {
 
 process.on("SIGINT", killProcess);
 process.on("SIGTERM", killProcess);
+
+execSync("ags", ["quit"]);
 
 reload();
 fs.watch(path.join(__dirname, "../"), { recursive: true }, reload);

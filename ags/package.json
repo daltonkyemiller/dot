@@ -1,6 +1,10 @@
 {
   "name": "astal-shell",
   "dependencies": {
-    "astal": "/usr/share/astal/gjs"
+    "astal": "/usr/share/astal/gjs",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "csstype": "^3.1.3"
   }
 }

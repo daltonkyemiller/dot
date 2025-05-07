@@ -10,12 +10,29 @@ window.Bar {
     all: unset;
   }
 
+  .workspaces {
+    .workspace {
+      padding: 5px 10px;
+      border-radius: 5px;
+      background-color: v.$bg-color;
+    }
+  }
+
   > centerbox {
     background: v.$bg-color;
     border-radius: v.$border-radius;
     margin: 10px 20px 0 20px;
     border: 1px solid v.$border-color;
     padding: 10px 10px;
+  }
+
+  .media .cover {
+    min-width: 50px;
+    min-height: 30px;
+    background-size: cover;
+    background-position: center;
+    border-radius: v.$border-radius;
+    border: 1px solid v.$border-color;
   }
 
   button {

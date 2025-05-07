@@ -1,0 +1,7 @@
+QPushButton, QToolButton, QComboBox, QLineEdit, QSpinBox {
+    background-color: palette(dark);
+    border: 1px solid palette(button-text);
+    border-radius: 5px;
+    padding: 5px;
+}
+

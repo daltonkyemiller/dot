@@ -1,4 +1,3 @@
-
 (defcfg
   process-unmapped-keys yes
   macos-dev-names-include (
@@ -9,6 +8,11 @@
   macos-dev-names-exclude (
     "Corne"
   )
+
+  linux-dev-names-exclude (
+    "Corne Keyboard"
+  )
+
 )
 
 (defsrc
