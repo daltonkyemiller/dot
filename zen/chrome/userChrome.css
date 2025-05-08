@@ -15,3 +15,8 @@
 .urlbarView-body-inner {
   border-color: var(--border) !important;
 }
+
+
+.urlbarView-row[selected]{
+  color: unset !important;
+}

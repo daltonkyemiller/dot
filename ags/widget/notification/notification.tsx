@@ -56,7 +56,11 @@ export default function Notification(props: Props) {
             label={n.appName || "Unknown"}
           />
           <label className="time" hexpand halign={END} label={time(n.time)} />
-          <button onClicked={() => n.dismiss()}>
+          <button
+            onClick={() => {
+              return n.dismiss();
+            }}
+          >
             <icon icon="window-close-symbolic" />
           </button>
         </box>
@@ -100,7 +104,7 @@ export default function Notification(props: Props) {
         {n.get_actions().length > 0 && (
           <box className="actions">
             {n.get_actions().map(({ label, id }) => (
-              <button hexpand onClicked={() => n.invoke(id)}>
+              <button hexpand onClick={() => n.invoke(id)}>
                 <label label={label} halign={CENTER} hexpand />
               </button>
             ))}

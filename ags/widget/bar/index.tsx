@@ -6,11 +6,7 @@ import Mpris from "gi://AstalMpris";
 import Hyprland from "gi://AstalHyprland";
 import { styleToCss } from "../../lib/utils";
 import { ACCENT_COLORS } from "../../lib/theme";
-import {
-  changeAlpha,
-  changeBrightness,
-  cssRGBA,
-} from "../../lib/color";
+import { changeAlpha, changeBrightness, cssRGBA } from "../../lib/color";
 
 function Time({ format = "%I:%M - %A" }) {
   const time = Variable<string>("").poll(
@@ -174,7 +170,8 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
   return (
     <window
       name="statusbar"
-      className="Bar"
+      namespace="dkm_blur_ignorealpha_statusbar"
+      className="bar"
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
       anchor={TOP | LEFT | RIGHT}

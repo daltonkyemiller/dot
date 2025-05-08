@@ -19,52 +19,33 @@ class NotifiationMap implements Subscribable {
   private var: Variable<Array<Gtk.Widget>> = Variable([]);
 
   // notify subscribers to rerender when state changes
-  private notifiy() {
+  private notify() {
     this.var.set([...this.map.values()].reverse());
   }
 
+  private notifd = Notifd.get_default();
+
   constructor() {
-    const notifd = Notifd.get_default();
+    // this.notifd.ignoreTimeout = true;
 
-    /**
-     * uncomment this if you want to
-     * ignore timeout by senders and enforce our own timeout
-     * note that if the notification has any actions
-     * they might not work, since the sender already treats them as resolved
-     */
-    // notifd.ignoreTimeout = true
-
-    notifd.connect("notified", (_, id) => {
+    this.notifd.connect("notified", (_, id) => {
       this.set(
         id,
         Notification({
-          notification: notifd.get_notification(id)!,
+          notification: this.notifd.get_notification(id)!,
 
-          // once hovering over the notification is done
-          // destroy the widget without calling notification.dismiss()
-          // so that it acts as a "popup" and we can still display it
-          // in a notification center like widget
-          // but clicking on the close button will close it
-          onHoverLost: () => this.delete(id),
+          onHoverLost: () =>
+            this.delete(id, Notifd.ClosedReason.DISMISSED_BY_USER),
 
-          // notifd by default does not close notifications
-          // until user input or the timeout specified by sender
-          // which we set to ignore above
           setup: () =>
             timeout(TIMEOUT_DELAY, () => {
-              /**
-               * uncomment this if you want to "hide" the notifications
-               * after TIMEOUT_DELAY
-               */
-              // this.delete(id)
+              this.delete(id, Notifd.ClosedReason.EXPIRED);
             }),
         }),
       );
     });
 
-    // notifications can be closed by the outside before
-    // any user input, which have to be handled too
-    notifd.connect("resolved", (_, id) => {
+    this.notifd.connect("resolved", (_, id) => {
       this.delete(id);
     });
   }
@@ -73,13 +54,16 @@ class NotifiationMap implements Subscribable {
     // in case of replacecment destroy previous widget
     this.map.get(key)?.destroy();
     this.map.set(key, value);
-    this.notifiy();
+    this.notify();
   }
 
-  private delete(key: number) {
+  private delete(key: number, reason?: Notifd.ClosedReason) {
+    if (reason) {
+      this.notifd.emit("resolved", key, Notifd.ClosedReason.DISMISSED_BY_USER);
+    }
     this.map.get(key)?.destroy();
     this.map.delete(key);
-    this.notifiy();
+    this.notify();
   }
 
   // needed by the Subscribable interface
@@ -100,13 +84,12 @@ export default function NotificationPopups(gdkmonitor: Gdk.Monitor) {
   return (
     <window
       className="notification-popups"
+      namespace="dkm_blur_ignorealpha_notifications"
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
       anchor={TOP | RIGHT}
     >
-      <box vertical noImplicitDestroy>
-        {bind(notifs)}
-      </box>
+      <box vertical>{bind(notifs)}</box>
     </window>
   );
 }

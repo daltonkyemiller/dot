@@ -53,7 +53,7 @@ export default function Applauncher(gdkmonitor: Gdk.Monitor) {
       visible={false}
       decorated
       name="launcher"
-      namespace="launcher"
+      namespace="dkm_blur_launcher"
       anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.BOTTOM}
       widthRequest={gdkmonitor.workarea.width}
       keymode={Astal.Keymode.EXCLUSIVE}

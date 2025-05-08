@@ -11,7 +11,7 @@ window#launcher {
   }
 
   .app-launcher {
-    background-color: v.$bg-color;
+    background-blend-mode: color-burn;
     border: 1px solid v.$border-color;
     border-radius: v.$border-radius;
 
@@ -37,7 +37,6 @@ window#launcher {
     all: unset;
     background-color: v.$bg-color;
     border-radius: v.$border-radius;
-    background-color: v.$bg-color;
     color: v.$fg-color;
 
     padding: 10px 20px;
@@ -56,7 +55,7 @@ window#launcher {
     }
 
     icon {
-      font-size: 25px;
+      font-size: 30px;
     }
   }
 }

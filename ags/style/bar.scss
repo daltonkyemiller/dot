@@ -1,6 +1,6 @@
 @use "vars" as v;
 
-window.Bar {
+window.bar {
   font-family: "Berkeley Mono", monospace;
   background: transparent;
   color: v.$fg-color;
@@ -21,8 +21,8 @@ window.Bar {
   > centerbox {
     background: v.$bg-color;
     border-radius: v.$border-radius;
-    margin: 10px 20px 0 20px;
     border: 1px solid v.$border-color;
+    margin: 10px 20px 0 20px;
     padding: 10px 10px;
   }
 
