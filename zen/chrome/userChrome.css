@@ -20,3 +20,29 @@
 .urlbarView-row[selected]{
   color: unset !important;
 }
+
+:root:not([inDOMFullscreen="true"]) #tabbrowser-tabbox {
+    padding: 0 !important;
+}
+#tabbrowser-arrowscrollbox,
+#zen-sidebar-icons-wrapper {
+    margin-right: 1px;
+}
+
+:root:not([inDOMFullscreen="true"]):not([chromehidden~="location"]):not([chromehidden~="toolbar"]) {
+  & #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer  {
+    margin: 0 !important;
+    border-radius: 9px !important;
+  }
+}
+
+@media (-moz-bool-pref: "zen.view.compact") {
+  @media (-moz-bool-pref: "zen.view.compact.hide-toolbar") {
+    :root:not([inDOMFullscreen="true"]) #tabbrowser-tabpanels, #tabbrowser-tabpanels {
+      padding-left: 0 !important;
+      padding-top: 0 !important;
+      padding-right: 0 !important;
+      padding-bottom: 0 !important;
+    }
+  }
+}

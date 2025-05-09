@@ -21,7 +21,7 @@ window.bar {
   > centerbox {
     background: v.$bg-color;
     border-radius: v.$border-radius;
-    border: 1px solid v.$border-color;
+    border: v.$border-width solid v.$border-color;
     margin: 10px 20px 0 20px;
     padding: 10px 10px;
   }
@@ -32,7 +32,7 @@ window.bar {
     background-size: cover;
     background-position: center;
     border-radius: v.$border-radius;
-    border: 1px solid v.$border-color;
+    border: v.$border-width solid v.$border-color;
   }
 
   button {

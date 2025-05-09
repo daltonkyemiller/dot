@@ -1,9 +1,5 @@
 (defcfg
   process-unmapped-keys yes
-  macos-dev-names-include (
-    "Flow84@Lofree"
-    "Apple Internal Keyboard / Trackpad"
-  )
 
   macos-dev-names-exclude (
     "Corne"
@@ -17,10 +13,8 @@
 
 (defsrc
   f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
-  caps a   s   d   f   j   k   l   ;
+  caps a   s   d   f  h  j   k   l   ;
 )
-
-
 
 (defvar
   tap-time 175
@@ -31,6 +25,7 @@
     a s d f g
     z x c v b
   )
+
   right-hand-keys (
     y u i o p
     h j k l ; enter
@@ -44,18 +39,23 @@
 
 (deflayer base
   f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
-  lctl @a  @s  @d  @f  @j  @k  @l  @;
+  @cap @a  @s  @d  @f h @j  @k  @l  @;
+)
+
+(deflayer arrows
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ left down up right _
 )
 
 (deflayer fn
   brdn brup  _ _ _ _ prev pp next mute vold volu
-  _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _
 )
 
 
 (deflayer nomods
   f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
-  lctl a s d f j k l ;
+  esc a s d f h j k l ;
 )
 
 (deffakekeys
@@ -67,6 +67,8 @@
     (layer-switch nomods)
     (on-idle-fakekey to-base tap 20)
   )
+
+  cap (tap-hold $tap-time $hold-time esc (layer-toggle arrows))
   a (tap-hold-release-keys $tap-time $hold-time (multi a @tap) lmet $left-hand-keys)
   s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lalt $left-hand-keys)
   d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lctl $left-hand-keys)

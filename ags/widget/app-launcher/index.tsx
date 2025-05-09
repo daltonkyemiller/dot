@@ -89,7 +89,11 @@ export default function Applauncher(gdkmonitor: Gdk.Monitor) {
               />
             </box>
 
-            <box vertical visible={list.as((l) => l.length > 0)}>
+            <box
+              vertical
+              visible={list.as((l) => l.length > 0)}
+              className="app-list"
+            >
               {list.as((list) => list.map((app) => <AppButton app={app} />))}
             </box>
 

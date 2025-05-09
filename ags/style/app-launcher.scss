@@ -3,7 +3,7 @@
 
 window#launcher {
   all: unset;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(#181616, 0.3);
   color: v.$fg-color;
 
   .not-found {
@@ -11,18 +11,14 @@ window#launcher {
   }
 
   .app-launcher {
-    background-blend-mode: color-burn;
-    border: 1px solid v.$border-color;
+    border: v.$border-width solid v.$border-color;
     border-radius: v.$border-radius;
 
-    > * {
-      border-radius: v.$border-radius v.$border-radius 0 0;
-    }
-
     .search-bar {
+      border-radius: v.$border-radius v.$border-radius 0 0;
       padding: 20px;
       border-style: solid;
-      border-bottom-width: 1px;
+      border-bottom-width: v.$border-width;
       border-color: v.$border-color;
 
       background-color: v.$bg-color;
@@ -36,7 +32,6 @@ window#launcher {
   .app-button {
     all: unset;
     background-color: v.$bg-color;
-    border-radius: v.$border-radius;
     color: v.$fg-color;
 
     padding: 10px 20px;
@@ -47,6 +42,8 @@ window#launcher {
 
     &:last-child {
       padding-bottom: 20px;
+
+      border-radius: 0 0 v.$border-radius v.$border-radius;
     }
 
     &:focus,
