@@ -1,5 +1,5 @@
 @use "vars" as v;
-@use "sass:color";
+@use "sass:color" as *;
 
 window#launcher {
   all: unset;
@@ -50,7 +50,7 @@ window#launcher-content {
     }
 
     &:last-child {
-      padding-bottom: 20px;
+      margin-bottom: 8px;
 
       border-radius: 0 0 v.$border-radius v.$border-radius;
     }

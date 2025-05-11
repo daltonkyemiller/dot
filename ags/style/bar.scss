@@ -7,12 +7,18 @@ window#status-bar {
   font-weight: bold;
 
   > centerbox {
-    background: v.$bg-color;
-    border-radius: v.$border-radius;
-    border: v.$border-width solid v.$border-color;
+    /* background: v.$bg-color; */
+    /* border-radius: v.$border-radius; */
+    /* border: v.$border-width solid v.$border-color; */
     margin: 10px 20px 0 20px;
-    padding: 5px 10px;
+    /* padding: 5px 10px; */
 
+    > * {
+      background: v.$bg-color;
+      padding: 5px 10px;
+      border-radius: v.$border-radius;
+      border: v.$border-width solid v.$border-color;
+    }
     .wifi-button {
       all: unset;
     }
@@ -43,4 +49,9 @@ window#status-bar {
       }
     }
   }
+}
+
+window#quick-settings > box {
+  /* background-color: v.$bg-color; */
+  /* border: v.$border-width solid v.$border-color; */
 }

@@ -7,7 +7,9 @@ import Hyprland from "gi://AstalHyprland";
 import { styleToCss, truncate } from "../../lib/utils";
 import { ACCENT_COLORS } from "../../lib/theme";
 import { changeBrightness } from "../../lib/color";
-
+import Popover from "../common/popover";
+import { sendBatch } from "../../lib/hyprland";
+import QuickSettings from "../quick-settings";
 
 function Time({ format = "%I:%M - %A" }) {
   const time = Variable<string>("").poll(
@@ -146,6 +148,28 @@ function Media() {
     </box>
   );
 }
+
+function Right() {
+  const popoverOpen = Variable(false);
+
+  QuickSettings({ open: popoverOpen });
+
+  return (
+    <button
+      halign={Gtk.Align.END}
+      onClick={() => {
+        popoverOpen.set(!popoverOpen.get());
+      }}
+    >
+      <box spacing={10} hexpand halign={Gtk.Align.END}>
+        <BatteryLevel />
+        <Wifi />
+        <Time />
+      </box>
+    </button>
+  );
+}
+
 export default function Bar(gdkmonitor: Gdk.Monitor) {
   const { TOP, LEFT, RIGHT, BOTTOM } = Astal.WindowAnchor;
 
@@ -164,11 +188,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
         </box>
         <Media />
 
-        <box spacing={10} hexpand halign={Gtk.Align.END}>
-          <BatteryLevel />
-          <Wifi />
-          <Time />
-        </box>
+        <Right />
       </centerbox>
     </window>
   );
