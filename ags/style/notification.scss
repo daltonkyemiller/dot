@@ -5,6 +5,15 @@
   @return string.unquote("alpha(#{$c},#{$a})");
 }
 
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 $error: red;
 
 window.notification-popups {
@@ -26,8 +35,7 @@ eventbox.notification {
     border-radius: 13px;
     background-color: v.$bg-color;
     margin: 0.5rem 1rem 0.5rem 1rem;
-    box-shadow: 2px 3px 8px 0 gtkalpha(black, 0.4);
-    border: 1pt solid gtkalpha(v.$fg-color, 0.03);
+    border: 1pt solid v.$fg-color;
   }
 
   &.critical > box {

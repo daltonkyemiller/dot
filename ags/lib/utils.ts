@@ -18,12 +18,12 @@ export function debounce<T extends (...args: any[]) => any>(
 ): (...args: Parameters<T>) => void {
   let timer: AstalIO.Time | null = null;
   let isFirstCall = true;
-  
+
   return (...args: Parameters<T>) => {
     if (timer) {
       timer.cancel();
     }
-    
+
     if (immediateOnFirstCall && isFirstCall) {
       fn(...args);
       isFirstCall = false;
@@ -34,4 +34,14 @@ export function debounce<T extends (...args: any[]) => any>(
       });
     }
   };
+}
+
+export function truncate(str: string, maxLength: number, ellipses = false) {
+  if (str.length <= maxLength) {
+    return str;
+  }
+
+  const ellipsesLength = ellipses ? 3 : 0;
+
+  return `${str.slice(0, maxLength - ellipsesLength)}${ellipses ? "..." : ""}`;
 }

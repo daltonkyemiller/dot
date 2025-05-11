@@ -1,42 +1,46 @@
 @use "vars" as v;
 
-window.bar {
+window#status-bar {
   font-family: "Berkeley Mono", monospace;
   background: transparent;
   color: v.$fg-color;
   font-weight: bold;
-
-  .wifi-button {
-    all: unset;
-  }
-
-  .workspaces {
-    .workspace {
-      padding: 5px 10px;
-      border-radius: 5px;
-      background-color: v.$bg-color;
-    }
-  }
 
   > centerbox {
     background: v.$bg-color;
     border-radius: v.$border-radius;
     border: v.$border-width solid v.$border-color;
     margin: 10px 20px 0 20px;
-    padding: 10px 10px;
+    padding: 5px 10px;
+
+    .wifi-button {
+      all: unset;
+    }
+
+    .workspaces {
+      .workspace {
+      }
+    }
   }
 
-  .media .cover {
-    min-width: 50px;
-    min-height: 30px;
-    background-size: cover;
-    background-position: center;
-    border-radius: v.$border-radius;
-    border: v.$border-width solid v.$border-color;
-  }
+  .media {
+    .cover {
+      min-width: 50px;
+      min-height: 25px;
+      background-size: cover;
+      background-position: center;
+      border-radius: v.$border-radius;
+      border: 1px solid v.$border-color;
+    }
 
-  button {
-    border-radius: 8px;
-    margin: 2px;
+    button {
+      all: unset;
+      font-size: 15px;
+      border-radius: 5px;
+
+      &:hover {
+        background-color: red;
+      }
+    }
   }
 }

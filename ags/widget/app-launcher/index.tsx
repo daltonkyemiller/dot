@@ -64,53 +64,78 @@ export default function Applauncher(gdkmonitor: Gdk.Monitor) {
         width.set(self.get_current_monitor().workarea.width);
       }}
       onKeyPressEvent={function (self, event: Gdk.Event) {
-        if (event.get_keyval()[1] === Gdk.KEY_Escape) self.hide();
+        if (event.get_keyval()[1] === Gdk.KEY_Escape) {
+          self.hide();
+          App.get_window("launcher-content")!.hide();
+        }
       }}
     >
-      <box>
-        <eventbox widthRequest={width((w) => w / 2)} expand onClick={hide} />
-        <box hexpand={false} vertical>
-          <eventbox heightRequest={100} onClick={hide} />
-          <box widthRequest={500} className="app-launcher" vertical>
-            <box className="search-bar" spacing={10}>
-              <icon icon="system-search-symbolic" valign={Gtk.Align.BASELINE} />
-              <entry
-                valign={Gtk.Align.BASELINE}
-                placeholderText="Search"
-                text={text()}
-                onChanged={(self) => text.set(self.text)}
-                onActivate={onEnter}
-                canFocus
-                setup={(self) => {
-                  self.hook(App, "window-toggled", (self, win) => {
-                    self.grab_focus();
-                  });
-                }}
-              />
-            </box>
+      <window
+        widthRequest={gdkmonitor.workarea.width}
+        heightRequest={gdkmonitor.workarea.height}
+        decorated
+        name="launcher-content"
+        namespace="dkm_launcher_content"
+        visible={false}
+        application={App}
+        exclusivity={Astal.Exclusivity.IGNORE}
+        keymode={Astal.Keymode.EXCLUSIVE}
+        onKeyPressEvent={function (self, event: Gdk.Event) {
+          if (event.get_keyval()[1] === Gdk.KEY_Escape) {
+            self.hide();
+            App.get_window("launcher")!.hide();
+          }
+        }}
+      >
+        <box>
+          <eventbox widthRequest={width((w) => w / 2)} expand onClick={hide} />
+          <box hexpand={false} vertical>
+            <eventbox heightRequest={100} onClick={hide} />
+            <box widthRequest={500} className="app-launcher" vertical>
+              <box className="search-bar" spacing={10}>
+                <icon
+                  icon="system-search-symbolic"
+                  valign={Gtk.Align.BASELINE}
+                />
+                <entry
+                  valign={Gtk.Align.BASELINE}
+                  placeholderText="Search"
+                  text={text()}
+                  onChanged={(self) => text.set(self.text)}
+                  onActivate={onEnter}
+                  canFocus
+                  setup={(self) => {
+                    self.hook(App, "window-toggled", (self, win) => {
+                      self.grab_focus();
+                    });
+                  }}
+                />
+              </box>
 
-            <box
-              vertical
-              visible={list.as((l) => l.length > 0)}
-              className="app-list"
-            >
-              {list.as((list) => list.map((app) => <AppButton app={app} />))}
-            </box>
+              <box
+                vertical
+                spacing={8}
+                visible={list.as((l) => l.length > 0)}
+                className="app-list"
+              >
+                {list.as((list) => list.map((app) => <AppButton app={app} />))}
+              </box>
 
-            <box
-              halign={CENTER}
-              className="not-found"
-              vertical
-              visible={list.as((l) => l.length === 0)}
-            >
-              <icon icon="system-search-symbolic" />
-              <label label="No match found" />
+              <box
+                halign={CENTER}
+                className="not-found"
+                vertical
+                visible={list.as((l) => l.length === 0)}
+              >
+                <icon icon="system-search-symbolic" />
+                <label label="No match found" />
+              </box>
             </box>
+            <eventbox expand onClick={hide} />
           </box>
-          <eventbox expand onClick={hide} />
+          <eventbox widthRequest={width((w) => w / 2)} expand onClick={hide} />
         </box>
-        <eventbox widthRequest={width((w) => w / 2)} expand onClick={hide} />
-      </box>
+      </window>
     </window>
   );
 }

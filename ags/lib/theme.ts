@@ -161,10 +161,10 @@ export const DRAGON_PALETTE = {
 };
 
 export const ACCENT_COLORS = [
-  PALETTE.lotusBlue3,
-  PALETTE.lotusRed,
-  PALETTE.lotusAqua,
-  PALETTE.lotusViolet2,
   PALETTE.lotusOrange2,
+  PALETTE.lotusRed,
+  PALETTE.lotusBlue3,
+  PALETTE.lotusViolet2,
+  PALETTE.lotusAqua,
 ];
 

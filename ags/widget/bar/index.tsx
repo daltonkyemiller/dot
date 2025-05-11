@@ -4,9 +4,10 @@ import Network from "gi://AstalNetwork";
 import Battery from "gi://AstalBattery";
 import Mpris from "gi://AstalMpris";
 import Hyprland from "gi://AstalHyprland";
-import { styleToCss } from "../../lib/utils";
+import { styleToCss, truncate } from "../../lib/utils";
 import { ACCENT_COLORS } from "../../lib/theme";
-import { changeAlpha, changeBrightness, cssRGBA } from "../../lib/color";
+import { changeBrightness } from "../../lib/color";
+
 
 function Time({ format = "%I:%M - %A" }) {
   const time = Variable<string>("").poll(
@@ -40,15 +41,9 @@ function Workspaces() {
   return (
     <box className="workspaces">
       {activeWorkspaceBinding.as((w) => {
-        const color = ACCENT_COLORS[(w.id - 1) % ACCENT_COLORS.length];
+        let color = ACCENT_COLORS[(w.id - 1) % ACCENT_COLORS.length];
 
-        const backgroundColor = color;
-
-        const shadowColor = changeBrightness(color, -0.6);
-
-        const insetShadowColor = cssRGBA(
-          changeAlpha(changeBrightness(color, -0.6), 0.2),
-        );
+        color = changeBrightness(color, 0.2);
 
         let displayName: string;
         if (w.name !== String(w.id)) {
@@ -61,7 +56,8 @@ function Workspaces() {
           <label
             className="workspace"
             css={styleToCss({
-              border: `1px solid ${color}`,
+              color,
+              // border: `1px solid ${color}`,
               // color,
             })}
           >
@@ -108,6 +104,9 @@ function Media() {
     <box className="media">
       {bind(mpris, "players").as((ps) => {
         const player = ps[0];
+        const label = bind(player, "metadata").as(
+          () => `${player.title} - ${player.artist}`,
+        );
 
         return player ? (
           <box spacing={10}>
@@ -119,43 +118,26 @@ function Media() {
               )}
             />
             <label
-              label={bind(player, "metadata").as(
-                () => `${player.title} - ${player.artist}`,
-              )}
+              className="title"
+              widthRequest={100}
+              tooltipText={label}
+              label={label.as((l) => truncate(l, 60, true))}
             />
-            <box>
-              <button
-                tooltipText="Previous"
-                onClicked={() => {
-                  player.previous();
-                }}
-              >
-                <icon icon="media-skip-backward-symbolic" />
-              </button>
-              <button
-                tooltipText="Play/Pause"
-                onClick={() => {
-                  player.play_pause();
-                }}
-              >
-                <icon
-                  icon={bind(player, "playbackStatus").as((f) => {
-                    const isPlaying = f === Mpris.PlaybackStatus.PLAYING;
-                    return isPlaying
-                      ? "media-playback-pause-symbolic"
-                      : "media-playback-start-symbolic";
-                  })}
-                />
-              </button>
-              <button
-                tooltipText="Next"
-                onClick={() => {
-                  player.next();
-                }}
-              >
-                <icon icon="media-skip-forward-symbolic" />
-              </button>
-            </box>
+            <button
+              tooltipText="Play/Pause"
+              onClick={() => {
+                player.play_pause();
+              }}
+            >
+              <icon
+                icon={bind(player, "playbackStatus").as((f) => {
+                  const isPlaying = f === Mpris.PlaybackStatus.PLAYING;
+                  return isPlaying
+                    ? "media-playback-pause-symbolic"
+                    : "media-playback-start-symbolic";
+                })}
+              />
+            </button>
           </box>
         ) : (
           <label label="Nothing Playing" />
@@ -169,9 +151,8 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
 
   return (
     <window
-      name="statusbar"
+      name="status-bar"
       namespace="dkm_blur_ignorealpha_statusbar"
-      className="bar"
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
       anchor={TOP | LEFT | RIGHT}

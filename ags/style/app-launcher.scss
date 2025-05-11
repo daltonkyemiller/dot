@@ -4,6 +4,12 @@
 window#launcher {
   all: unset;
   background-color: rgba(#181616, 0.3);
+}
+
+window#launcher-content {
+  all: unset;
+  background-color: transparent;
+  /* background-color: rgba(#181616, 0.3); */
   color: v.$fg-color;
 
   .not-found {
@@ -13,6 +19,7 @@ window#launcher {
   .app-launcher {
     border: v.$border-width solid v.$border-color;
     border-radius: v.$border-radius;
+    background-color: v.$bg-color;
 
     .search-bar {
       border-radius: v.$border-radius v.$border-radius 0 0;
@@ -31,13 +38,15 @@ window#launcher {
 
   .app-button {
     all: unset;
-    background-color: v.$bg-color;
+    background-color: mix(v.$bg-color, v.$fg-color, 95%);
     color: v.$fg-color;
 
-    padding: 10px 20px;
+    padding: 10px 15px;
+    margin: 0 10px;
+    border-radius: v.$border-radius - 2px;
 
     &:first-child {
-      padding-top: 20px;
+      margin-top: 8px;
     }
 
     &:last-child {

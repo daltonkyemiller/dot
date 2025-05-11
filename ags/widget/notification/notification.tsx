@@ -1,7 +1,7 @@
-import { GLib } from "astal";
+import { bind, GLib, Variable } from "astal";
 import { Gtk, Astal } from "astal/gtk3";
-import { type EventBox } from "astal/gtk3/widget";
 import Notifd from "gi://AstalNotifd";
+import { NotificationData } from "./types";
 
 const isIcon = (icon: string) => !!Astal.Icon.lookup_icon(icon);
 
@@ -25,40 +25,48 @@ const urgency = (n: Notifd.Notification) => {
 };
 
 type Props = {
-  setup(self: EventBox): void;
-  onHoverLost(self: EventBox): void;
   notification: Notifd.Notification;
+  setup(): void;
+  onHoverLost(): void;
 };
 
 export default function Notification(props: Props) {
-  const { notification: n, onHoverLost, setup } = props;
+  const { notification, setup, onHoverLost } = props;
   const { START, CENTER, END } = Gtk.Align;
+  console.log("RENDERING NOTIFICATION", notification.id);
 
   return (
     <eventbox
-      className={`notification ${urgency(n)}`}
+      className={`notification ${urgency(notification)}`}
       setup={setup}
       onHoverLost={onHoverLost}
     >
       <box vertical>
         <box className="header">
-          {(n.appIcon || n.desktopEntry) && (
+          {(notification.appIcon || notification.desktopEntry) && (
             <icon
               className="app-icon"
-              visible={Boolean(n.appIcon || n.desktopEntry)}
-              icon={n.appIcon || n.desktopEntry}
+              visible={Boolean(
+                notification.appIcon || notification.desktopEntry,
+              )}
+              icon={notification.appIcon || notification.desktopEntry}
             />
           )}
           <label
             className="app-name"
             halign={START}
             truncate
-            label={n.appName || "Unknown"}
+            label={notification.appName || "Unknown"}
           />
-          <label className="time" hexpand halign={END} label={time(n.time)} />
+          <label
+            className="time"
+            hexpand
+            halign={END}
+            label={time(notification.time)}
+          />
           <button
             onClick={() => {
-              return n.dismiss();
+              return notification.dismiss();
             }}
           >
             <icon icon="window-close-symbolic" />
@@ -66,18 +74,23 @@ export default function Notification(props: Props) {
         </box>
         <Gtk.Separator visible />
         <box className="content">
-          {n.image && fileExists(n.image) && (
+          {notification.image && fileExists(notification.image) && (
             <box
               valign={START}
               className="image"
               css={`
-                background-image: url("${n.image}");
+                background-image: url("${notification.image}");
               `}
             />
           )}
-          {n.image && isIcon(n.image) && (
+          {notification.image && isIcon(notification.image) && (
             <box expand={false} valign={START} className="icon-image">
-              <icon icon={n.image} expand halign={CENTER} valign={CENTER} />
+              <icon
+                icon={notification.image}
+                expand
+                halign={CENTER}
+                valign={CENTER}
+              />
             </box>
           )}
           <box vertical>
@@ -85,10 +98,10 @@ export default function Notification(props: Props) {
               className="summary"
               halign={START}
               xalign={0}
-              label={n.summary}
+              label={notification.summary}
               truncate
             />
-            {n.body && (
+            {notification.body && (
               <label
                 className="body"
                 wrap
@@ -96,15 +109,15 @@ export default function Notification(props: Props) {
                 halign={START}
                 xalign={0}
                 justifyFill
-                label={n.body}
+                label={notification.body}
               />
             )}
           </box>
         </box>
-        {n.get_actions().length > 0 && (
+        {notification.get_actions().length > 0 && (
           <box className="actions">
-            {n.get_actions().map(({ label, id }) => (
-              <button hexpand onClick={() => n.invoke(id)}>
+            {notification.get_actions().map(({ label, id }) => (
+              <button hexpand onClick={() => notification.invoke(id)}>
                 <label label={label} halign={CENTER} hexpand />
               </button>
             ))}

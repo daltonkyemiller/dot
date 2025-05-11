@@ -1,6 +1,6 @@
-$fg-color: #{"@theme_fg_color"};
+$fg-color: #f2ecbc;
 $bg-color: rgba(#181616, 0.8);
-$border-color: #{"@theme_fg_color"};
+$border-color: $fg-color;
 
 $border-width: 2px;
 $border-radius: 8px;
