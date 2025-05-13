@@ -1,7 +1,6 @@
 @use "vars" as v;
 
 window#status-bar {
-  font-family: "Berkeley Mono", monospace;
   background: transparent;
   color: v.$fg-color;
   font-weight: bold;
@@ -10,13 +9,14 @@ window#status-bar {
     /* background: v.$bg-color; */
     /* border-radius: v.$border-radius; */
     /* border: v.$border-width solid v.$border-color; */
-    margin: 10px 20px 0 20px;
+    margin: 10px 20px 3px 20px;
     /* padding: 5px 10px; */
 
     > * {
       background: v.$bg-color;
-      padding: 5px 10px;
-      border-radius: v.$border-radius;
+      padding: 6px 10px;
+      border-radius: 50px;
+      box-shadow: 3px 3px 0px v.$fg-color;
       border: v.$border-width solid v.$border-color;
     }
     .wifi-button {

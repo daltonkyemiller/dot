@@ -4,6 +4,23 @@
 @use "quick-settings";
 @use "vars" as v;
 
+@keyframes spin {
+  to {
+    -gtk-icon-transform: rotate(1turn);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+* {
+  font-family: "Berkeley Mono", monospace;
+}
+
+separator {
+  background-color: v.$border-color;
+}
 
 button {
   all: unset;

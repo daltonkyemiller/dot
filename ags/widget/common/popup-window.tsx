@@ -15,7 +15,6 @@ export enum PopupLayout {
 function Padding({ winName }: { winName: string }) {
   return (
     <button
-    className="text-red-500"
       canFocus={false}
       onClick={() => App.toggle_window(winName)}
       hexpand

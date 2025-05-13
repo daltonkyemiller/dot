@@ -2,11 +2,24 @@
 @use "sass:color" as *;
 
 window#quick-settings {
-  .quick-settings-content {
+  .header {
+    padding: 10px;
+
+    label {
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+
+  .quick-settings-container {
     background-color: v.$bg-color;
     border: v.$border-width solid v.$border-color;
     border-radius: v.$border-radius;
-    padding: 10px;
+
+    .quick-settings-content {
+      padding: 10px;
+    }
+
     > * {
       border-radius: inherit;
     }
@@ -16,5 +29,13 @@ window#quick-settings {
     border-radius: inherit;
     background-color: mix(v.$bg-color, v.$fg-color, 95%);
     padding: 10px;
+
+    .title {
+      font-weight: bold;
+    }
+
+    .icon {
+      font-size: 30px;
+    }
   }
 }

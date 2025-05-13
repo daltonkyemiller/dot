@@ -7,8 +7,6 @@ import Hyprland from "gi://AstalHyprland";
 import { styleToCss, truncate } from "../../lib/utils";
 import { ACCENT_COLORS } from "../../lib/theme";
 import { changeBrightness } from "../../lib/color";
-import Popover from "../common/popover";
-import { sendBatch } from "../../lib/hyprland";
 import QuickSettings from "../quick-settings";
 
 function Time({ format = "%I:%M - %A" }) {
@@ -86,12 +84,14 @@ function Wifi() {
         (wifi) =>
           wifi && (
             <button className="wifi-button">
-              <icon
-                tooltipText={bind(wifi, "ssid").as(String)}
-                className="wifi"
-                icon={bind(wifi, "iconName")}
-                focusOnClick
-              />
+              <box>
+                <icon
+                  tooltipText={bind(wifi, "ssid").as(String)}
+                  className="wifi"
+                  icon={bind(wifi, "iconName")}
+                  focusOnClick
+                />
+              </box>
             </button>
           ),
       )}
