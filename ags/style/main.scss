@@ -2,6 +2,8 @@
 @use "app-launcher";
 @use "notification";
 @use "quick-settings";
+@use "bg-blur";
+@use "clipboard";
 @use "vars" as v;
 
 @keyframes spin {

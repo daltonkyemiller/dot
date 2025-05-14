@@ -1,0 +1,26 @@
+@use "vars" as v;
+@use "sass:color" as *;
+
+window#clipboard {
+  all: unset;
+
+  entry {
+    all: unset;
+    padding: 10px;
+  }
+
+  .clipboard-content {
+    background-color: v.$bg-color;
+    border-radius: v.$border-radius;
+    border: v.$border-width solid v.$border-color;
+
+    .clipboard-item {
+      padding: 10px;
+      background-color: mix(v.$bg-color, v.$fg-color, 95%);
+
+      &:focus {
+        background-color: v.$bg-color;
+      }
+    }
+  }
+}

@@ -1,7 +1,6 @@
-import { bind, GLib, Variable } from "astal";
+import { GLib } from "astal";
 import { Gtk, Astal } from "astal/gtk3";
 import Notifd from "gi://AstalNotifd";
-import { NotificationData } from "./types";
 
 const isIcon = (icon: string) => !!Astal.Icon.lookup_icon(icon);
 

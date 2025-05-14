@@ -12,43 +12,36 @@ export enum PopupLayout {
   BOTTOM_LEFT = "bottom_left",
   BOTTOM_RIGHT = "bottom_right",
 }
-function Padding({ winName }: { winName: string }) {
-  return (
-    <button
-      canFocus={false}
-      onClick={() => App.toggle_window(winName)}
-      hexpand
-      vexpand
-    />
-  );
+function Padding({ onClick }: { onClick: () => void }) {
+  return <button canFocus={false} onClick={onClick} hexpand vexpand />;
 }
 
 function Layout({
   child,
-  name,
   position,
+  onClose,
 }: {
-  child?: JSX.Element;
-  name: string;
   position: PopupLayout;
+  onClose: () => void;
+  child?: JSX.Element;
 }) {
   switch (position) {
     case "top":
       return (
         <box vertical>
           {child}
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
         </box>
       );
     case "top_center":
       return (
         <box>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
           <box vertical hexpand={false}>
             {child}
-            <Padding winName={name} />
+            <Padding onClick={onClose} />
           </box>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
         </box>
       );
     case "top_left":
@@ -56,55 +49,55 @@ function Layout({
         <box>
           <box vertical hexpand={false}>
             {child}
-            <Padding winName={name} />
+            <Padding onClick={onClose} />
           </box>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
         </box>
       );
     case "top_right":
       return (
         <box>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
           <box vertical hexpand={false}>
             {child}
-            <Padding winName={name} />
+            <Padding onClick={onClose} />
           </box>
         </box>
       );
     case "bottom":
       return (
         <box vertical>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
           {child}
         </box>
       );
     case "bottom_center":
       return (
         <box>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
           <box vertical hexpand={false}>
-            <Padding winName={name} />
+            <Padding onClick={onClose} />
             {child}
           </box>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
         </box>
       );
     case "bottom_left":
       return (
         <box>
           <box vertical hexpand={false}>
-            <Padding winName={name} />
+            <Padding onClick={onClose} />
             {child}
           </box>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
         </box>
       );
     case "bottom_right":
       return (
         <box>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
           <box vertical hexpand={false}>
-            <Padding winName={name} />
+            <Padding onClick={onClose} />
             {child}
           </box>
         </box>
@@ -113,13 +106,13 @@ function Layout({
     default:
       return (
         <centerbox>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
           <centerbox orientation={Gtk.Orientation.VERTICAL}>
-            <Padding winName={name} />
+            <Padding onClick={onClose} />
             {child}
-            <Padding winName={name} />
+            <Padding onClick={onClose} />
           </centerbox>
-          <Padding winName={name} />
+          <Padding onClick={onClose} />
         </centerbox>
       );
   }
@@ -130,6 +123,7 @@ type PopupWindowProps = WindowProps & {
   name: string;
   animation?: string;
   layout?: PopupLayout;
+  onClose?: () => void;
 };
 
 export default function PopupWindow({
@@ -137,9 +131,11 @@ export default function PopupWindow({
   name,
   visible,
   layout = PopupLayout.CENTER,
+  onClose,
   ...props
 }: PopupWindowProps) {
   const { TOP, RIGHT, BOTTOM, LEFT } = Astal.WindowAnchor;
+  onClose = onClose || (() => App.toggle_window(name));
 
   return (
     <window
@@ -154,12 +150,12 @@ export default function PopupWindow({
       onKeyPressEvent={(_, event) => {
         const [, keyval] = event.get_keyval();
         if (keyval === Gdk.KEY_Escape) {
-          App.toggle_window(name);
+          onClose();
         }
       }}
       {...props}
     >
-      <Layout name={name} position={layout}>
+      <Layout name={name} position={layout} onClose={onClose}>
         {child}
       </Layout>
     </window>
