@@ -1,12 +1,15 @@
 @use "vars" as v;
 @use "sass:color" as *;
 
-window#clipboard {
+window#dkm_clipboard {
   all: unset;
 
-  entry {
-    all: unset;
-    padding: 10px;
+  .search {
+    color: v.$fg-color;
+    padding: 20px;
+    entry {
+      all: unset;
+    }
   }
 
   .clipboard-content {
@@ -14,12 +17,21 @@ window#clipboard {
     border-radius: v.$border-radius;
     border: v.$border-width solid v.$border-color;
 
-    .clipboard-item {
+    .clipboard-list {
       padding: 10px;
-      background-color: mix(v.$bg-color, v.$fg-color, 95%);
 
-      &:focus {
-        background-color: v.$bg-color;
+      .clipboard-item {
+        padding: 10px 20px;
+        background-color: mix(v.$bg-color, v.$fg-color, 95%);
+        border-radius: v.$border-radius;
+
+        &:hover {
+          background-color: v.$bg-color;
+        }
+
+        &:focus {
+          background-color: v.$bg-color;
+        }
       }
     }
   }

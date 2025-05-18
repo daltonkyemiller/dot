@@ -155,7 +155,7 @@ export default function PopupWindow({
       }}
       {...props}
     >
-      <Layout name={name} position={layout} onClose={onClose}>
+      <Layout position={layout} onClose={onClose}>
         {child}
       </Layout>
     </window>

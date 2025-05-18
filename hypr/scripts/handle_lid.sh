@@ -7,10 +7,12 @@ arg="$1"
 handle_monitor() {
   if [ "$arg" = "open" ]; then
     hyprctl keyword monitor "$INTERNAL_MONITOR, 3025x1890@60, 0x0, 2"
+    # hyprctl keyword monitor "$EXTERNAL_MONITOR, 5120x1440@120, 1512x0, 1"
     hyprctl keyword monitor "$EXTERNAL_MONITOR, 2560x1440@120, 1512x0, 1.33"
   else
     hyprctl keyword monitor "$INTERNAL_MONITOR, disable"
     hyprctl keyword monitor "$EXTERNAL_MONITOR, 2560x1440@120, 1512x0, 1.33"
+    # hyprctl keyword monitor "$EXTERNAL_MONITOR, 5120x1440@120, 1512x0, 1"
   fi
 }
 

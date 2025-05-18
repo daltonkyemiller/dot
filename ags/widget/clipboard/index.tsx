@@ -1,5 +1,5 @@
 import { exec, Variable } from "astal";
-import { App, Astal } from "astal/gtk3";
+import { App, Astal, Gdk, Gtk } from "astal/gtk3";
 import { CLIPBOARD_WINDOW_NAME } from "./consts";
 import { BG_BLUR_WINDOW_NAME } from "../bg-blur/consts";
 import PopupWindow from "../common/popup-window";
@@ -14,10 +14,19 @@ function hide() {
 }
 
 function Search() {
-  return <entry text={search()} onChanged={(self) => search.set(self.text)} />;
+  return (
+    <box spacing={10} className="search">
+      <icon icon="system-search-symbolic" valign={Gtk.Align.BASELINE} />
+      <entry
+        text={search()}
+        onChanged={(self) => search.set(self.text)}
+        valign={Gtk.Align.BASELINE}
+      />
+    </box>
+  );
 }
 
-export default function Clipboard() {
+export default function Clipboard(gdkmonitor: Gdk.Monitor) {
   const values = Variable<
     {
       id: number;
@@ -26,6 +35,7 @@ export default function Clipboard() {
   >([]);
   return (
     <PopupWindow
+      gdkmonitor={gdkmonitor}
       name={CLIPBOARD_WINDOW_NAME}
       onClose={hide}
       visible={false}
@@ -34,7 +44,7 @@ export default function Clipboard() {
       setup={(self) =>
         self.hook(App, "window-toggled", (self, win) => {
           if (win.name !== CLIPBOARD_WINDOW_NAME) return;
-          const out = exec("cliphist list");
+          const out = exec("cliphist list -t");
           const split = out.split("\n");
           const items = split.map((v) => {
             const [id, text] = v.split("\t");

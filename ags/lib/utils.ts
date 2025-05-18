@@ -1,5 +1,5 @@
 import type * as CSS from "csstype";
-import { timeout } from "astal";
+import { exec, execAsync, timeout } from "astal";
 import type { AstalIO } from "astal";
 
 const camelToKebab = (str: string) =>
@@ -9,6 +9,16 @@ export function styleToCss(styles: CSS.Properties) {
   return Object.entries(styles)
     .map(([key, value]) => `${camelToKebab(key)}: ${value};`)
     .join("");
+}
+
+export function bash(cmd: string | string[]) {
+  const cmdArray = Array.isArray(cmd) ? cmd : [cmd];
+  return exec(["bash", "-c", ...cmdArray]);
+}
+
+export function bashAsync(cmd: string | string[]) {
+  const cmdArray = Array.isArray(cmd) ? cmd : [cmd];
+  return execAsync(["bash", "-c", ...cmdArray]);
 }
 
 export function debounce<T extends (...args: any[]) => any>(
