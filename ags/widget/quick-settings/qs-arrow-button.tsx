@@ -1,5 +1,5 @@
 import { Binding } from "astal";
-import { Gtk } from "astal/gtk3";
+import { Gtk } from "astal/gtk4";
 
 export function QSArrowButton({
   iconName,
@@ -15,19 +15,19 @@ export function QSArrowButton({
   onArrowClick: () => void;
 }) {
   return (
-    <box className="qs-button">
+    <box cssClasses={["qs-button"]}>
       <button onClick={onClick}>
         <box halign={Gtk.Align.START} spacing={6}>
-          <icon icon={iconName} className="icon" />
+          <image iconName={iconName} cssClasses={["icon"]} />
           <box vertical hexpand>
-            <label xalign={0} label={title} className="title" />
-            <label xalign={0} label={subtitle} className="subtitle" />
+            <label xalign={0} label={title} cssClasses={["title"]} />
+            <label xalign={0} label={subtitle} cssClasses={["subtitle"]} />
           </box>
         </box>
       </button>
       <button onClick={onArrowClick}>
         <box>
-          <icon icon="go-next-symbolic" css="font-size: 20px;" />
+          <image iconName="go-next-symbolic" />
         </box>
       </button>
     </box>

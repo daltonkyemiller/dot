@@ -1,5 +1,5 @@
 import Apps from "gi://AstalApps";
-import { App, Astal, Gdk, Gtk } from "astal/gtk3";
+import { App, Astal, Gdk, Gtk, hook } from "astal/gtk4";
 import { Variable } from "astal";
 import { APP_LAUNCHER_WINDOW_NAME } from "./consts";
 import { BG_BLUR_WINDOW_NAME } from "../bg-blur/consts";
@@ -15,20 +15,20 @@ function hide() {
 function AppButton({ app }: { app: Apps.Application }) {
   return (
     <button
-      className="app-button"
+      cssClasses={["app-button"]}
       onClicked={() => {
         hide();
         app.launch();
       }}
     >
       <box spacing={10}>
-        <icon icon={app.iconName} />
+        <image iconName={app.iconName} />
         <box valign={Gtk.Align.CENTER} vertical>
-          <label className="name" xalign={0} label={app.name} />
+          <label cssClasses={["name"]} xalign={0} label={app.name} />
           {app.description && (
             <label
               maxWidthChars={50}
-              className="description"
+              cssClasses={["description"]}
               wrap
               xalign={0}
               label={app.description}
@@ -48,8 +48,8 @@ function Search({
   onActivate: () => void;
 }) {
   return (
-    <box className="search-bar" spacing={10}>
-      <icon icon="system-search-symbolic" valign={Gtk.Align.BASELINE} />
+    <box cssClasses={["search-bar"]} spacing={10}>
+      <image iconName="system-search-symbolic" valign={Gtk.Align.BASELINE} />
       <entry
         valign={Gtk.Align.BASELINE}
         placeholderText="Search"
@@ -58,7 +58,7 @@ function Search({
         onActivate={onActivate}
         canFocus
         setup={(self) => {
-          self.hook(App, "window-toggled", (self) => {
+          hook(self, App, "window-toggled", (self) => {
             self.grab_focus();
           });
         }}
@@ -86,32 +86,32 @@ export default function Applauncher(gdkmonitor: Gdk.Monitor) {
       visible={false}
       layer={Astal.Layer.OVERLAY}
       animation="popin 80%"
-      setup={(self) =>
-        self.hook(App, "window-toggled", (self, win) => {
+      setup={(self) => {
+        hook(self, App, "window-toggled", (self, win) => {
           if (win.name !== APP_LAUNCHER_WINDOW_NAME) return;
           text.set("");
-        })
-      }
+        });
+      }}
     >
-      <box widthRequest={500} className="app-launcher" vertical>
+      <box widthRequest={500} cssClasses={["app-launcher"]} vertical>
         <Search text={text} onActivate={onEnter} />
 
         <box
           vertical
           spacing={8}
           visible={list.as((l) => l.length > 0)}
-          className="app-list"
+          cssClasses={["app-list"]}
         >
           {list.as((list) => list.map((app) => <AppButton app={app} />))}
         </box>
 
         <box
           halign={CENTER}
-          className="not-found"
+          cssClasses={["not-found"]}
           vertical
           visible={list.as((l) => l.length === 0)}
         >
-          <icon icon="system-search-symbolic" />
+          <image iconName="system-search-symbolic" />
           <label label="No match found" />
         </box>
       </box>

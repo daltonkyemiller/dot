@@ -1,4 +1,4 @@
-import { App, Astal, Gdk, Gtk } from "astal/gtk3";
+import { App, Astal, Gdk, Gtk } from "astal/gtk4";
 import { GLib, Variable, bind } from "astal";
 import Network from "gi://AstalNetwork";
 import Battery from "gi://AstalBattery";
@@ -16,7 +16,7 @@ function Time({ format = "%I:%M - %A" }) {
   );
 
   return (
-    <label className="Time" onDestroy={() => time.drop()} label={time()} />
+    <label cssClasses={["Time"]} onDestroy={() => time.drop()} label={time()} />
   );
 }
 
@@ -25,7 +25,7 @@ function BatteryLevel() {
 
   return (
     <box visible={bind(bat, "isPresent")}>
-      <icon icon={bind(bat, "batteryIconName")} />
+      <image iconName={bind(bat, "batteryIconName")} />
       <label
         label={bind(bat, "percentage").as((p) => `${Math.floor(p * 100)} %`)}
       />
@@ -39,7 +39,7 @@ function Workspaces() {
   const activeWorkspaceBinding = bind(hyprland, "focusedWorkspace");
 
   return (
-    <box className="workspaces">
+    <box cssClasses={["workspaces"]}>
       {activeWorkspaceBinding.as((w) => {
         let color = ACCENT_COLORS[(w.id - 1) % ACCENT_COLORS.length];
 
@@ -54,22 +54,15 @@ function Workspaces() {
 
         return (
           <label
-            className="workspace"
-            css={styleToCss({
+            cssClasses={["workspace"]}
+            cssName={styleToCss({
               color,
-              // border: `1px solid ${color}`,
-              // color,
             })}
           >
             {displayName}
           </label>
         );
       })}
-      {/* {workspacesBinding.as((workspaces) => { */}
-      {/*   return workspaces.map((workspace, i) => { */}
-      {/*     return <label>{workspace.name}</label>; */}
-      {/*   }); */}
-      {/* })} */}
     </box>
   );
 }
@@ -83,12 +76,12 @@ function Wifi() {
       {wifi.as(
         (wifi) =>
           wifi && (
-            <button className="wifi-button">
+            <button cssClasses={["wifi-button"]}>
               <box>
-                <icon
+                <image
                   tooltipText={bind(wifi, "ssid").as(String)}
-                  className="wifi"
-                  icon={bind(wifi, "iconName")}
+                  cssClasses={["wifi"]}
+                  iconName={bind(wifi, "iconName")}
                   focusOnClick
                 />
               </box>
@@ -103,7 +96,7 @@ function Media() {
   const mpris = Mpris.get_default();
 
   return (
-    <box className="media">
+    <box cssClasses={["media"]}>
       {bind(mpris, "players").as((ps) => {
         const player = ps[0];
         const label = bind(player, "metadata").as(
@@ -112,15 +105,13 @@ function Media() {
 
         return player ? (
           <box spacing={10}>
-            <box
-              className="cover"
+            <image
+              file={bind(player, "coverArt")}
+              cssClasses={["cover"]}
               valign={Gtk.Align.CENTER}
-              css={bind(player, "coverArt").as(
-                (cover) => `background-image: url('${cover}');`,
-              )}
             />
             <label
-              className="title"
+              cssClasses={["title"]}
               widthRequest={100}
               tooltipText={label}
               label={label.as((l) => truncate(l, 60, true))}
@@ -131,8 +122,8 @@ function Media() {
                 player.play_pause();
               }}
             >
-              <icon
-                icon={bind(player, "playbackStatus").as((f) => {
+              <image
+                iconName={bind(player, "playbackStatus").as((f) => {
                   const isPlaying = f === Mpris.PlaybackStatus.PLAYING;
                   return isPlaying
                     ? "media-playback-pause-symbolic"

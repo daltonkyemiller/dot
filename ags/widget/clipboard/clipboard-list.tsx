@@ -1,7 +1,7 @@
 import { Variable } from "astal";
 import { ClipboardItem } from "./clipboard-item";
 import { search } from "./store";
-import { Astal, Gtk } from "astal/gtk3";
+import { Gtk } from "astal/gtk4";
 
 const maxItems = 100;
 
@@ -19,12 +19,12 @@ export function ClipboardList({ values }: ClipboardListProps) {
   });
 
   return (
-    <scrollable heightRequest={500} vexpand>
-      <box vertical spacing={5} className="clipboard-list">
+    <Gtk.ScrolledWindow heightRequest={500} vexpand>
+      <box vertical spacing={5} cssClasses={["clipboard-list"]}>
         {filteredValues().as((values) =>
           values.map((v) => <ClipboardItem id={v.id} text={v.text} />),
         )}
       </box>
-    </scrollable>
+    </Gtk.ScrolledWindow>
   );
 }

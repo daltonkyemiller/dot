@@ -1,5 +1,5 @@
-import { App, Astal, Gdk, Gtk } from "astal/gtk3";
-import { WindowProps } from "astal/gtk3/widget";
+import { App, Astal, Gdk, Gtk } from "astal/gtk4";
+import { WindowProps } from "astal/gtk4/widget";
 
 export enum PopupLayout {
   CENTER = "center",
@@ -139,7 +139,7 @@ export default function PopupWindow({
 
   return (
     <window
-      css="background-color: transparent;"
+      cssClasses={["transparent"]}
       visible={visible}
       name={name}
       namespace={name}

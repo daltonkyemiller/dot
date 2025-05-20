@@ -1,4 +1,4 @@
-import { Astal, Gdk, Gtk, hook } from "astal/gtk3";
+import { Astal, Gdk, Gtk, hook } from "astal/gtk4";
 import Notification from "./notification";
 import { bind, timeout, Variable } from "astal";
 import AstalNotifd from "gi://AstalNotifd";
@@ -11,7 +11,7 @@ export default function NotificationPopups(gdkmonitor: Gdk.Monitor) {
 
   return (
     <window
-      className="notification-popups"
+      cssClasses={["notification-popups"]}
       namespace="dkm_blur_ignorealpha_notifications"
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}

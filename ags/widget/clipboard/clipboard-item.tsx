@@ -1,4 +1,4 @@
-import { Gtk } from "astal/gtk3";
+import { Gtk } from "astal/gtk4";
 import { hide } from "./utils";
 import { bash } from "../../lib/utils";
 import Pango from "gi://Pango?version=1.0";
@@ -15,10 +15,9 @@ export function ClipboardItem({ id, text }: ClipboardItemProps) {
   };
   return (
     <button
-      className="clipboard-item"
+      cssClasses={["clipboard-item"]}
       onClick={onClick}
       onClicked={onClick}
-      cursor="pointer"
     >
       <box>
         <label

@@ -1,9 +1,8 @@
 import { bind, Variable } from "astal";
 import PopupWindow, { PopupLayout } from "../common/popup-window";
-import { Gtk } from "astal/gtk3";
+import { Gtk } from "astal/gtk4";
 import Network from "gi://AstalNetwork";
 import Bluetooth from "gi://AstalBluetooth";
-import { Separator } from "../common/separator";
 import { QSArrowButton } from "./qs-arrow-button";
 
 const network = Network.get_default();
@@ -20,7 +19,7 @@ const visible = Variable<QuickSettingsPage>(QuickSettingsPage.MAIN);
 function Header() {
   const options = Object.values(QuickSettingsPage);
   return (
-    <box className="header">
+    <box cssClasses={["header"]}>
       <stack
         visibleChildName={bind(visible)}
         transitionType={Gtk.StackTransitionType.CROSSFADE}
@@ -99,11 +98,11 @@ function WifiPage() {
                 }}
               >
                 <box>
-                  <icon icon="go-previous-symbolic" />
+                  <image iconName="go-previous-symbolic" />
                 </box>
               </button>
             </box>
-            <scrollable vexpand={false}>
+            <Gtk.ScrolledWindow vexpand={false}>
               <box vertical spacing={6}>
                 {accessPoints.as((aps) => {
                   const seenSsids = new Set<string>();
@@ -122,7 +121,7 @@ function WifiPage() {
                     });
                 })}
               </box>
-            </scrollable>
+            </Gtk.ScrolledWindow>
           </>
         );
       })}
@@ -144,11 +143,11 @@ export default function QuickSettings(props: QuickSettingsProps) {
       animation="slide top"
       layout={PopupLayout.TOP_RIGHT}
     >
-      <box vertical className="quick-settings-container">
+      <box vertical cssClasses={["quick-settings-container"]}>
         <Header />
 
-        <Separator />
-        <box className="quick-settings-content">
+        <Gtk.Separator />
+        <box cssClasses={["quick-settings-content"]}>
           <stack
             visibleChildName={bind(visible)}
             transitionType={Gtk.StackTransitionType.SLIDE_LEFT_RIGHT}

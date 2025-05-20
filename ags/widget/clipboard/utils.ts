@@ -1,4 +1,4 @@
-import { App } from "astal/gtk3";
+import { App } from "astal/gtk4";
 import { search } from "./store";
 import { CLIPBOARD_WINDOW_NAME } from "./consts";
 import { BG_BLUR_WINDOW_NAME } from "../bg-blur/consts";

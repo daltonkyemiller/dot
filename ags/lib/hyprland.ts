@@ -1,4 +1,4 @@
-import { App } from "astal/gtk3";
+import { App } from "astal/gtk4";
 import AstalHyprland from "gi://AstalHyprland?version=0.1";
 
 const hyprland = AstalHyprland.get_default();

@@ -1,9 +1,8 @@
 import { exec, Variable } from "astal";
-import { App, Astal, Gdk, Gtk } from "astal/gtk3";
+import { App, Astal, Gdk, Gtk, hook } from "astal/gtk4";
 import { CLIPBOARD_WINDOW_NAME } from "./consts";
 import { BG_BLUR_WINDOW_NAME } from "../bg-blur/consts";
 import PopupWindow from "../common/popup-window";
-import { Separator } from "../common/separator";
 import { ClipboardList } from "./clipboard-list";
 import { search } from "./store";
 
@@ -15,8 +14,8 @@ function hide() {
 
 function Search() {
   return (
-    <box spacing={10} className="search">
-      <icon icon="system-search-symbolic" valign={Gtk.Align.BASELINE} />
+    <box spacing={10} cssClasses={ [ "search" ] }>
+      <image iconName="system-search-symbolic" valign={Gtk.Align.BASELINE} />
       <entry
         text={search()}
         onChanged={(self) => search.set(self.text)}
@@ -42,7 +41,7 @@ export default function Clipboard(gdkmonitor: Gdk.Monitor) {
       layer={Astal.Layer.OVERLAY}
       animation="popin 80%"
       setup={(self) =>
-        self.hook(App, "window-toggled", (self, win) => {
+        hook(self, App, "window-toggled", (self, win) => {
           if (win.name !== CLIPBOARD_WINDOW_NAME) return;
           const out = exec("cliphist list -t");
           const split = out.split("\n");
@@ -54,9 +53,9 @@ export default function Clipboard(gdkmonitor: Gdk.Monitor) {
         })
       }
     >
-      <box widthRequest={500} className="clipboard-content" vertical>
+      <box widthRequest={500} cssClasses={ [ "clipboard-content" ] } vertical>
         <Search />
-        <Separator />
+        <Gtk.Separator />
         <ClipboardList values={values} />
       </box>
     </PopupWindow>

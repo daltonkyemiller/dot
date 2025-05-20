@@ -1,5 +1,5 @@
 {
-  "name": "astal-shell",
+  "name": "daltons-ui-components",
   "dependencies": {
     "astal": "/usr/share/astal/gjs"
   },

@@ -1,4 +1,4 @@
-import { Astal, App, Gdk } from "astal/gtk3";
+import { Astal, App, Gdk } from "astal/gtk4";
 import { BG_BLUR_WINDOW_NAME } from "./consts";
 
 export default function BgBlur(gdkmonitor: Gdk.Monitor) {
@@ -14,7 +14,7 @@ export default function BgBlur(gdkmonitor: Gdk.Monitor) {
         Astal.WindowAnchor.LEFT |
         Astal.WindowAnchor.RIGHT
       }
-      widthRequest={gdkmonitor.workarea.width}
+      // widthRequest={gdkmonitor.workarea.width}
       keymode={Astal.Keymode.NONE}
       exclusivity={Astal.Exclusivity.IGNORE}
       application={App}
