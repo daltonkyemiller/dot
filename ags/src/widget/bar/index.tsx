@@ -173,8 +173,21 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
       anchor={TOP | LEFT | RIGHT}
       application={App}
+      cssClasses={["bg-transparent", "text-fg"]}
     >
-      <centerbox>
+      <centerbox
+        cssClasses={[
+          "mt-[10px]",
+          "mx-[20px]",
+          "mb-[3px]",
+          "[&>*]:bg-bg",
+          "[&>*]:py-[6px]",
+          "[&>*]:px-[10px]",
+          "[&>*]:rounded-md",
+          "[&>*]:border",
+          "[&>*]:border-red-500",
+        ]}
+      >
         <box hexpand halign={Gtk.Align.START} spacing={5}>
           <Workspaces />
         </box>
