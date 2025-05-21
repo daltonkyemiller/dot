@@ -4,6 +4,7 @@ import { Variable } from "astal";
 import { APP_LAUNCHER_WINDOW_NAME } from "./consts";
 import { BG_BLUR_WINDOW_NAME } from "../bg-blur/consts";
 import PopupWindow from "../common/popup-window";
+import { isIcon } from "../../lib/utils";
 
 const MAX_ITEMS = 8;
 
@@ -13,6 +14,9 @@ function hide() {
 }
 
 function AppButton({ app }: { app: Apps.Application }) {
+  const imageProps = isIcon(app.iconName)
+    ? { iconName: app.iconName }
+    : { file: app.iconName };
   return (
     <button
       cssClasses={["app-button"]}
@@ -22,7 +26,7 @@ function AppButton({ app }: { app: Apps.Application }) {
       }}
     >
       <box spacing={10}>
-        <image iconName={app.iconName} />
+        <image {...imageProps} />
         <box valign={Gtk.Align.CENTER} vertical>
           <label cssClasses={["name"]} xalign={0} label={app.name} />
           {app.description && (
@@ -71,9 +75,13 @@ export default function Applauncher(gdkmonitor: Gdk.Monitor) {
   const apps = new Apps.Apps();
   const text = Variable("");
 
-  const list = text((text) => apps.fuzzy_query(text).slice(0, MAX_ITEMS));
+  const list = text((text) => {
+    const filtered =  apps.fuzzy_query(text).slice(0, MAX_ITEMS)
+
+    return filtered
+  });
   const onEnter = () => {
-    apps.fuzzy_query(text.get())?.[0].launch();
+    list.get()[0].launch()
     hide();
   };
 

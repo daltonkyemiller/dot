@@ -1,11 +1,7 @@
 import { GLib } from "astal";
 import { Gtk, Astal } from "astal/gtk4";
 import Notifd from "gi://AstalNotifd";
-
-const isIcon = (icon: string) => {
-  const iconTheme = new Gtk.IconTheme();
-  return iconTheme.has_icon(icon);
-};
+import { isIcon } from "../../lib/utils";
 
 const fileExists = (path: string) => GLib.file_test(path, GLib.FileTest.EXISTS);
 
