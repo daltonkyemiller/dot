@@ -29,7 +29,7 @@ void main() {
 
     float grainIntensity = 0.18;
     if(wl_output == 1) {
-        grainIntensity = 0.10;
+        grainIntensity = 0.13;
     }
     vec3 result = blendSoftLight(base.rgb, vec3(grain), grainIntensity);
 

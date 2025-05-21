@@ -46,10 +46,10 @@ function WifiButton() {
       iconName={bind(wifiIconName)}
       title="Wi-Fi"
       subtitle={wifiSsid}
-      onClick={() => {
+      onClicked={() => {
         wifi.scan();
       }}
-      onArrowClick={() => {
+      onArrowClicked={() => {
         visible.set(QuickSettingsPage.WIFI);
       }}
     />
@@ -64,8 +64,8 @@ function BluetoothButton() {
       iconName={"bluetooth-symbolic"}
       title="Bluetooth"
       subtitle="Scan"
-      onClick={() => {}}
-      onArrowClick={() => {
+      onClicked={() => {}}
+      onArrowClicked={() => {
         visible.set(QuickSettingsPage.BLUETOOTH);
       }}
     />
@@ -93,7 +93,7 @@ function WifiPage() {
           <>
             <box hexpand={false} spacing={6}>
               <button
-                onClick={() => {
+                onClicked={() => {
                   visible.set(QuickSettingsPage.MAIN);
                 }}
               >

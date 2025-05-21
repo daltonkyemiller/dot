@@ -5,18 +5,18 @@ export function QSArrowButton({
   iconName,
   title,
   subtitle,
-  onClick,
-  onArrowClick,
+  onClicked,
+  onArrowClicked,
 }: {
   iconName: string | Binding<string>;
   title: string;
   subtitle: string | Binding<string>;
-  onClick: () => void;
-  onArrowClick: () => void;
+  onClicked: () => void;
+  onArrowClicked: () => void;
 }) {
   return (
     <box cssClasses={["qs-button"]}>
-      <button onClick={onClick}>
+      <button onClicked={onClicked}>
         <box halign={Gtk.Align.START} spacing={6}>
           <image iconName={iconName} cssClasses={["icon"]} />
           <box vertical hexpand>
@@ -25,7 +25,7 @@ export function QSArrowButton({
           </box>
         </box>
       </button>
-      <button onClick={onArrowClick}>
+      <button onClicked={onArrowClicked}>
         <box>
           <image iconName="go-next-symbolic" />
         </box>

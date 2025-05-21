@@ -67,7 +67,7 @@ export default function Notification(props: Props) {
             label={time(notification.time)}
           />
           <button
-            onClick={() => {
+            onClicked={() => {
               return notification.dismiss();
             }}
           >
@@ -123,7 +123,7 @@ export default function Notification(props: Props) {
         {notification.get_actions().length > 0 && (
           <box cssClasses={["actions"]}>
             {notification.get_actions().map(({ label, id }) => (
-              <button hexpand onClick={() => notification.invoke(id)}>
+              <button hexpand onClicked={() => notification.invoke(id)}>
                 <label label={label} halign={CENTER} hexpand />
               </button>
             ))}

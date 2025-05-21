@@ -52,14 +52,13 @@ function Search({
       <image iconName="system-search-symbolic" valign={Gtk.Align.BASELINE} />
       <entry
         valign={Gtk.Align.BASELINE}
-        placeholderText="Search"
-        text={text()}
-        onChanged={(self) => text.set(self.text)}
+        onNotifyText={(self) => text.set(self.text)}
         onActivate={onActivate}
-        canFocus
         setup={(self) => {
-          hook(self, App, "window-toggled", (self) => {
+          hook(self, App, "window-toggled", (self, win) => {
+            if (win.name !== APP_LAUNCHER_WINDOW_NAME) return;
             self.grab_focus();
+            self.set_text("");
           });
         }}
       />
@@ -86,6 +85,7 @@ export default function Applauncher(gdkmonitor: Gdk.Monitor) {
       visible={false}
       layer={Astal.Layer.OVERLAY}
       animation="popin 80%"
+      keymode={Astal.Keymode.ON_DEMAND}
       setup={(self) => {
         hook(self, App, "window-toggled", (self, win) => {
           if (win.name !== APP_LAUNCHER_WINDOW_NAME) return;

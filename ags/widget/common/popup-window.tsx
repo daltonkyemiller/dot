@@ -12,8 +12,8 @@ export enum PopupLayout {
   BOTTOM_LEFT = "bottom_left",
   BOTTOM_RIGHT = "bottom_right",
 }
-function Padding({ onClick }: { onClick: () => void }) {
-  return <button canFocus={false} onClick={onClick} hexpand vexpand />;
+function Padding({ onClicked }: { onClicked: () => void }) {
+  return <button canFocus={false} onClicked={onClicked} hexpand vexpand />;
 }
 
 function Layout({
@@ -30,18 +30,18 @@ function Layout({
       return (
         <box vertical>
           {child}
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
         </box>
       );
     case "top_center":
       return (
         <box>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
           <box vertical hexpand={false}>
             {child}
-            <Padding onClick={onClose} />
+            <Padding onClicked={onClose} />
           </box>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
         </box>
       );
     case "top_left":
@@ -49,55 +49,55 @@ function Layout({
         <box>
           <box vertical hexpand={false}>
             {child}
-            <Padding onClick={onClose} />
+            <Padding onClicked={onClose} />
           </box>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
         </box>
       );
     case "top_right":
       return (
         <box>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
           <box vertical hexpand={false}>
             {child}
-            <Padding onClick={onClose} />
+            <Padding onClicked={onClose} />
           </box>
         </box>
       );
     case "bottom":
       return (
         <box vertical>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
           {child}
         </box>
       );
     case "bottom_center":
       return (
         <box>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
           <box vertical hexpand={false}>
-            <Padding onClick={onClose} />
+            <Padding onClicked={onClose} />
             {child}
           </box>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
         </box>
       );
     case "bottom_left":
       return (
         <box>
           <box vertical hexpand={false}>
-            <Padding onClick={onClose} />
+            <Padding onClicked={onClose} />
             {child}
           </box>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
         </box>
       );
     case "bottom_right":
       return (
         <box>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
           <box vertical hexpand={false}>
-            <Padding onClick={onClose} />
+            <Padding onClicked={onClose} />
             {child}
           </box>
         </box>
@@ -106,13 +106,13 @@ function Layout({
     default:
       return (
         <centerbox>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
           <centerbox orientation={Gtk.Orientation.VERTICAL}>
-            <Padding onClick={onClose} />
+            <Padding onClicked={onClose} />
             {child}
-            <Padding onClick={onClose} />
+            <Padding onClicked={onClose} />
           </centerbox>
-          <Padding onClick={onClose} />
+          <Padding onClicked={onClose} />
         </centerbox>
       );
   }
@@ -147,8 +147,7 @@ export default function PopupWindow({
       keymode={Astal.Keymode.EXCLUSIVE}
       application={App}
       anchor={TOP | BOTTOM | RIGHT | LEFT}
-      onKeyPressEvent={(_, event) => {
-        const [, keyval] = event.get_keyval();
+      onKeyPressed={(_, keyval) => {
         if (keyval === Gdk.KEY_Escape) {
           onClose();
         }

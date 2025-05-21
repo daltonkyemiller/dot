@@ -16,7 +16,6 @@ export function ClipboardItem({ id, text }: ClipboardItemProps) {
   return (
     <button
       cssClasses={["clipboard-item"]}
-      onClick={onClick}
       onClicked={onClick}
     >
       <box>

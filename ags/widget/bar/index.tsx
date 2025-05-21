@@ -118,7 +118,7 @@ function Media() {
             />
             <button
               tooltipText="Play/Pause"
-              onClick={() => {
+              onClicked={() => {
                 player.play_pause();
               }}
             >
@@ -148,7 +148,7 @@ function Right() {
   return (
     <button
       halign={Gtk.Align.END}
-      onClick={() => {
+      onClicked={() => {
         popoverOpen.set(!popoverOpen.get());
       }}
     >
@@ -166,6 +166,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
 
   return (
     <window
+      visible
       name="status-bar"
       namespace="dkm_blur_ignorealpha_statusbar"
       gdkmonitor={gdkmonitor}

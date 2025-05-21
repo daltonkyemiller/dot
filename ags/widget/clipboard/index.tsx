@@ -14,12 +14,18 @@ function hide() {
 
 function Search() {
   return (
-    <box spacing={10} cssClasses={ [ "search" ] }>
+    <box spacing={10} cssClasses={["search"]}>
       <image iconName="system-search-symbolic" valign={Gtk.Align.BASELINE} />
       <entry
-        text={search()}
         onChanged={(self) => search.set(self.text)}
         valign={Gtk.Align.BASELINE}
+        setup={(self) => {
+          hook(self, App, "window-toggled", (self, win) => {
+            if (win.name !== CLIPBOARD_WINDOW_NAME) return;
+            self.grab_focus();
+            self.set_text("");
+          });
+        }}
       />
     </box>
   );
@@ -53,7 +59,7 @@ export default function Clipboard(gdkmonitor: Gdk.Monitor) {
         })
       }
     >
-      <box widthRequest={500} cssClasses={ [ "clipboard-content" ] } vertical>
+      <box widthRequest={500} cssClasses={["clipboard-content"]} vertical>
         <Search />
         <Gtk.Separator />
         <ClipboardList values={values} />

@@ -9,9 +9,7 @@ import Clipboard from "./widget/clipboard";
 
 App.start({
   css: style,
-  requestHandler(request, res) {
-    console.log("foo");
-  },
+
   main() {
     App.get_monitors().map(Bar);
     App.get_monitors().map(AppLauncher);
