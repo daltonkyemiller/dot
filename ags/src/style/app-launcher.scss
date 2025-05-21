@@ -59,5 +59,8 @@ window#dkm_launcher {
     icon {
       font-size: 30px;
     }
+    .description {
+      color: mix(v.$fg-color, v.$bg-color, 50%);
+    }
   }
 }
