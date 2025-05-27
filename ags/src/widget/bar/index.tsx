@@ -4,10 +4,19 @@ import Network from "gi://AstalNetwork";
 import Battery from "gi://AstalBattery";
 import Mpris from "gi://AstalMpris";
 import Hyprland from "gi://AstalHyprland";
-import { styleToCss, truncate } from "../../lib/utils";
+import { cn, styleToCss, truncate } from "../../lib/utils";
 import { ACCENT_COLORS } from "../../lib/theme";
 import { changeBrightness } from "../../lib/color";
 import QuickSettings from "../quick-settings";
+
+const barSectionClasses = [
+  "bg-bg",
+  "px-[15px]",
+  "rounded-md",
+  "border-2",
+  "border-solid",
+  "border-border",
+];
 
 function Time({ format = "%I:%M - %A" }) {
   const time = Variable<string>("").poll(
@@ -15,9 +24,7 @@ function Time({ format = "%I:%M - %A" }) {
     () => GLib.DateTime.new_now_local().format(format)!,
   );
 
-  return (
-    <label cssClasses={["Time"]} onDestroy={() => time.drop()} label={time()} />
-  );
+  return <label onDestroy={() => time.drop()} label={time()} />;
 }
 
 function BatteryLevel() {
@@ -39,7 +46,7 @@ function Workspaces() {
   const activeWorkspaceBinding = bind(hyprland, "focusedWorkspace");
 
   return (
-    <box cssClasses={["workspaces"]}>
+    <box cssClasses={[...barSectionClasses]} hexpand halign={Gtk.Align.START}>
       {activeWorkspaceBinding.as((w) => {
         let color = ACCENT_COLORS[(w.id - 1) % ACCENT_COLORS.length];
 
@@ -76,7 +83,7 @@ function Wifi() {
       {wifi.as(
         (wifi) =>
           wifi && (
-            <button cssClasses={["wifi-button"]}>
+            <button>
               <box>
                 <image
                   tooltipText={bind(wifi, "ssid").as(String)}
@@ -96,7 +103,7 @@ function Media() {
   const mpris = Mpris.get_default();
 
   return (
-    <box cssClasses={["media"]}>
+    <box cssClasses={[...barSectionClasses]}>
       {bind(mpris, "players").as((ps) => {
         const player = ps[0];
         const label = bind(player, "metadata").as(
@@ -106,12 +113,12 @@ function Media() {
         return player ? (
           <box spacing={10}>
             <image
+              iconSize={Gtk.IconSize.LARGE}
               file={bind(player, "coverArt")}
-              cssClasses={["cover"]}
               valign={Gtk.Align.CENTER}
             />
+
             <label
-              cssClasses={["title"]}
               widthRequest={100}
               tooltipText={label}
               label={label.as((l) => truncate(l, 60, true))}
@@ -151,6 +158,7 @@ function Right() {
       onClicked={() => {
         popoverOpen.set(!popoverOpen.get());
       }}
+      cssClasses={[...barSectionClasses]}
     >
       <box spacing={10} hexpand halign={Gtk.Align.END}>
         <BatteryLevel />
@@ -175,22 +183,9 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
       application={App}
       cssClasses={["bg-transparent", "text-fg"]}
     >
-      <centerbox
-        cssClasses={[
-          "mt-[10px]",
-          "mx-[20px]",
-          "mb-[3px]",
-          "[&>*]:bg-bg",
-          "[&>*]:py-[6px]",
-          "[&>*]:px-[10px]",
-          "[&>*]:rounded-md",
-          "[&>*]:border",
-          "[&>*]:border-red-500",
-        ]}
-      >
-        <box hexpand halign={Gtk.Align.START} spacing={5}>
-          <Workspaces />
-        </box>
+      <centerbox cssClasses={cn("mx-[20px] mb-[3px] mt-[10px]")}>
+        <Workspaces />
+
         <Media />
 
         <Right />

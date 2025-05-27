@@ -4,6 +4,7 @@ import { Gtk } from "astal/gtk4";
 import Network from "gi://AstalNetwork";
 import Bluetooth from "gi://AstalBluetooth";
 import { QSArrowButton } from "./qs-arrow-button";
+import { cn } from "../../lib/utils";
 
 const network = Network.get_default();
 
@@ -117,7 +118,9 @@ function WifiPage() {
                     })
                     .sort((a, b) => -a.strength - -b.strength)
                     .map((ap) => {
-                      return <label halign={Gtk.Align.START}>{ap.ssid}</label>;
+                      return (
+                        <button halign={Gtk.Align.START}>{ap.ssid}</button>
+                      );
                     });
                 })}
               </box>
@@ -143,7 +146,7 @@ export default function QuickSettings(props: QuickSettingsProps) {
       animation="slide top"
       layout={PopupLayout.TOP_RIGHT}
     >
-      <box vertical cssClasses={["quick-settings-container"]}>
+      <box vertical cssClasses={cn("rounded-md border border-fg bg-bg p-4 ")}>
         <Header />
 
         <Gtk.Separator />

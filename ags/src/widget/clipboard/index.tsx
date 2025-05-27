@@ -5,6 +5,7 @@ import { BG_BLUR_WINDOW_NAME } from "../bg-blur/consts";
 import PopupWindow from "../common/popup-window";
 import { ClipboardList } from "./clipboard-list";
 import { search } from "./store";
+import { cn } from "../../lib/utils";
 
 function hide() {
   search.set("");
@@ -14,9 +15,10 @@ function hide() {
 
 function Search() {
   return (
-    <box spacing={10} cssClasses={["search"]}>
+    <box spacing={10} cssClasses={cn("bg-bg p-4")}>
       <image iconName="system-search-symbolic" valign={Gtk.Align.BASELINE} />
       <entry
+        cssClasses={cn("[all:unset]")}
         onChanged={(self) => search.set(self.text)}
         valign={Gtk.Align.BASELINE}
         setup={(self) => {
@@ -59,7 +61,12 @@ export default function Clipboard(gdkmonitor: Gdk.Monitor) {
         })
       }
     >
-      <box widthRequest={500} cssClasses={["clipboard-content"]} vertical>
+      <box
+        widthRequest={500}
+        cssClasses={cn("rounded-md border border-fg")}
+        overflow={Gtk.Overflow.HIDDEN}
+        vertical
+      >
         <Search />
         <Gtk.Separator />
         <ClipboardList values={values} />

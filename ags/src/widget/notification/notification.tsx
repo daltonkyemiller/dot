@@ -1,7 +1,7 @@
 import { GLib } from "astal";
 import { Gtk, Astal } from "astal/gtk4";
 import Notifd from "gi://AstalNotifd";
-import { isIcon } from "../../lib/utils";
+import { cn, isIcon } from "../../lib/utils";
 
 const fileExists = (path: string) => GLib.file_test(path, GLib.FileTest.EXISTS);
 
@@ -25,22 +25,23 @@ const urgency = (n: Notifd.Notification) => {
 type Props = {
   notification: Notifd.Notification;
   setup(): void;
-  onHoverLost(): void;
+  onHoverLeave(): void;
 };
 
 export default function Notification(props: Props) {
-  const { notification, setup, onHoverLost } = props;
+  const { notification, setup, onHoverLeave } = props;
   const { START, CENTER, END } = Gtk.Align;
   console.log("RENDERING NOTIFICATION", notification.id);
 
   return (
-    <box
-      cssClasses={["notification", urgency(notification)]}
-      setup={setup}
-      onHoverLost={onHoverLost}
-    >
-      <box vertical>
-        <box cssClasses={["header"]}>
+    <box cssClasses={cn("group")} setup={setup} onHoverLeave={onHoverLeave}>
+      <box
+        vertical
+        cssClasses={cn(
+          "min-w-[400px] rounded-md bg-bg border border-fg my-[0.5rem] mx-[1rem]",
+        )}
+      >
+        <box cssClasses={cn("p-[0.5rem]")}>
           {notification.appIcon || notification.desktopEntry ? (
             <image
               cssClasses={["app-icon"]}
@@ -71,11 +72,13 @@ export default function Notification(props: Props) {
           </button>
         </box>
         <Gtk.Separator visible />
-        <box cssClasses={["content"]}>
+        <box cssClasses={cn("p-3")} spacing={5}>
           {notification.image && fileExists(notification.image) && (
             <image
-              valign={START}
-              cssClasses={["image"]}
+              overflow={Gtk.Overflow.HIDDEN}
+              pixelSize={50}
+              valign={CENTER}
+              cssClasses={cn("rounded-md")}
               file={notification.image}
             />
           )}
@@ -98,7 +101,7 @@ export default function Notification(props: Props) {
           )}
           <box vertical>
             <label
-              cssClasses={["summary"]}
+              cssClasses={cn("text-lg font-bold")}
               halign={START}
               xalign={0}
               label={notification.summary}
@@ -117,9 +120,13 @@ export default function Notification(props: Props) {
           </box>
         </box>
         {notification.get_actions().length > 0 && (
-          <box cssClasses={["actions"]}>
+          <box cssClasses={cn("p-3 pt-0")}>
             {notification.get_actions().map(({ label, id }) => (
-              <button hexpand onClicked={() => notification.invoke(id)}>
+              <button
+                hexpand
+                onClicked={() => notification.invoke(id)}
+                cssClasses={cn("border border-fg p-2")}
+              >
                 <label label={label} halign={CENTER} hexpand />
               </button>
             ))}

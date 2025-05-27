@@ -132,6 +132,7 @@ export default function PopupWindow({
   visible,
   layout = PopupLayout.CENTER,
   onClose,
+  onKeyPressed,
   ...props
 }: PopupWindowProps) {
   const { TOP, RIGHT, BOTTOM, LEFT } = Astal.WindowAnchor;
@@ -139,7 +140,7 @@ export default function PopupWindow({
 
   return (
     <window
-      cssClasses={["transparent"]}
+      cssClasses={["bg-transparent"]}
       visible={visible}
       name={name}
       namespace={name}
@@ -147,9 +148,13 @@ export default function PopupWindow({
       keymode={Astal.Keymode.EXCLUSIVE}
       application={App}
       anchor={TOP | BOTTOM | RIGHT | LEFT}
-      onKeyPressed={(_, keyval) => {
+      onKeyPressed={(...args) => {
+        const [, keyval] = args;
         if (keyval === Gdk.KEY_Escape) {
           onClose();
+        }
+        if (onKeyPressed) {
+          onKeyPressed(...args);
         }
       }}
       {...props}
