@@ -4,7 +4,9 @@
     "dev": "nodemon"
   },
   "dependencies": {
-    "astal": "/usr/share/astal/gjs"
+    "astal": "/usr/share/astal/gjs",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {
     "csstype": "^3.1.3",

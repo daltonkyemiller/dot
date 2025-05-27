@@ -2,6 +2,8 @@ import type * as CSS from "csstype";
 import { exec, execAsync, timeout } from "astal";
 import type { AstalIO } from "astal";
 import { Gtk } from "astal/gtk4";
+import clsx, { ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 const camelToKebab = (str: string) =>
   str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
@@ -10,6 +12,10 @@ export function styleToCss(styles: CSS.Properties) {
   return Object.entries(styles)
     .map(([key, value]) => `${camelToKebab(key)}: ${value};`)
     .join("");
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs)).split(" ").filter(Boolean);
 }
 
 export function bash(cmd: string | string[]) {

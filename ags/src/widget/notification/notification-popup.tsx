@@ -2,6 +2,7 @@ import { Astal, Gdk, Gtk, hook } from "astal/gtk4";
 import Notification from "./notification";
 import { bind, timeout, Variable } from "astal";
 import AstalNotifd from "gi://AstalNotifd";
+import { cn } from "../../lib/utils";
 
 export default function NotificationPopups(gdkmonitor: Gdk.Monitor) {
   const { TOP, RIGHT } = Astal.WindowAnchor;
@@ -11,7 +12,7 @@ export default function NotificationPopups(gdkmonitor: Gdk.Monitor) {
 
   return (
     <window
-      cssClasses={["notification-popups"]}
+      cssClasses={cn("[all:unset]")}
       namespace="dkm_blur_ignorealpha_notifications"
       gdkmonitor={gdkmonitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
@@ -49,15 +50,16 @@ export default function NotificationPopups(gdkmonitor: Gdk.Monitor) {
             <box vertical>
               {Notification({
                 notification: notifd.get_notification(id!),
-                onHoverLost() {},
+                onHoverLeave() {},
                 setup() {},
               })}
               <box vexpand />
             </box>,
           );
+
           self.visible = true;
 
-          timeout(5000, () => {
+          timeout(6000, () => {
             self.visible = false;
             isProcessing = false;
             child.set(null);

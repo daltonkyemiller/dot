@@ -1,1 +1,30 @@
 @tailwind utilities;
+
+:root {
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-gradient-to-position: 100%;
+  --tw-gradient-from-position: 0%;
+}
+
+button {
+  all: unset;
+  border-style: solid;
+}
+
+separator {
+  @apply bg-fg;
+}
+
+* {
+  @apply text-fg;
+  font-family: "Berkeley Mono", monospace;
+  border-style: solid;
+}
