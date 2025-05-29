@@ -11,9 +11,10 @@ import QuickSettings from "../quick-settings";
 
 const barSectionClasses = [
   "bg-bg",
-  "px-[15px]",
+  "px-3",
+  "py-1",
   "rounded-md",
-  "border-2",
+  "border",
   "border-solid",
   "border-border",
 ];
@@ -113,9 +114,11 @@ function Media() {
         return player ? (
           <box spacing={10}>
             <image
-              iconSize={Gtk.IconSize.LARGE}
               file={bind(player, "coverArt")}
               valign={Gtk.Align.CENTER}
+              pixelSize={30}
+              overflow={Gtk.Overflow.HIDDEN}
+              cssClasses={cn("rounded-md")}
             />
 
             <label

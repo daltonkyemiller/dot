@@ -4,9 +4,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        fg: "#f2ecbc",
-        bg: "#181616",
-        border: "#f2ecbc",
+        fg: "rgb(var(--color-fg))",
+        bg: "rgb(var(--color-bg))",
+        border: "rgb(var(--color-border))",
+        muted: "rgb(var(--color-muted))",
       },
     },
   },

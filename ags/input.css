@@ -12,6 +12,11 @@
   --tw-drop-shadow:  ;
   --tw-gradient-to-position: 100%;
   --tw-gradient-from-position: 0%;
+
+
+  --color-fg: 242 236 188;
+  --color-bg: 24 22 22;
+  --color-border: 107 106 97;
 }
 
 button {
@@ -24,7 +29,7 @@ separator {
 }
 
 * {
-  @apply text-fg;
+  @apply text-fg border-border;
   font-family: "Berkeley Mono", monospace;
   border-style: solid;
 }
