@@ -39,8 +39,16 @@
   min-height:0px;
 }
 
+.min-h-2 {
+  min-height:0.5rem;
+}
+
 .min-h-\[450px\] {
   min-height:450px;
+}
+
+.min-w-2 {
+  min-width:0.5rem;
 }
 
 .min-w-\[400px\] {
@@ -51,6 +59,10 @@
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
+}
+
+.rounded {
+  border-radius:0.25rem;
 }
 
 .rounded-md {
@@ -233,7 +245,7 @@ button {
 }
 
 separator {
-  background-color:rgb(var(--color-fg));
+  background-color:rgb(var(--color-border));
 }
 
 * {
@@ -257,10 +269,6 @@ separator {
 
 .last\:mb-\[8px\]:last-child {
   margin-bottom:8px;
-}
-
-.focus\:bg-black\/30:focus {
-  background-color:rgb(0 0 0 / 0.3);
 }
 
 .focus\:bg-white\/10:focus {

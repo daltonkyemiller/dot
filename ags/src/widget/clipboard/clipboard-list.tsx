@@ -21,7 +21,7 @@ export function ClipboardList({ values }: ClipboardListProps) {
 
   return (
     <Gtk.ScrolledWindow heightRequest={500}>
-      <box vertical spacing={5} cssClasses={cn("bg-bg")}>
+      <box vertical spacing={5} >
         {filteredValues().as((values) =>
           values.map((v) => <ClipboardItem id={v.id} text={v.text} />),
         )}
