@@ -5,6 +5,7 @@ import { APP_LAUNCHER_WINDOW_NAME } from "./consts";
 import { BG_BLUR_WINDOW_NAME } from "../bg-blur/consts";
 import PopupWindow from "../common/popup-window";
 import { bash, bashAsync, cn, debounce, isIcon } from "../../lib/utils";
+import { QuickResultsManager, calculatorPlugin, colorConverterPlugin, QuickResult } from "./quick-results";
 import { Scrollable } from "../common/scrollable";
 
 const MAX_ITEMS = 8;
@@ -22,7 +23,7 @@ function AppButton({ app, idx }: { idx: number; app: Apps.Application }) {
   return (
     <button
       cssClasses={cn(
-        "mx-4 rounded-md bg-bg px-4 py-3 text-fg transition-all first:mt-2 last:mb-2 focus:bg-white/10 border border-border",
+        "mx-4 rounded-md border border-border bg-bg px-4 py-3 text-fg transition-all first:mt-2 last:mb-2 focus:bg-white/10",
       )}
       onClicked={() => {
         hide();
@@ -50,27 +51,41 @@ function AppButton({ app, idx }: { idx: number; app: Apps.Application }) {
 
 const entryWidget$ = Variable<Gtk.Entry | null>(null);
 
-const quickResultsString$ = Variable<string | null>(null);
+const quickResult$ = Variable<QuickResult | null>(null);
+
+const quickResultsManager = new QuickResultsManager();
+quickResultsManager.addPlugin(colorConverterPlugin);
+quickResultsManager.addPlugin(calculatorPlugin);
 
 function QuickResults(props: { text$: Variable<string> }) {
   const { text$ } = props;
-  const unsub = text$.subscribe((t) => {
-    try {
-      quickResultsString$.set(bash(`echo "scale=2; ${t}" | bc -l`));
-    } catch (e) {
-      quickResultsString$.set(null);
+  const unsub = text$.subscribe(async (t) => {
+    if (!t.trim()) {
+      quickResult$.set(null);
+      return;
     }
+    
+    const result = await quickResultsManager.processInput(t);
+    quickResult$.set(result);
   });
 
   return (
     <box
       onDestroy={() => unsub()}
-      visible={bind(quickResultsString$).as((r) => !!r)}
+      visible={bind(quickResult$).as((r) => !!r)}
       valign={Gtk.Align.CENTER}
       halign={Gtk.Align.END}
     >
       <box cssClasses={cn("[&>label]:text-fg/50")}>
-        <label>=</label> <label>{bind(quickResultsString$)}</label>
+        {bind(quickResult$).as((result) => {
+          if (!result) return <label></label>;
+          
+          if (typeof result.display === "string") {
+            return <label>{result.display}</label>;
+          } else {
+            return result.display;
+          }
+        })}
       </box>
     </box>
   );
@@ -158,9 +173,9 @@ export default function AppLauncher(gdkmonitor: Gdk.Monitor) {
         vertical
         onKeyReleased={async (self, keyval, keycode, state) => {
           if (keyval === Gdk.KEY_c && state === Gdk.ModifierType.CONTROL_MASK) {
-            const quickResultsString = quickResultsString$.get();
-            if (!quickResultsString) return;
-            await bashAsync(`wl-copy "${quickResultsString}"`);
+            const quickResult = quickResult$.get();
+            if (!quickResult) return;
+            bash(`wl-copy "${quickResult.clipboardValue}" 2>/dev/null`);
             hide();
           }
         }}

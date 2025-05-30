@@ -16,7 +16,7 @@ export function ClipboardItem({ id, text }: ClipboardItemProps) {
   return (
     <button
       cssClasses={cn(
-        "mx-[10px] bg-bg px-[15px] py-[10px] text-fg transition-all first:mt-[8px] last:mb-[8px] focus:bg-black/30",
+        "mx-[10px] bg-bg px-[15px] py-[10px] text-fg transition-all first:mt-[8px] last:mb-[8px] focus:bg-white/10 rounded-md",
       )}
       onClicked={onClick}
     >

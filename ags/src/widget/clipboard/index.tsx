@@ -15,7 +15,7 @@ function hide() {
 
 function Search() {
   return (
-    <box spacing={10} cssClasses={cn("bg-bg p-4")}>
+    <box spacing={10} cssClasses={cn("p-4")}>
       <image iconName="system-search-symbolic" valign={Gtk.Align.BASELINE} />
       <entry
         cssClasses={cn("[all:unset]")}
@@ -63,7 +63,7 @@ export default function Clipboard(gdkmonitor: Gdk.Monitor) {
     >
       <box
         widthRequest={500}
-        cssClasses={cn("rounded-md border border-fg")}
+        cssClasses={cn("rounded-md border border-border bg-bg bg-gradient-to-br from-bg from-30% to-fg/10 shadow-[0_0_100px_0_rgb(var(--color-fg)/0.2)]")}
         overflow={Gtk.Overflow.HIDDEN}
         vertical
       >
