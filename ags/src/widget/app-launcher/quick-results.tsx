@@ -1,5 +1,6 @@
 import { App, Gtk } from "astal/gtk4";
 import { bash, cn } from "../../lib/utils";
+import { DrawingArea } from "../common/drawing-area";
 
 export interface QuickResultPlugin {
   name: string;
@@ -68,14 +69,14 @@ export const colorConverterPlugin: QuickResultPlugin = {
         display: (
           <box>
             <label cssClasses={cn("text-fg/50")}>{result}</label>
-            <box
-              name="__color_preview"
-              cssClasses={cn("rounded min-w-2 min-h-2")}
-              setup={() => {
-                const css = `#__color_preview{background-color:${result};}`;
-                App.apply_css(css);
-              }}
-            />
+            {/* <box */}
+            {/*   name="__color_preview" */}
+            {/*   cssClasses={cn("rounded min-w-2 min-h-2")} */}
+            {/*   setup={(self) => { */}
+            {/*     const css = `#__color_preview{background-color:${result};}`; */}
+            {/*     App.apply_css(css); */}
+            {/*   }} */}
+            {/* /> */}
           </box>
         ),
         clipboardValue: result,

@@ -146,7 +146,7 @@ export default function QuickSettings(props: QuickSettingsProps) {
       animation="slide top"
       layout={PopupLayout.TOP_RIGHT}
     >
-      <box vertical cssClasses={cn("rounded-md border border-fg bg-bg p-4 ")}>
+      <box vertical cssClasses={cn("rounded-md border bg-bg p-4 ")}>
         <Header />
 
         <Gtk.Separator />

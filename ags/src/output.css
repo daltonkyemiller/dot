@@ -55,6 +55,10 @@
   min-width:400px;
 }
 
+.max-w-\[550px\] {
+  max-width:550px;
+}
+
 .truncate {
   overflow:hidden;
   text-overflow:ellipsis;
@@ -87,10 +91,6 @@
 
 .border-border {
   border-color:rgb(var(--color-border));
-}
-
-.border-fg {
-  border-color:rgb(var(--color-fg));
 }
 
 .bg-bg {
@@ -251,7 +251,7 @@ separator {
 * {
   border-color:rgb(var(--color-border));
   color:rgb(var(--color-fg));
-  font-family: "Berkeley Mono", monospace;
+  font-family: "Berkeley Mono", monospace, "Adwaita Nerd Font";
   border-style: solid;
 }
 

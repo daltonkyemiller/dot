@@ -31,14 +31,13 @@ type Props = {
 export default function Notification(props: Props) {
   const { notification, setup, onHoverLeave } = props;
   const { START, CENTER, END } = Gtk.Align;
-  console.log("RENDERING NOTIFICATION", notification.id);
 
   return (
     <box cssClasses={cn("group")} setup={setup} onHoverLeave={onHoverLeave}>
       <box
         vertical
         cssClasses={cn(
-          "min-w-[400px] rounded-md bg-bg border border-fg my-[0.5rem] mx-[1rem]",
+          "min-w-[400px] max-w-[550px] rounded-md bg-bg border my-[0.5rem] mx-[1rem]",
         )}
       >
         <box cssClasses={cn("p-[0.5rem]")}>
@@ -52,13 +51,11 @@ export default function Notification(props: Props) {
             />
           ) : null}
           <label
-            cssClasses={["app-name"]}
             halign={START}
             wrap
             label={notification.appName || "Unknown"}
           />
           <label
-            cssClasses={["time"]}
             hexpand
             halign={END}
             label={time(notification.time)}
@@ -125,7 +122,7 @@ export default function Notification(props: Props) {
               <button
                 hexpand
                 onClicked={() => notification.invoke(id)}
-                cssClasses={cn("border border-fg p-2")}
+                cssClasses={cn("border border-border p-2")}
               >
                 <label label={label} halign={CENTER} hexpand />
               </button>

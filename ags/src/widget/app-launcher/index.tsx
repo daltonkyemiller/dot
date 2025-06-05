@@ -5,8 +5,14 @@ import { APP_LAUNCHER_WINDOW_NAME } from "./consts";
 import { BG_BLUR_WINDOW_NAME } from "../bg-blur/consts";
 import PopupWindow from "../common/popup-window";
 import { bash, bashAsync, cn, debounce, isIcon } from "../../lib/utils";
-import { QuickResultsManager, calculatorPlugin, colorConverterPlugin, QuickResult } from "./quick-results";
+import {
+  QuickResultsManager,
+  calculatorPlugin,
+  colorConverterPlugin,
+  QuickResult,
+} from "./quick-results";
 import { Scrollable } from "../common/scrollable";
+
 
 const MAX_ITEMS = 8;
 
@@ -23,7 +29,7 @@ function AppButton({ app, idx }: { idx: number; app: Apps.Application }) {
   return (
     <button
       cssClasses={cn(
-        "mx-4 rounded-md border border-border bg-bg px-4 py-3 text-fg transition-all first:mt-2 last:mb-2 focus:bg-white/10",
+        "mx-4 rounded-md bg-bg px-4 py-3 text-fg transition-all first:mt-2 last:mb-2 focus:bg-white/10",
       )}
       onClicked={() => {
         hide();
@@ -64,7 +70,7 @@ function QuickResults(props: { text$: Variable<string> }) {
       quickResult$.set(null);
       return;
     }
-    
+
     const result = await quickResultsManager.processInput(t);
     quickResult$.set(result);
   });
@@ -79,7 +85,7 @@ function QuickResults(props: { text$: Variable<string> }) {
       <box cssClasses={cn("[&>label]:text-fg/50")}>
         {bind(quickResult$).as((result) => {
           if (!result) return <label></label>;
-          
+
           if (typeof result.display === "string") {
             return <label>{result.display}</label>;
           } else {
@@ -159,7 +165,10 @@ export default function AppLauncher(gdkmonitor: Gdk.Monitor) {
       keymode={Astal.Keymode.ON_DEMAND}
       setup={(self) => {
         hook(self, App, "window-toggled", (self, win) => {
-          if (win.name !== APP_LAUNCHER_WINDOW_NAME) return;
+          if (win.name !== self.name) return;
+          if (win.visible) {
+            App.toggle_window(BG_BLUR_WINDOW_NAME);
+          }
           text$.set("");
         });
       }}

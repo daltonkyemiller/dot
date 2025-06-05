@@ -30,6 +30,6 @@ separator {
 
 * {
   @apply text-fg border-border;
-  font-family: "Berkeley Mono", monospace;
+  font-family: "Berkeley Mono", monospace, "Adwaita Nerd Font";
   border-style: solid;
 }

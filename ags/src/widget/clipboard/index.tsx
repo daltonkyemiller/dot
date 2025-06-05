@@ -23,7 +23,7 @@ function Search() {
         valign={Gtk.Align.BASELINE}
         setup={(self) => {
           hook(self, App, "window-toggled", (self, win) => {
-            if (win.name !== CLIPBOARD_WINDOW_NAME) return;
+            if (win.name !== self.name) return;
             self.grab_focus();
             self.set_text("");
           });
@@ -50,7 +50,11 @@ export default function Clipboard(gdkmonitor: Gdk.Monitor) {
       animation="popin 80%"
       setup={(self) =>
         hook(self, App, "window-toggled", (self, win) => {
-          if (win.name !== CLIPBOARD_WINDOW_NAME) return;
+          if (win.name !== self.name) return;
+          if (win.visible) {
+            App.toggle_window(BG_BLUR_WINDOW_NAME);
+          }
+
           const out = exec("cliphist list -t");
           const split = out.split("\n");
           const items = split.map((v) => {
@@ -63,7 +67,9 @@ export default function Clipboard(gdkmonitor: Gdk.Monitor) {
     >
       <box
         widthRequest={500}
-        cssClasses={cn("rounded-md border border-border bg-bg bg-gradient-to-br from-bg from-30% to-fg/10 shadow-[0_0_100px_0_rgb(var(--color-fg)/0.2)]")}
+        cssClasses={cn(
+          "rounded-md border border-border bg-bg bg-gradient-to-br from-bg from-30% to-fg/10 shadow-[0_0_100px_0_rgb(var(--color-fg)/0.2)]",
+        )}
         overflow={Gtk.Overflow.HIDDEN}
         vertical
       >
