@@ -104,7 +104,7 @@ function Media() {
   const mpris = Mpris.get_default();
 
   return (
-    <box cssClasses={[...barSectionClasses]}>
+    <box cssClasses={cn(barSectionClasses)}>
       {bind(mpris, "players").as((ps) => {
         const player = ps[0];
         const label = bind(player, "metadata").as(
