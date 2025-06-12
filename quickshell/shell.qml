@@ -1,19 +1,14 @@
-import Quickshell // for PanelWindow
-import QtQuick // for Text
+//@ pragma IconTheme Adwaita-Dalton
 
-PanelWindow {
-  anchors {
-    top: true
-    left: true
-    right: true
-  }
+import Quickshell
+import "widgets/bar"
+import "widgets/app-launcher"
+import "config"
 
-  implicitHeight: 30
+ShellRoot {
+    Bar {}
+    AppLauncher {}
 
-  Text {
-    // center the bar in its parent component (the window)
-    anchors.centerIn: parent
-
-    text: "well hello threre"
-  }
+    // Config
+    Keymaps {}
 }
