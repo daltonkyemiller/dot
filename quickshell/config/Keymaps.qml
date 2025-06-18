@@ -8,7 +8,28 @@ Scope {
     Shortcut {
         name: "toggle-app-launcher"
         onPressed: {
-            Visibilities.appLauncher = !Visibilities.appLauncher;
+            Visibilities.setPopupState(Visibilities.Popup.AppLauncher, p => !p);
+        }
+    }
+
+    Shortcut {
+        name: "toggle-left-drawer"
+        onPressed: {
+            Visibilities.setDrawerState(Visibilities.Drawer.Left, p => !p);
+        }
+    }
+
+    Shortcut {
+        name: "toggle-right-drawer"
+        onPressed: {
+            Visibilities.setDrawerState(Visibilities.Drawer.Right, p => !p);
+        }
+    }
+
+    Shortcut {
+        name: "toggle-recording-indicator"
+        onPressed: {
+            Visibilities.setIndicatorState(Visibilities.Indicator.Recording, p => !p);
         }
     }
 }

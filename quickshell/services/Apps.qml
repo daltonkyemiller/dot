@@ -21,9 +21,10 @@ Singleton {
     }
 
     Process {
+        running: false
         id: launchProcess
         property DesktopEntry app
 
-        command: ["gtk-launch", `${app.id}.desktop`]
+        command: ["gtk-launch", `${app?.id}.desktop`]
     }
 }

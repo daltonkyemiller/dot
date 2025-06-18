@@ -4,8 +4,8 @@ import "../config" as Config
 
 Item {
     id: root
-    implicitHeight: Config.Theme.style.iconSize
-    implicitWidth: Config.Theme.style.iconSize
+    implicitHeight: Config.Theme.style.iconSizes.md
+    implicitWidth: Config.Theme.style.iconSizes.md
     property alias icon: btn.icon
     property alias pressed: btn.pressed
     signal clicked

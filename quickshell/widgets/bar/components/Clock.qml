@@ -12,7 +12,7 @@ Item {
     implicitHeight: childrenRect.height
 
     Components.StyledText {
-        text: root.time
+        text: root.time || "Loading..."
     }
 
     Process {

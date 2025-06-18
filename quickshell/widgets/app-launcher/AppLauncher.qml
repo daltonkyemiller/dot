@@ -5,145 +5,256 @@ import QtQuick.Controls
 import QtQuick.Window
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import Quickshell.Widgets
 
 import "../../config" as Config
 import "../../components" as UI
 import "../../services" as Services
 
-PanelWindow {
-    id: root
+LazyLoader {
+    activeAsync: Services.Visibilities.popups[Services.Visibilities.Popup.AppLauncher]
 
-    property list<DesktopEntry> apps: Services.Apps.fuzzySearch(input.text)
-    property int selectedIndex: 0
+    PanelWindow {
+        id: root
 
-    WlrLayershell.namespace: "dkm_blur"
-    WlrLayershell.layer: WlrLayer.Overlay
+        property var apps: Services.Apps.fuzzySearch(input.text).slice(0, 15)
+        property int selectedIndex: 0
 
-    color: "transparent"
+        WlrLayershell.namespace: "dkm_blur_ignorealpha"
+        WlrLayershell.layer: WlrLayer.Overlay
+        // HyprlandWindow.opacity: 0.9
 
-    anchors {
-        top: true
-        left: true
-        right: true
-        bottom: true
-    }
-    exclusionMode: ExclusionMode.Ignore
+        color: "transparent"
 
-    visible: Services.Visibilities.appLauncher
+        anchors {
+            top: true
+            left: true
+            right: true
+            bottom: true
+        }
+        exclusionMode: ExclusionMode.Ignore
 
-    onVisibleChanged: {
-        if (visible) {
-            input.focus = true;
-            input.text = "";
-            root.selectedIndex = 0;
-            enter_animation.start();
-        } else {}
-    }
-    focusable: true
+        visible: Services.Visibilities.popups[Services.Visibilities.Popup.AppLauncher]
 
-    ClippingRectangle {
-        id: launcher_content
-
-        ParallelAnimation {
-            id: enter_animation
-            NumberAnimation {
-                target: launcher_content
-                property: "scale"
-                from: 0.5
-                to: 1
-                duration: 300
-                easing.type: Easing.InOutCirc
-            }
-
-            NumberAnimation {
-                target: launcher_content
-                property: "opacity"
-                from: 0
-                to: 1
-                duration: 300
-                easing.type: Easing.InOutSine
+        Connections {
+            target: Services.Visibilities
+            function onPopupStateChanged(name, value) {
+                if (name !== Services.Visibilities.Popup.AppLauncher) {
+                    return;
+                }
+                if (value) {
+                    return;
+                }
+                exitAnimation.start();
             }
         }
-        opacity: 0
+        focusable: true
 
-        implicitHeight: 600
-        implicitWidth: 500
-        border.color: Config.Theme.colors.border
-        border.width: Config.Theme.style.borderWidth
-        anchors.centerIn: parent
-        color: Config.Theme.colors.bg
-        clip: true
-        radius: Config.Theme.style.radius.md
+        ClippingRectangle {
+            id: launcher_content
+            anchors.centerIn: parent
 
-        Item {
-            implicitHeight: 50
+            ParallelAnimation {
+                id: enterAnimation
+                running: true
+
+                NumberAnimation {
+                    target: launcher_content
+                    property: "scale"
+                    from: 0.5
+                    to: 1
+                    duration: 500
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Config.Animation.anim.curves.standard
+                }
+
+                NumberAnimation {
+                    target: launcher_content
+                    property: "anchors.verticalCenterOffset"
+                    from: 200
+                    to: 0
+                    duration: 500
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Config.Animation.anim.curves.standard
+                }
+
+                NumberAnimation {
+                    target: launcher_content
+                    property: "opacity"
+                    from: 0
+                    to: 1
+                    duration: 300
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Config.Animation.anim.curves.standard
+                }
+            }
+
+            ParallelAnimation {
+                id: exitAnimation
+                NumberAnimation {
+                    target: launcher_content
+                    property: "scale"
+                    from: 1
+                    to: 0.5
+                    duration: 200
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Config.Animation.anim.curves.standard
+                }
+
+                NumberAnimation {
+                    target: launcher_content
+                    property: "opacity"
+                    from: 1
+                    to: 0
+                    duration: 150
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Config.Animation.anim.curves.standard
+                }
+
+                onFinished: {
+                    root.visible = false;
+                }
+            }
+            opacity: 0
+
+            implicitHeight: 600
             implicitWidth: 500
-            UI.StyledTextInput {
-                id: input
-                anchors.verticalCenter: parent.verticalCenter
-                x: 10
-                width: parent.width
-                activeFocusOnTab: true
-                Keys.onPressed: event => {
-                    if (event.key === Qt.Key_Up) {
-                        if (root.selectedIndex === 0) {
-                            root.selectedIndex = root.apps.length - 1;
-                            return;
-                        }
-                        root.selectedIndex--;
-                    }
-                    if (event.key === Qt.Key_Down) {
-                        if (root.selectedIndex === root.apps.length - 1) {
-                            root.selectedIndex = 0;
-                            return;
-                        }
-                        root.selectedIndex++;
-                    }
+            border.color: Config.Theme.colors.border
+            border.width: Config.Theme.style.borderWidth
+            color: Config.Theme.colors.bg
+            clip: true
+            radius: Config.Theme.style.radius.md
 
-                    if (event.key === Qt.Key_Return) {
-                        const app = root.apps[root.selectedIndex];
-                        Services.Apps.launch(root.apps[root.selectedIndex]);
-                        Services.Visibilities.appLauncher = false;
-                    }
-                    if (event.key === Qt.Key_Escape) {
-                        Services.Visibilities.appLauncher = false;
+            Item {
+                implicitHeight: 50
+                implicitWidth: 500
+                UI.StyledTextInput {
+                    id: input
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: 10
+                    width: parent.width
+                    activeFocusOnTab: true
+                    focus: true
+                    Keys.onPressed: event => {
+                        if (event.key === Qt.Key_Up) {
+                            if (root.selectedIndex === 0) {
+                                root.selectedIndex = root.apps.length - 1;
+                                return;
+                            }
+                            root.selectedIndex--;
+                        }
+                        if (event.key === Qt.Key_Down) {
+                            if (root.selectedIndex === root.apps.length - 1) {
+                                root.selectedIndex = 0;
+                                return;
+                            }
+                            root.selectedIndex++;
+                        }
+
+                        if (event.key === Qt.Key_Return) {
+                            const app = root.apps[root.selectedIndex];
+                            Services.Apps.launch(root.apps[root.selectedIndex]);
+                            Services.Visibilities.setPopupState(Services.Visibilities.Popup.AppLauncher, false);
+                        }
+
+                        if (event.key === Qt.Key_Escape) {
+                            Services.Visibilities.setPopupState(Services.Visibilities.Popup.AppLauncher, false);
+                        }
                     }
                 }
             }
-        }
 
-        Rectangle {
-            y: input.parent.height
-            height: Config.Theme.style.borderWidth
-            width: parent.width
-            color: Config.Theme.colors.border
-        }
-
-        ListView {
-            id: app_list
-            y: input.parent.height
-            implicitWidth: parent.width
-            implicitHeight: parent.height - input.parent.height
-            clip: true
-            model: root.apps
-            flickableDirection: Flickable.VerticalFlick
-            boundsBehavior: Flickable.StopAtBounds
-            currentIndex: root.selectedIndex
-            highlightFollowsCurrentItem: false
-            onCurrentIndexChanged: {
-                app_list.positionViewAtIndex(root.selectedIndex, ListView.Center);
-                // app_list.contentY =
+            Rectangle {
+                y: input.parent.height
+                height: Config.Theme.style.borderWidth
+                width: parent.width
+                color: Config.Theme.colors.border
             }
 
-            // Add a vertical scrollbar
-            ScrollBar.vertical: ScrollBar {
-                active: true // Always show scrollbar when content overflows
-                policy: ScrollBar.AsNeeded
-            }
+            ListView {
+                id: app_list
+                y: input.parent.height
+                implicitWidth: parent.width
+                implicitHeight: parent.height - input.parent.height
+                clip: true
+                model: ScriptModel {
+                    values: root.apps
+                }
+                orientation: ListView.Vertical
+                flickableDirection: Flickable.VerticalFlick
+                boundsBehavior: Flickable.StopAtBounds
+                currentIndex: root.selectedIndex
+                highlightFollowsCurrentItem: false
+                onCurrentIndexChanged: {
+                    app_list.positionViewAtIndex(root.selectedIndex, ListView.Center);
+                }
 
-            delegate: AppItem {
-                selected: root.selectedIndex === index
+                add: Transition {
+                    SequentialAnimation {
+                        PropertyAction {
+                            property: "opacity"
+                            value: 0
+                        }
+
+                        ParallelAnimation {
+                            // PauseAnimation {}
+                            NumberAnimation {
+                                property: "opacity"
+                                from: 0
+                                to: 1
+                                duration: 200
+                            }
+                            NumberAnimation {
+                                property: "scale"
+                                from: 0.5
+                                to: 1
+                                duration: 200
+
+                                easing.type: Easing.BezierSpline
+                                easing.bezierCurve: Config.Animation.anim.curves.standard
+                            }
+                        }
+                    }
+                }
+                remove: Transition {
+                    NumberAnimation {
+                        property: "opacity"
+                        from: 1
+                        to: 0
+                        duration: 200
+                    }
+                }
+
+                displaced: Transition {
+                    PropertyAction {
+                        properties: "scale, opacity"
+                        value: 1
+                    }
+                    NumberAnimation {
+                        property: "y"
+                        duration: 300
+
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: Config.Animation.anim.curves.standard
+                    }
+                }
+                // moveDisplaced: Transition {
+                //     NumberAnimation {
+                //         property: "y"
+                //         duration: 300
+                //     }
+                // }
+
+                // Add a vertical scrollbar
+                ScrollBar.vertical: ScrollBar {
+                    active: true // Always show scrollbar when content overflows
+                    policy: ScrollBar.AsNeeded
+                }
+
+                delegate: AppItem {
+                    selected: root.selectedIndex === index
+                }
             }
         }
     }

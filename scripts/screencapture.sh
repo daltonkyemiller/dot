@@ -49,13 +49,13 @@ screen-shot)
   ;;
 record-screen)
   grain_shader_off
-  wf-recorder -f "$VID" -o $(get_active_monitor) >/dev/null 2>&1 && grain_shader_on && notify_with_open_folder "Successfully recorded screen" "vid"
+  wf-recorder -f "$VID" -o $(get_active_monitor) -c libvpx-vp9 --pixel-format yuv420p -F "eq=brightness=0.12:contrast=1.1" >/dev/null 2>&1 && grain_shader_on && notify_with_open_folder "Successfully recorded screen" "vid"
   ;;
 select-record-screen)
   grain_shader_off
   region=$(slurp -d)
   if [ $? -eq 0 ]; then
-    wf-recorder -g "$region" -f "$VID" -o $(get_active_monitor) >/dev/null 2>&1 && grain_shader_on && notify_with_open_folder "Successfully recorded screen" "vid"
+    wf-recorder -g "$region" -f "$VID" -o $(get_active_monitor) -c libvpx-vp9 --pixel-format yuv420p -F "eq=brightness=0.12:contrast=1.1" >/dev/null 2>&1 && grain_shader_on && notify_with_open_folder "Successfully recorded screen" "vid"
   fi
   ;;
 esac

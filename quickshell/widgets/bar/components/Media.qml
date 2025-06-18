@@ -6,34 +6,38 @@ import Quickshell.Services.Mpris as MpriService
 import Quickshell.Widgets
 import "../../../config" as Config
 import "../../../components" as UI
+import "../../../services" as Services
 
 Row {
     id: root
     spacing: 10
 
-    property MpriService.MprisPlayer mainPlayer: MpriService.Mpris.players.values[0]
+    required property PanelWindow window
 
     ClippingRectangle {
         width: 25
         height: 25
         radius: Config.Theme.style.radius.sm
         anchors.verticalCenter: parent.verticalCenter
+        visible: !!Services.Media.title && Services.Media.mainPlayer?.trackArtUrl
         Image {
             id: art
             anchors.fill: parent
             fillMode: Image.PreserveAspectCrop
-            source: root.mainPlayer.trackArtUrl
+            source: Services.Media.mainPlayer?.trackArtUrl || ""
         }
     }
 
     UI.StyledText {
+        id: title
         anchors.verticalCenter: parent.verticalCenter
-        text: root.mainPlayer.trackArtist + " - " + root.mainPlayer.trackTitle
+        text: Services.Media.title || "Nothing playing"
     }
 
     UI.AppIcon {
+        visible: !!Services.Media.title
         anchors.verticalCenter: parent.verticalCenter
-        icon.name: root.mainPlayer.isPlaying ? "media-playback-pause" : "media-playback-start"
-        onClicked: root.mainPlayer.togglePlaying()
+        icon.name: Services.Media.mainPlayer?.isPlaying ? "media-playback-pause" : "media-playback-start"
+        onClicked: Services.Media.mainPlayer.togglePlaying()
     }
 }
