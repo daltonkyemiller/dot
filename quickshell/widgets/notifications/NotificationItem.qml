@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import Quickshell
+import Quickshell.Services.Notifications
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -16,7 +17,7 @@ Item {
     required property bool isActivated
     property var bg: Qt.rgba(Config.Theme.colors.bg.r, Config.Theme.colors.bg.g, Config.Theme.colors.bg.b, 1)
 
-    implicitHeight: Config.Notification.height
+    implicitHeight: childrenRect.height
     implicitWidth: parent.width
 
     z: 100 - index
@@ -33,7 +34,7 @@ Item {
     }
 
     Rectangle {
-        implicitHeight: parent.height
+        implicitHeight: childrenRect.height
         implicitWidth: parent.width
         radius: Config.Theme.style.radius.md
 
@@ -43,11 +44,11 @@ Item {
 
         ColumnLayout {
             width: parent.width
-            height: parent.height
             RowLayout {
                 Layout.preferredHeight: 30
                 Layout.margins: 10
-                implicitWidth: parent.width
+                Layout.fillWidth: true
+                // implicitWidth: parent.width
                 UI.StyledText {
                     id: title
                     Layout.fillWidth: true
@@ -62,7 +63,7 @@ Item {
                     implicitWidth: Config.Theme.style.iconSizes.xs
                     implicitHeight: Config.Theme.style.iconSizes.xs
                     onClicked: {
-                        root.modelData.remove()
+                        root.modelData.remove();
                     }
 
                     //close icon
@@ -70,15 +71,48 @@ Item {
                 }
             }
 
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: Config.Theme.style.borderWidth
+                color: Config.Theme.colors.border
+            }
+
             UI.StyledText {
                 id: summary
                 Layout.fillWidth: true
-                Layout.fillHeight: true
 
                 padding: 10
                 text: root.modelData.summary
                 elide: Text.ElideRight
                 wrapMode: Text.WordWrap
+            }
+
+            UI.StyledText {
+                id: body
+                Layout.fillWidth: true
+                visible: root.modelData.body.length > 0
+
+                padding: 11
+                text: root.modelData.body
+                elide: Text.ElideRight
+                wrapMode: Text.WordWrap
+            }
+
+            ListView {
+                Layout.fillWidth: true
+                Layout.preferredHeight: root.modelData.notification.actions.length ? 40 : 0
+                Layout.margins: root.modelData.notification.actions.length ? 10 : 0
+
+                orientation: ListView.Horizontal
+                model: ScriptModel {
+                    values: root.modelData.notification.actions
+                }
+                delegate: Button {
+                    required property NotificationAction modelData
+                    padding: 10
+                    text: modelData.text
+                    onClicked: modelData.invoke()
+                }
             }
         }
     }

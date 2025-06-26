@@ -1,9 +1,9 @@
 pragma ComponentBehavior: Bound
 
-import "../../config" as Config
-import "../../services" as Services
 import "components" as BarComponents
 import "../../components" as UI
+import "../../config" as Config
+import "../../services" as Services
 
 import Quickshell
 import Quickshell.Widgets
@@ -26,6 +26,7 @@ PanelWindow {
         left: true
         right: true
     }
+
     margins.top: 5
 
     component DrawerTrigger: Rectangle {
@@ -66,9 +67,16 @@ PanelWindow {
     }
 
     BarComponents.BarSection {
+        id: activeWindow
+        implicitHeight: parent.height
+        implicitWidth: childrenRect.width
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: leftDrawerTrigger.right
+        BarComponents.ActiveWindow {}
+    }
+
+    BarComponents.BarSection {
         id: media
-        bottomRightRadius: Services.Visibilities.drawers.media ? 0 : Config.Theme.style.radius.md
-        bottomLeftRadius: Services.Visibilities.drawers.media ? 0 : Config.Theme.style.radius.md
         implicitHeight: parent.height
         implicitWidth: childrenRect.width
         anchors.horizontalCenter: parent.horizontalCenter

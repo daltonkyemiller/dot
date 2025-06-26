@@ -27,7 +27,7 @@ void main() {
 
     vec3 blend = base.rgb + grain * 0.3;
 
-    float grainIntensity = 0.18;
+    float grainIntensity = 0.15;
     if(wl_output == 1) {
         grainIntensity = 0.13;
     }

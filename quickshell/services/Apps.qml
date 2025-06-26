@@ -11,8 +11,7 @@ Singleton {
             }))
 
     function fuzzySearch(text) {
-        const foo =  applications.filter(a => a.name.toLowerCase().includes(text.toLowerCase()))
-        return foo
+        return applications.filter(a => a.name.toLowerCase().includes(text.toLowerCase()))
     }
 
     function launch(app: DesktopEntry) {

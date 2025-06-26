@@ -17,6 +17,7 @@ trap 'echo -e "\nScript terminated"; exit 0' SIGINT
 # Run the command in a loop
 while true; do
     EXPIRE_TIME=$(generate_random_expire_time)
-    notify-send "$(fakedata sentence -l "$(generate_line_numbers)")" --app-name "$(fakedata industry -l 1)" --expire-time "$EXPIRE_TIME"
+    notify-send --app-name "$(fakedata industry -l 1)" --expire-time "$EXPIRE_TIME" --action "Dismiss" "$(fakedata sentence -l 1)" "$(fakedata sentence -l "$(generate_line_numbers)")"
+
     sleep $(generate_random_sleep_time)
 done

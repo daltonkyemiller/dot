@@ -30,7 +30,9 @@ Row {
 
     UI.StyledText {
         id: title
+        width: Math.min(title.implicitWidth, 400)
         anchors.verticalCenter: parent.verticalCenter
+        elide: Text.ElideRight
         text: Services.Media.title || "Nothing playing"
     }
 

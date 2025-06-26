@@ -22,26 +22,40 @@ PanelWindow {
 
     Item {
         id: content
-        property var notifications: [...Services.Notifications.notifications.map(notif => notif)].reverse()        
+        property var notifications: [...Services.Notifications.notifications.map(notif => notif)].reverse()
 
-        
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: Config.BarConfig.height + 10
         anchors.rightMargin: 10
-        implicitWidth: 400
+        implicitWidth: childrenRect.width
         implicitHeight: notifications.length > 0 ? childrenRect.height : 0
         clip: true
-        visible: notifications.length > 0
+        // visible: notifications.length > 0
 
         ListView {
             id: list
             interactive: false
             clip: true
-            spacing: list.isActivated ? 10 : -(Config.Notification.height * 0.8)
+            spacing: list.isActivated ? 10 : -120
 
-            implicitWidth: parent.width
-            implicitHeight: childrenRect.height
+            implicitWidth: Config.Notification.width
+            onCountChanged: {
+
+                // get QQuickItem which is a root element which hosts delegate items
+                var root = list.visibleChildren[0];
+                var listViewHeight = 0;
+                // var listViewWidth = 0;
+
+                // iterate over each delegate item to get their sizes
+                for (var i = 0; i < root.visibleChildren.length; i++) {
+                    listViewHeight += root.visibleChildren[i].height;
+                    // listViewWidth = Math.max(listViewWidth, root.visibleChildren[i].width);
+                }
+
+                list.height = listViewHeight;
+                // list.width = listViewWidth;
+            }
 
             model: ScriptModel {
                 values: content.notifications

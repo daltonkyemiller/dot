@@ -52,7 +52,7 @@ LazyLoader {
         focusable: true
 
         ClippingRectangle {
-            id: launcher_content
+            id: launcherContent
             anchors.centerIn: parent
 
             ParallelAnimation {
@@ -60,7 +60,7 @@ LazyLoader {
                 running: true
 
                 NumberAnimation {
-                    target: launcher_content
+                    target: launcherContent
                     property: "scale"
                     from: 0.5
                     to: 1
@@ -70,7 +70,7 @@ LazyLoader {
                 }
 
                 NumberAnimation {
-                    target: launcher_content
+                    target: launcherContent
                     property: "anchors.verticalCenterOffset"
                     from: 200
                     to: 0
@@ -80,7 +80,7 @@ LazyLoader {
                 }
 
                 NumberAnimation {
-                    target: launcher_content
+                    target: launcherContent
                     property: "opacity"
                     from: 0
                     to: 1
@@ -93,7 +93,7 @@ LazyLoader {
             ParallelAnimation {
                 id: exitAnimation
                 NumberAnimation {
-                    target: launcher_content
+                    target: launcherContent
                     property: "scale"
                     from: 1
                     to: 0.5
@@ -103,7 +103,7 @@ LazyLoader {
                 }
 
                 NumberAnimation {
-                    target: launcher_content
+                    target: launcherContent
                     property: "opacity"
                     from: 1
                     to: 0
@@ -118,17 +118,33 @@ LazyLoader {
             }
             opacity: 0
 
-            implicitHeight: 600
+            implicitHeight: !input.text ? 50 : 500
             implicitWidth: 500
             border.color: Config.Theme.colors.border
             border.width: Config.Theme.style.borderWidth
             color: Config.Theme.colors.bg
             clip: true
             radius: Config.Theme.style.radius.md
+            Behavior on implicitHeight {
+                NumberAnimation {
+                    duration: 300
+                    easing.type: Easing.BezierSpline
+                    easing.bezierCurve: Config.Animation.anim.curves.standard
+                }
+            }
 
             Item {
+                id: inputContainer
                 implicitHeight: 50
                 implicitWidth: 500
+                UI.StyledText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    leftPadding: 10
+                    visible: !input.text
+                    text: "Search..."
+                    color: Config.Theme.colors.muted
+                }
+
                 UI.StyledTextInput {
                     id: input
                     anchors.verticalCenter: parent.verticalCenter
@@ -181,6 +197,8 @@ LazyLoader {
                 model: ScriptModel {
                     values: root.apps
                 }
+
+                // cacheBuffer: QsWindow.window?.screen.height ?? 0
                 orientation: ListView.Vertical
                 flickableDirection: Flickable.VerticalFlick
                 boundsBehavior: Flickable.StopAtBounds
@@ -239,12 +257,6 @@ LazyLoader {
                         easing.bezierCurve: Config.Animation.anim.curves.standard
                     }
                 }
-                // moveDisplaced: Transition {
-                //     NumberAnimation {
-                //         property: "y"
-                //         duration: 300
-                //     }
-                // }
 
                 // Add a vertical scrollbar
                 ScrollBar.vertical: ScrollBar {

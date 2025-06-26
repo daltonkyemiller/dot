@@ -6,5 +6,5 @@ import Quickshell
 Singleton {
     property int defaultTimeoutMs: 5000
     property int defaultUrgentTimeoutMs: defaultTimeoutMs * 2
-    property int height: 100
+    property int width: 400
 }
