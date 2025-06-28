@@ -1,3 +1,6 @@
 [submodule "nvim"]
 	path = nvim
 	url = git@github.com:daltonkyemiller/nvim-config.git
+[submodule "shell"]
+	path = shell
+	url = git@github.com:daltonkyemiller/shell.git
