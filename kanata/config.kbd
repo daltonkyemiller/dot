@@ -1,5 +1,6 @@
 (defcfg
   process-unmapped-keys yes
+  concurrent-tap-hold yes
 
   macos-dev-names-exclude (
     "Corne"
@@ -12,8 +13,11 @@
 )
 
 (defsrc
-  f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
-  caps a   s   d   f  h  j   k   l   ;
+  esc f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
+  tab  q   w   e   r   t   y   u   i   o   p   [   ] \
+  caps a   s   d   f   h   j   k   l   ; enter
+  lsft z   x   c   v   b   n   m   ,   .  / rsft
+  fn lctl lalt lmet spc rmet ralt
 )
 
 (defvar
@@ -33,29 +37,84 @@
   )
 )
 
-;;(defalias
-;; fnl (tap-hold 200 200 fn (layer-toggle fn))
-;;)
+
+(defalias
+  mwu (mwheel-up 50 120)
+  mwd (mwheel-down 50 120)
+  mwl (mwheel-left 50 120)
+  mwr (mwheel-right 50 120)
+
+  ms↑ (movemouse-up 2 1)
+  ms← (movemouse-left 2 1)
+  ms↓ (movemouse-down 2 1)
+  ms→ (movemouse-right 2 1)
+
+  ma↑ (movemouse-accel-up 1 1000 1 5)
+  ma← (movemouse-accel-left 1 1000 1 5) ma↓ (movemouse-accel-down 1 1000 1 5)
+  ma→ (movemouse-accel-right 1 1000 1 5)
+
+  sm (setmouse 32228 32228)
+
+  clk (tap-dance 300 (
+      mltp
+      mrtp
+    )
+  )
+
+  base (layer-switch base)
+
+  fst (movemouse-speed 300)
+)
+
 
 (deflayer base
-  f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
-  @cap @a  @s  @d  @f h @j  @k  @l  @;
+  esc f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
+  tab  q   w   e   r   t   y   u   i   o   p   [   ] \
+  @cap @a  @s  @d  @f h @j  @k  @l  @; enter
+  lsft z x c v b n m  ,  .  / rsft
+  fn lctl lalt lmet spc rmet ralt
+)
+
+(platform (macos)
+  (defalias
+    ctrl-c-switch (switch
+      ((input virtual com.apple.Safari)) 2 break
+      () 1 break
+    )
+  )
+)
+
+(deflayer mouse
+  @base _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  @base _ _ _ _ @ms← @ms↓ @ms↑ @ms→ _ @clk
+  @fst _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
 )
 
 (deflayer arrows
+  _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ left down up right _ _
   _ _ _ _ _ _ _ _ _ _ _ _
-  _ _ _ _ _ left down up right _
+  _ _ _ _ _ _ _
 )
 
 (deflayer fn
-  brdn brup  _ _ _ _ prev pp next mute vold volu
-  _ _ _ _ _ _ _ _ _ _
+  _ brdn brup  _ _ _ _ prev pp next mute vold volu
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _
 )
 
 
 (deflayer nomods
-  f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
-  esc a s d f h j k l ;
+  esc f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
+  tab  q   w   e   r   t   y   u   i   o   p   [   ] \
+  esc a s d f h j k l ; enter
+  lsft z x c v b n m  ,  .  / rsft
+  fn lctl lalt lmet spc rmet ralt
 )
 
 (deffakekeys
@@ -68,7 +127,10 @@
     (on-idle-fakekey to-base tap 20)
   )
 
-  cap (tap-hold $tap-time $hold-time esc (layer-toggle arrows))
+  cap (tap-dance 300 (
+    (tap-hold $tap-time $hold-time esc (layer-toggle arrows))
+    (layer-switch mouse)
+  ))
   a (tap-hold-release-keys $tap-time $hold-time (multi a @tap) lmet $left-hand-keys)
   s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lalt $left-hand-keys)
   d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lctl $left-hand-keys)
@@ -77,4 +139,19 @@
   k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) rctl $right-hand-keys)
   l (tap-hold-release-keys $tap-time $hold-time (multi l @tap) ralt $right-hand-keys)
   ; (tap-hold-release-keys $tap-time $hold-time (multi ; @tap) rmet $right-hand-keys)
+)
+
+;;
+;; MacOS specific keymaps
+;;
+
+(platform (macos)
+  (defvirtualkeys
+    com.apple.Safari nop0
+    org.mozilla.firefox nop0
+    com.github.wez.wezterm nop0
+
+    com.apple.keylayout.ABC nop0
+    com.apple.inputmethod.Korean.2SetKorean nop0
+  )
 )
