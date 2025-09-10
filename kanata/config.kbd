@@ -12,6 +12,10 @@
 
 )
 
+(deflocalkeys-linux
+  fn 463
+)
+
 (defsrc
   esc f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
   grv   1   2   3   4   5   6   7   8   9   0   -   = del
@@ -67,23 +71,36 @@
   fst (movemouse-speed 300)
 )
 
-(deflayer function
-  esc f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
-  grv   1   2   3   4   5   6   7   8   9   0   -   = del
-  tab  q   w   e   r   t   y   u   i   o   p   [   ] \
-  @cap @a  @s  @d  @f h @j  @k  @l  @; enter
-  lsft z x c v b n m  ,  .  / rsft
-  fn (layer-toggle control) lalt lmet spc rmet ralt
+  (deflayer function
+    esc f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
+    grv   1   2   3   4   5   6   7   8   9   0   -   = del
+    tab  q   w   e   r   t   y   u   i   o   p   [   ] \
+    @cap @a  @s  @d  @f h @j  @k  @l  @; enter
+    lsft z x c v b n m  ,  .  / rsft
+    fn lctl lalt lmet spc rmet ralt
+  )
+
+
+(platform (linux)
+  (deflayer base
+    esc  🔅  🔆 nop0 nop1 nop2 nop3 ◀◀  ▶⏸   ▶▶   🔇   🔉   🔊
+    grv   1   2   3   4   5   6   7   8   9   0   -   = del
+    tab  q   w   e   r   t   y   u   i   o   p   [   ] \
+    @cap @a  @s  @d  @f h @j  @k  @l  @; enter
+    lsft z x c v b n m  ,  .  / rsft
+    (layer-toggle function) lctl lalt lmet spc rmet ralt
+  )
 )
 
-
-(deflayer base
-  esc  🔅  🔆 nop0 nop1 nop2 nop3 ◀◀  ▶⏸   ▶▶   🔇   🔉   🔊
-  grv   1   2   3   4   5   6   7   8   9   0   -   = del
-  tab  q   w   e   r   t   y   u   i   o   p   [   ] \
-  @cap @a  @s  @d  @f h @j  @k  @l  @; enter
-  lsft z x c v b n m  ,  .  / rsft
-  (layer-toggle function) (layer-toggle control) lalt lmet spc rmet ralt
+(platform (macos)
+  (deflayer base
+    esc  🔅  🔆 nop0 nop1 nop2 nop3 ◀◀  ▶⏸   ▶▶   🔇   🔉   🔊
+    grv   1   2   3   4   5   6   7   8   9   0   -   = del
+    tab  q   w   e   r   t   y   u   i   o   p   [   ] \
+    @cap @a  @s  @d  @f h @j  @k  @l  @; enter
+    lsft z x c v b n m  ,  .  / rsft
+    (layer-toggle function) (layer-toggle control) lalt lmet spc rmet ralt
+  )
 )
 
 (platform (macos)
@@ -128,6 +145,7 @@
     )
   )
 )
+
 
 
 (platform (macos)
@@ -198,6 +216,7 @@
     k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) rctl $right-hand-keys)
     l (tap-hold-release-keys $tap-time $hold-time (multi l @tap) ralt $right-hand-keys)
     ; (tap-hold-release-keys $tap-time $hold-time (multi ; @tap) rmet $right-hand-keys)
+
   )
 )
 
