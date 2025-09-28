@@ -112,6 +112,7 @@
     app-ctrl-a (switch
       ((input virtual app.zen-browser.zen)) M-a break
       ((input virtual com.tinyspeck.slackmacgap)) M-a break
+      ((input virtual com.figma.Desktop)) M-a break
       () C-a break
     )
     app-ctrl-w (switch
@@ -121,21 +122,29 @@
     app-ctrl-c (switch
       ((input virtual app.zen-browser.zen)) M-c break
       ((input virtual com.tinyspeck.slackmacgap)) M-c break
+      ((input virtual com.figma.Desktop)) M-c break
       () C-c break
     )
     app-ctrl-v (switch
       ((input virtual app.zen-browser.zen)) M-v break
       ((input virtual com.tinyspeck.slackmacgap)) M-v break
+      ((input virtual com.figma.Desktop)) M-v break
       () C-v break
     )
     app-ctrl-z (switch
       ((input virtual app.zen-browser.zen)) M-z break
       ((input virtual com.tinyspeck.slackmacgap)) M-z break
+      ((input virtual com.figma.Desktop)) M-z break
       () C-z break
     )
     app-ctrl-x (switch
       ((input virtual app.zen-browser.zen)) M-x break
       ((input virtual com.tinyspeck.slackmacgap)) M-x break
+      ((input virtual com.figma.Desktop)) M-x break
+      () C-x break
+    )
+    app-ctrl-r (switch
+      ((input virtual app.zen-browser.zen)) M-r break
       () C-x break
     )
     app-ctrl-enter (switch
@@ -152,10 +161,10 @@
   (deflayer control
     _ _ _ _ _ _ _ _ _ _ _ _ _
     C-grv C-1 C-2 C-3 C-4 C-5 C-6 C-7 C-8 C-9 C-0 C-- C-= C-del
-    C-tab C-q @app-ctrl-w C-e C-r @app-ctrl-t C-y C-u C-i C-o C-p C-[ C-] C-\
+    C-tab C-q @app-ctrl-w C-e @app-ctrl-r @app-ctrl-t C-y C-u C-i C-o C-p C-[ C-] C-\
     _ @app-ctrl-a C-s C-d C-f C-h _ _ C-l C-; @app-ctrl-enter
     _ @app-ctrl-z @app-ctrl-x @app-ctrl-c @app-ctrl-v C-b C-n C-m C-, C-. C-/ _
-    _ _ _ _ _ _ _
+    _ _ _ _ C-spc _ _
   )
 )
 
@@ -254,6 +263,7 @@
     to-base (layer-switch base)
     com.tinyspeck.slackmacgap nop0
     app.zen-browser.zen nop0
+    com.figma.Desktop nop0
 
     com.apple.keylayout.UnicodeHexInput nop0
   )
