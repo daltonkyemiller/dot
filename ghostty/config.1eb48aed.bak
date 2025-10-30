@@ -1,0 +1,49 @@
+# Font configuration
+font-family = "Berkeley Mono"
+font-size = 13
+
+# Clipboard configuration
+clipboard-read = allow
+clipboard-write = allow
+
+font-codepoint-map = U+f101-U+f25c=nonicons
+
+# Font features and modifications
+font-feature = -liga
+adjust-cell-height = 25%
+# adjust-cell-height = 40%
+# adjust-cell-width = 10%
+
+# Cursor configuration
+cursor-style = block
+cursor-style-blink = false
+
+# Window configuration
+window-padding-x = 4
+window-padding-y = 4
+window-decoration = false
+
+# macOS specific
+macos-option-as-alt = true
+macos-titlebar-style = hidden
+
+# Background opacity
+background-opacity = 1.0
+
+# Shell integration
+# shell-integration = true
+# shell-integration-features = cursor,sudo,title
+
+# Clipboard
+clipboard-read = allow
+clipboard-write = allow
+
+# Theme
+theme = Kanagawa Dragon
+
+# Shaders
+custom-shader = ./shaders/cursor_blaze_tapered_themed.glsl
+# custom-shader = ./shaders/bloom025.glsl
+# custom-shader = ./shaders/tft.glsl
+# custom-shader = ./shaders/bettercrt.glsl
+# custom-shader = ./shaders/bloom025.glsl

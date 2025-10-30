@@ -1,6 +1,9 @@
+#version 300 es
 precision highp float;
 
-varying vec2 v_texcoord;
+in vec2 v_texcoord;
+out vec4 fragColor;
+
 uniform sampler2D tex;
 uniform int wl_output;
 
@@ -16,23 +19,20 @@ vec3 blendSoftLight(vec3 base, vec3 blend, float opacity) {
 	return (blendSoftLight(base, blend) * opacity + base * (1.0 - opacity));
 }
 
-float rand(vec2 co){ return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453); }
+float rand(vec2 co){ 
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453); 
+}
 
 void main() {
     vec2 tc = v_texcoord;
-
-    vec4 base = texture2D(tex, tc);
+    vec4 base = texture(tex, tc);
     
     float grain = rand(tc) - 0.5;
-
     vec3 blend = base.rgb + grain * 0.3;
-
     float grainIntensity = 0.15;
     if(wl_output == 1) {
         grainIntensity = 0.13;
     }
     vec3 result = blendSoftLight(base.rgb, vec3(grain), grainIntensity);
-
-
-    gl_FragColor = vec4(result, base.a);
+    fragColor = vec4(result, base.a);
 }
