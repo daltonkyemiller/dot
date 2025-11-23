@@ -43,6 +43,9 @@ theme = Kanagawa Dragon
 
 # Shaders
 custom-shader = ./shaders/cursor_blaze_tapered_themed.glsl
+# custom-shader = ./shaders/blaze_sparks_themed.glsl
+# custom-shader = ./shaders/shake.glsl
+# custom-shader = ./shaders/crt.glsl
 # custom-shader = ./shaders/bloom025.glsl
 # custom-shader = ./shaders/tft.glsl
 # custom-shader = ./shaders/bettercrt.glsl
