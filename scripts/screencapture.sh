@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 arg="$1"
 
@@ -30,25 +30,37 @@ notify_with_open_folder() {
 
 
 grain_shader_on() {
-  hyprshade on grain
+  /home/dalton/.local/bin/hyprshade on grain
 }
 
 grain_shader_off() {
-  hyprshade off
+  /home/dalton/.local/bin/hyprshade off
 }
 
 
 case "$arg" in
 select-shot)
   grain_shader_off
+  mkdir -p "${IMG_FOLDER}/annotated"
+  SATTY_OUTPUT="${IMG_FOLDER}/annotated/satty-$(date '+%Y%m%d-%H:%M:%S').png"
   region=$(slurp -d)
   if [ $? -eq 0 ]; then
-    grim -g "$region" - | tee "$IMG" | wl-copy && grain_shader_on && notify_with_open_folder "Successfully took screenshot" "img"
+    grim -g "$region" -t ppm - | satty --filename - --output-filename "$SATTY_OUTPUT"
+    if [ $? -eq 0 ]; then
+      wl-copy < "$SATTY_OUTPUT" && notify_with_open_folder "Successfully took screenshot" "img"
+    fi
   fi
+  grain_shader_on
   ;;
 screen-shot)
   grain_shader_off
-  grim - | tee "$IMG" | wl-copy && grain_shader_on && notify_with_open_folder "Successfully took screenshot" "img"
+  mkdir -p "${IMG_FOLDER}/annotated"
+  SATTY_OUTPUT="${IMG_FOLDER}/annotated/satty-$(date '+%Y%m%d-%H:%M:%S').png"
+  grim -t ppm - | satty --filename - --fullscreen --output-filename "$SATTY_OUTPUT"
+  if [ $? -eq 0 ]; then
+    wl-copy < "$SATTY_OUTPUT" && notify_with_open_folder "Successfully took screenshot" "img"
+  fi
+  grain_shader_on
   ;;
 record-screen)
   grain_shader_off
