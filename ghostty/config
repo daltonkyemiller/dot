@@ -51,3 +51,4 @@ custom-shader = ./shaders/cursor_blaze_tapered_themed.glsl
 # custom-shader = ./shaders/bettercrt.glsl
 # custom-shader = ./shaders/bloom025.glsl
 keybind = shift+enter=text:\x1b\r
+# keybind = ctrl+shift+j=write_screen_file:paste
