@@ -30,11 +30,11 @@ notify_with_open_folder() {
 
 
 grain_shader_on() {
-  /home/dalton/.local/bin/hyprshade on grain
+  hyprshade on grain
 }
 
 grain_shader_off() {
-  /home/dalton/.local/bin/hyprshade off
+  hyprshade off
 }
 
 
