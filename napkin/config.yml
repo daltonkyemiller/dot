@@ -1,0 +1,25 @@
+# Napkin Configuration
+# Edit this file to customize default settings.
+# Changes take effect on next app launch.
+
+stroke_size_preset: S
+font_size: 32
+sketchiness: null
+default_save_location: /home/dalton/Pictures/Screenshots/annotated
+auto_save_to_default: true
+close_after_save: true
+palette:
+- '#ef4444'
+- '#f97316'
+- '#eab308'
+- '#22c55e'
+- '#3b82f6'
+- '#8b5cf6'
+- '#ec4899'
+- '#000000'
+- '#ffffff'
+default_save_format: png
+copy_to_clipboard_on_save: true
+close_after_copy: true
+select_mode_after_drawing: true
+open_folder_after_save: false

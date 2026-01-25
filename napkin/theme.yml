@@ -1,0 +1,15 @@
+# Napkin Theme Configuration
+# 
+# mode: "light", "dark", or "system"
+# custom_css: Custom CSS styles (use | for multiline)
+# 
+# Example with custom CSS:
+# mode: dark
+# custom_css: |
+#   :root {
+#     --background: #1a1a2e;
+#     --foreground: #eaeaea;
+#   }
+
+mode: dark
+custom_css: null

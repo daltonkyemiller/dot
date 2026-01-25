@@ -1,0 +1,40 @@
+# Napkin Icon Configuration
+# 
+# Map semantic icon names to custom SVG file paths.
+# Use null or remove the line to reset to the default (Lucide) icon.
+# 
+# Example:
+# arrow-right: /path/to/custom-arrow.svg
+# trash: ~/icons/delete.svg
+# check: null  # uses default
+
+pen: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/communication/18px_pen-2.svg
+text-highlight: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/editing/18px_text-highlight-2.svg
+circle-check: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/ui-layout/18px_circle-check-2.svg
+gear: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/ui-layout/18px_gear-3.svg
+trash: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/ui-layout/18px_trash-2.svg
+undo: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/arrows/18px_undo.svg
+shape-square: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/design-development/18px_shape-square.svg
+redo: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/arrows/18px_redo.svg
+shape-circle: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/design-development/18px_shape-circle.svg
+cursor-default: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/design-development/18px_cursor-default.svg
+xmark: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/ui-layout/18px_xmark.svg
+square-xmark: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/ui-layout/18px_square-xmark.svg
+paintbrush: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/school-education/18px_paintbrush.svg
+triangle-warning: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/ui-layout/18px_triangle-warning.svg
+frame: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/design-development/18px_frame-2.svg
+arrow-left: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/arrows/18px_arrow-left.svg
+chevron-down: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/arrows/18px_chevron-down.svg
+image-plus: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/editing/18px_image-plus.svg
+check: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/ui-layout/18px_check.svg
+palette: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/school-education/18px_palette-2.svg
+folder: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/files/18px_folder-2.svg
+scan-text: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/security/18px_scan-text.svg
+chevron-up: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/arrows/18px_chevron-up.svg
+circle-info: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/ui-layout/18px_circle-info.svg
+typography: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/editing/18px_typography.svg
+clipboard: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/files/18px_clipboard.svg
+bug: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/animals-nature/18px_bug.svg
+arrow-right: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/arrows/18px_arrow-right.svg
+loader: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/ui-layout/18px_loader.svg
+download: /home/dalton/Downloads/nucleo_ui_svg_v1.6.2/outline-duo/arrows/18px_download-3.svg
