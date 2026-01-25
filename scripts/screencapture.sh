@@ -45,7 +45,7 @@ select-shot)
   SATTY_OUTPUT="${IMG_FOLDER}/annotated/satty-$(date '+%Y%m%d-%H:%M:%S').png"
   region=$(slurp -d)
   if [ $? -eq 0 ]; then
-    grim -g "$region" -t ppm - | satty --filename - --output-filename "$SATTY_OUTPUT"
+    grim -g "$region" -t ppm - | /home/dalton/dev/napkin/src-tauri/target/debug/napkin --filename -
     if [ $? -eq 0 ]; then
       wl-copy < "$SATTY_OUTPUT" && notify_with_open_folder "Successfully took screenshot" "img"
     fi
@@ -56,7 +56,7 @@ screen-shot)
   grain_shader_off
   mkdir -p "${IMG_FOLDER}/annotated"
   SATTY_OUTPUT="${IMG_FOLDER}/annotated/satty-$(date '+%Y%m%d-%H:%M:%S').png"
-  grim -t ppm - | satty --filename - --fullscreen --output-filename "$SATTY_OUTPUT"
+  grim -t ppm - | /home/dalton/dev/napkin/src-tauri/target/debug/napkin --filename - 
   if [ $? -eq 0 ]; then
     wl-copy < "$SATTY_OUTPUT" && notify_with_open_folder "Successfully took screenshot" "img"
   fi
