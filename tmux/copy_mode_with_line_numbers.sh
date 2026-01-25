@@ -1,0 +1,1 @@
+/home/dalton/dev/dot/scripts/copy_mode_with_line_numbers.sh
