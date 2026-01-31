@@ -1,0 +1,118 @@
+# Miasma Theme for Vicinae
+# Earthy, muted dark theme
+
+[meta]
+name = "Miasma"
+description = "Earthy, muted dark theme with warm tones"
+variant = "dark"
+inherits = "vicinae-dark"
+
+# ============================================================================
+# Core Colors
+# ============================================================================
+
+[colors.core]
+accent = "#c9a554"              # Cyan/gold from Miasma palette
+accent_foreground = "#222222"   # Dark text on accent backgrounds
+background = "#222222"          # Main background (base00)
+foreground = "#c2c2b0"          # Primary text color (base04/05)
+secondary_background = "#333333" # Elevated surfaces
+border = "#444444"              # Border color
+
+# ============================================================================
+# Window-Specific Colors
+# ============================================================================
+
+[colors.main_window]
+border = "#444444"
+
+[colors.settings_window]
+border = "#444444"
+
+# ============================================================================
+# Accent Colors
+# ============================================================================
+
+[colors.accents]
+blue = "#78824b"                # base0D - olive/sage
+green = "#5f875f"               # base0B - muted green
+magenta = "#bb7744"             # base0E - warm orange
+orange = "#b36d43"              # base0A - earthy orange
+red = "#685742"                 # base08 - muted brown/red
+yellow = "#e4c47a"              # base02 - warm yellow
+cyan = "#c9a554"                # base0C - gold/tan
+purple = "#685742"              # muted purple/brown
+
+# ============================================================================
+# Text Colors
+# ============================================================================
+
+[colors.text]
+default = "#c2c2b0"             # base05
+muted = "#666666"               # base03 - comments
+danger = "#b36d43"              # earthy red/orange
+success = "#5f875f"             # muted green
+placeholder = "#666666"         # comment color
+selection = { background = "#e4c47a", foreground = "#222222" }
+
+[colors.text.links]
+default = "#c9a554"             # cyan/gold
+visited = "#bb7744"             # magenta/orange
+
+# ============================================================================
+# Input Fields
+# ============================================================================
+
+[colors.input]
+border = "#444444"
+border_focus = "#c9a554"
+border_error = "#b36d43"
+
+# ============================================================================
+# Buttons
+# ============================================================================
+
+[colors.button.primary]
+background = "#333333"
+foreground = "#c2c2b0"
+hover = { background = "#444444" }
+focus = { outline = "colors.core.accent" }
+
+# ============================================================================
+# Lists
+# ============================================================================
+
+[colors.list.item.hover]
+background = "#333333"
+foreground = "#c2c2b0"
+
+[colors.list.item.selection]
+background = "#444444"
+foreground = "#d7c483"          # light foreground (base06)
+secondary_background = "#3a3a3a"
+secondary_foreground = "#d7c483"
+
+# ============================================================================
+# Grid Items
+# ============================================================================
+
+[colors.grid.item]
+background = "#333333"
+hover = { outline = "#c9a554" }
+selection = { outline = "#c9a554" }
+
+# ============================================================================
+# Scrollbars
+# ============================================================================
+
+[colors.scrollbars]
+background = "#444444"
+
+# ============================================================================
+# Loading Indicators
+# ============================================================================
+
+[colors.loading]
+bar = "#c9a554"
+spinner = "#c9a554"
+

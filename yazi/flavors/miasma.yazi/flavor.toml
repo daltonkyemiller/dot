@@ -1,0 +1,135 @@
+## Miasma color palette
+## From daltonkyemiller/colors.lua
+
+# bg         "#222222"
+# bg_dark    "#1c1c1c"
+# bg_darker  "#111111"
+# bg_light   "#333333"
+# fg         "#d7c483"
+# fg_dark    "#c2c2b0"
+# comment    "#666666"
+# selection  "#333333"
+# visual     "#78824b"
+# red        "#b36d43"
+# orange     "#bb7744"
+# yellow     "#c9a554"
+# green      "#5f875f"
+# olive      "#78824b"
+# brown      "#685742"
+
+[manager]
+marker_copied = { fg = "#5f875f", bg = "#5f875f" }
+marker_cut = { fg = "#b36d43", bg = "#b36d43" }
+marker_marked = { fg = "#78824b", bg = "#78824b" }
+marker_selected = { fg = "#bb7744", bg = "#bb7744" }
+
+cwd = { fg = "#c9a554" }
+hovered = { reversed = true }
+preview_hovered = { reversed = true }
+
+find_keyword = { fg = "#bb7744", bg = "#222222" }
+find_position = {}
+
+tab_active = { reversed = true }
+tab_inactive = {}
+tab_width = 1
+
+count_copied = { fg = "#222222", bg = "#5f875f" }
+count_cut = { fg = "#222222", bg = "#b36d43" }
+count_selected = { fg = "#222222", bg = "#c9a554" }
+
+border_symbol = "│"
+border_style = { fg = "#d7c483" }
+
+
+[mode]
+normal_main = { fg = "#222222", bg = "#78824b" }
+normal_alt = { fg = "#78824b", bg = "#333333" }
+select_main = { fg = "#222222", bg = "#bb7744" }
+select_alt = { fg = "#bb7744", bg = "#333333" }
+unset_main = { fg = "#222222", bg = "#c9a554" }
+unset_alt = { fg = "#c9a554", bg = "#333333" }
+
+
+[status]
+sep_left = { open = "", close = "" }
+sep_right = { open = "", close = "" }
+overall = { fg = "#c2c2b0", bg = "#111111" }
+
+progress_label = { fg = "#78824b", bg = "#333333", bold = true }
+progress_normal = { fg = "#333333", bg = "#222222" }
+progress_error = { fg = "#333333", bg = "#222222" }
+
+perm_type = { fg = "#5f875f" }
+perm_read = { fg = "#c9a554" }
+perm_write = { fg = "#b36d43" }
+perm_exec = { fg = "#78824b" }
+perm_sep = { fg = "#666666" }
+
+
+[pick]
+border = { fg = "#685742" }
+active = { fg = "#bb7744", bold = true }
+inactive = {}
+
+[input]
+border = { fg = "#685742" }
+title = {}
+value = {}
+selected = { reversed = true }
+
+[completion]
+border = { fg = "#685742" }
+active = { reversed = true }
+inactive = {}
+
+[tasks]
+border = { fg = "#685742" }
+title = {}
+hovered = { fg = "#bb7744" }
+
+[which]
+cols = 2
+separator = " - "
+separator_style = { fg = "#666666" }
+mask = { bg = "#111111" }
+rest = { fg = "#666666" }
+cand = { fg = "#78824b" }
+desc = { fg = "#685742" }
+
+[help]
+on = { fg = "#5f875f" }
+run = { fg = "#bb7744" }
+desc = {}
+hovered = { reversed = true, bold = true }
+footer = { fg = "#222222", bg = "#d7c483" }
+
+[notify]
+title_info = { fg = "#5f875f" }
+title_warn = { fg = "#c9a554" }
+title_error = { fg = "#b36d43" }
+
+[filetype]
+rules = [
+    # images
+    { mime = "image/*", fg = "#c9a554" },
+
+    # media
+    { mime = "{audio,video}/*", fg = "#bb7744" },
+
+    # archives
+    { mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", fg = "#b36d43" },
+
+    # documents
+    { mime = "application/{pdf,doc,rtf,vnd.*}", fg = "#685742" },
+
+    # broken links
+    { name = "*", is = "orphan", fg = "#b36d43" },
+
+    # executables
+    { name = "*", is = "exec", fg = "#5f875f" },
+
+    # fallback
+    { name = "*", fg = "#d7c483" },
+    { name = "*/", fg = "#78824b" },
+]

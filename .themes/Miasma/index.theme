@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=Miasma
+Comment=Sharp corners dark theme with earthy colors
+Encoding=UTF-8
+
+[X-GNOME-Metatheme]
+GtkTheme=Miasma
+MetacityTheme=Miasma
+IconTheme=Adwaita
+CursorTheme=Adwaita

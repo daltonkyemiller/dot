@@ -1,0 +1,733 @@
+/**
+ * Miasma Theme with Sharp Corners (Hyprland-inspired)
+ * GTK4/Adwaita Custom Styling
+ */
+
+/* Dynamic color palette from Miasma */
+@define-color background #222222;
+@define-color foreground #c2c2b0;
+@define-color surface #333333;
+
+@define-color black #000000;
+@define-color red #685742;
+@define-color green #5f875f;
+@define-color yellow #b36d43;
+@define-color blue #78824b;
+@define-color magenta #bb7744;
+@define-color cyan #c9a554;
+@define-color white #d7c483;
+@define-color bright_black #666666;
+@define-color bright_red #685742;
+@define-color bright_green #5f875f;
+@define-color bright_yellow #b36d43;
+@define-color bright_blue #78824b;
+@define-color bright_magenta #bb7744;
+@define-color bright_cyan #c9a554;
+@define-color bright_white #d7c483;
+@define-color selection_bg #e4c47a;
+@define-color selection_fg #000000;
+
+/* Adwaita/Libadwaita Color Overrides */
+@define-color accent_bg_color @cyan;
+@define-color accent_fg_color @background;
+@define-color accent_color @cyan;
+
+@define-color window_bg_color @background;
+@define-color window_fg_color @foreground;
+
+@define-color view_bg_color @background;
+@define-color view_fg_color @foreground;
+@define-color sidebar_bg_color @background;
+@define-color sidebar_fg_color @foreground;
+@define-color sidebar_backdrop_color @background;
+@define-color sidebar_shade_color @background;
+
+@define-color headerbar_bg_color alpha(@foreground, 0.08);
+@define-color headerbar_fg_color @foreground;
+@define-color headerbar_backdrop_color @background;
+@define-color headerbar_shade_color @background;
+@define-color headerbar_border_color alpha(@foreground, 0.1);
+
+@define-color card_bg_color alpha(@foreground, 0.05);
+@define-color card_fg_color @foreground;
+
+@define-color popover_bg_color @surface;
+@define-color popover_fg_color @foreground;
+
+@define-color dialog_bg_color @surface;
+@define-color dialog_fg_color @foreground;
+
+@define-color destructive_bg_color @red;
+@define-color destructive_fg_color @foreground;
+@define-color destructive_color @red;
+
+@define-color success_bg_color @green;
+@define-color success_fg_color @background;
+@define-color success_color @green;
+
+@define-color warning_bg_color @yellow;
+@define-color warning_fg_color @background;
+@define-color warning_color @yellow;
+
+@define-color error_bg_color @red;
+@define-color error_fg_color @foreground;
+@define-color error_color @red;
+
+@define-color borders alpha(@foreground, 0.1);
+@define-color shade_color alpha(black, 0.25);
+@define-color scrollbar_outline_color alpha(black, 0.5);
+
+/* =====================================================
+   SHARP CORNERS - Remove all border-radius
+   ===================================================== */
+
+/* Global reset for rounded corners */
+window.csd,
+window.csd.maximized,
+window.csd.tiled,
+window.solid-csd,
+.titlebar,
+headerbar,
+headerbar.default-decoration,
+.background,
+popover,
+popover > contents,
+popover > arrow,
+menu,
+menuitem,
+dropdown,
+combobox,
+button,
+button.flat,
+button.suggested-action,
+button.destructive-action,
+button.circular,
+button.pill,
+button.osd,
+button.image-button,
+button.text-button,
+button.combo,
+menubutton > button,
+splitbutton,
+splitbutton > button,
+splitbutton > menubutton > button,
+entry,
+spinbutton,
+spinbutton > button,
+scale > trough,
+scale > trough > slider,
+progressbar > trough,
+progressbar > trough > progress,
+levelbar > trough,
+levelbar block,
+switch,
+switch > slider,
+check,
+radio,
+scrollbar,
+scrollbar > range > trough > slider,
+notebook,
+notebook > header,
+notebook > header > tabs > tab,
+notebook > stack,
+tabbar .box,
+tabbar tab,
+frame,
+frame.view,
+.frame,
+list,
+list.boxed-list,
+list.content,
+listview,
+listview > row,
+row,
+row.activatable,
+calendar,
+calendar > header,
+calendar > grid > label,
+tooltip,
+tooltip.background,
+messagedialog,
+dialog,
+window.dialog,
+filechooser,
+colorchooser,
+colorswatch,
+colorswatch overlay,
+colorswatch#add-color-button,
+colorswatch#editor-color-sample,
+colorchooser .popover.osd,
+.app-notification,
+.toolbar.osd,
+infobar > revealer > box,
+.navigation-sidebar > row,
+stacksidebar row,
+placessidebar row,
+.sidebar,
+paned > separator,
+separator,
+.linked > button,
+.linked > entry,
+stackswitcher,
+stackswitcher > button,
+flowboxchild,
+gridview > child,
+iconview,
+video,
+picture,
+.card,
+.osd,
+actionbar > revealer > box,
+searchbar > revealer > box,
+toolbar,
+.toolbar,
+statusbar,
+revealer,
+expander-widget > box > title,
+treeview.view,
+columnview.view,
+shortcut > .keycap,
+emoji,
+emoji-completion-row,
+.emoji-searchbar,
+.emoji-toolbar,
+window.aboutdialog scrolledwindow.frame,
+#NautilusPathBar,
+#NautilusPathButton,
+.nautilus-window .floating-bar,
+.nautilus-window banner > revealer > widget,
+datechooser,
+datechooser navigator,
+datechooser button.day,
+datechooser .current-week,
+event,
+event.timed,
+popover.events list,
+popover.events box,
+monthcell,
+.context-tile,
+.category-tile.card,
+.upgrade-banner,
+.origin-rounded-box {
+  border-radius: 0;
+}
+
+/* Linked buttons - ensure sharp */
+.linked:not(.vertical) > button,
+.linked:not(.vertical) > button:first-child,
+.linked:not(.vertical) > button:last-child,
+.linked:not(.vertical) > button:only-child,
+.linked.vertical > button,
+.linked.vertical > button:first-child,
+.linked.vertical > button:last-child,
+.linked.vertical > button:only-child,
+.linked:not(.vertical) > entry,
+.linked:not(.vertical) > entry:first-child,
+.linked:not(.vertical) > entry:last-child,
+.linked.vertical > entry,
+.linked.vertical > entry:first-child,
+.linked.vertical > entry:last-child {
+  border-radius: 0;
+}
+
+/* Headerbar linked buttons */
+headerbar .linked > button,
+headerbar .linked > button:first-child,
+headerbar .linked > button:last-child,
+headerbar .linked > button:only-child {
+  border-radius: 0;
+}
+
+/* Popovers and menus */
+popover.menu box.inline-buttons button.image-button.model,
+popover.menu box.circular-buttons button.circular.image-button.model,
+popover modelbutton {
+  border-radius: 0;
+}
+
+/* Window controls */
+windowcontrols > button,
+windowcontrols > button > image {
+  border-radius: 0;
+}
+
+/* =====================================================
+   BASE STYLING
+   ===================================================== */
+
+/* Base window */
+.background {
+  background-color: @background;
+  color: @foreground;
+}
+
+window.csd {
+  box-shadow: 0 8px 6px -5px rgba(0, 0, 0, 0.2),
+              0 16px 15px 2px rgba(0, 0, 0, 0.14),
+              0 6px 18px 5px rgba(0, 0, 0, 0.12);
+}
+
+/* Headerbar */
+headerbar {
+  background-color: @headerbar_bg_color;
+  color: @headerbar_fg_color;
+  border: none;
+  box-shadow: none;
+  min-height: 46px;
+}
+
+headerbar:backdrop {
+  background-color: @headerbar_backdrop_color;
+}
+
+headerbar .title {
+  font-weight: bold;
+}
+
+/* Buttons */
+button {
+  background-color: alpha(@foreground, 0.08);
+  color: @foreground;
+  border: none;
+  padding: 8px 16px;
+  min-height: 24px;
+}
+
+button:hover {
+  background-color: alpha(@foreground, 0.12);
+}
+
+button:active,
+button:checked {
+  background-color: @accent_bg_color;
+  color: @accent_fg_color;
+}
+
+button:disabled {
+  color: alpha(@foreground, 0.5);
+}
+
+button.flat {
+  background-color: transparent;
+}
+
+button.flat:hover {
+  background-color: alpha(@foreground, 0.08);
+}
+
+button.suggested-action {
+  background-color: @blue;
+  color: @foreground;
+}
+
+button.suggested-action:hover {
+  background-color: shade(@blue, 1.1);
+}
+
+button.destructive-action {
+  background-color: @red;
+  color: @foreground;
+}
+
+button.destructive-action:hover {
+  background-color: shade(@red, 1.1);
+}
+
+/* Entry/Text input */
+entry {
+  background-color: alpha(@foreground, 0.08);
+  color: @foreground;
+  border: 2px solid transparent;
+  padding: 8px 12px;
+  min-height: 24px;
+}
+
+entry:focus {
+  border-color: @accent_color;
+  outline: none;
+}
+
+entry:disabled {
+  color: alpha(@foreground, 0.5);
+}
+
+/* Selection */
+selection,
+textview text selection,
+label > selection,
+entry > text > selection {
+  background-color: @selection_bg;
+  color: @selection_fg;
+}
+
+/* Links */
+link,
+button.link {
+  color: @cyan;
+}
+
+link:visited {
+  color: @magenta;
+}
+
+/* Lists */
+list,
+listview {
+  background-color: transparent;
+  color: @foreground;
+}
+
+row {
+  padding: 8px 12px;
+}
+
+row:hover {
+  background-color: alpha(@foreground, 0.05);
+}
+
+row:selected {
+  background-color: alpha(@accent_color, 0.15);
+}
+
+row:active {
+  background-color: alpha(@foreground, 0.1);
+}
+
+/* Navigation sidebar */
+.navigation-sidebar > row:selected label,
+.navigation-sidebar > row:selected image {
+  color: @accent_color;
+  font-weight: bold;
+}
+
+/* Cards */
+.card {
+  background-color: @card_bg_color;
+  color: @card_fg_color;
+  border: 1px solid @borders;
+}
+
+/* Popover */
+popover,
+popover > contents {
+  background-color: @popover_bg_color;
+  color: @popover_fg_color;
+  border: 1px solid @borders;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Switch */
+switch {
+  background-color: alpha(@foreground, 0.3);
+  border: none;
+}
+
+switch:checked {
+  background-color: @accent_bg_color;
+}
+
+switch > slider {
+  background-color: @background;
+  border: none;
+}
+
+/* Checkboxes and Radio buttons */
+check,
+radio {
+  background-color: alpha(@foreground, 0.1);
+  border: 2px solid alpha(@foreground, 0.3);
+  color: transparent;
+}
+
+check:hover,
+radio:hover {
+  border-color: alpha(@foreground, 0.5);
+}
+
+check:checked,
+check:indeterminate,
+radio:checked,
+radio:indeterminate {
+  background-color: @accent_bg_color;
+  border-color: @accent_bg_color;
+  color: @accent_fg_color;
+}
+
+/* Scale/Slider */
+scale > trough {
+  background-color: alpha(@foreground, 0.2);
+}
+
+scale > trough > highlight {
+  background-color: @accent_bg_color;
+}
+
+scale > trough > slider {
+  background-color: @surface;
+  border: 2px solid @accent_bg_color;
+}
+
+/* Progress bar */
+progressbar > trough {
+  background-color: alpha(@foreground, 0.1);
+}
+
+progressbar > trough > progress {
+  background-color: @accent_bg_color;
+}
+
+/* Scrollbar */
+scrollbar {
+  background-color: transparent;
+}
+
+scrollbar > range > trough > slider {
+  background-color: alpha(@foreground, 0.3);
+  border: 4px solid transparent;
+  background-clip: padding-box;
+}
+
+scrollbar > range > trough > slider:hover {
+  background-color: alpha(@foreground, 0.5);
+}
+
+/* Notebook/Tabs */
+notebook {
+  background-color: alpha(@foreground, 0.03);
+}
+
+notebook > header {
+  background-color: alpha(@foreground, 0.05);
+  border: none;
+}
+
+notebook > header > tabs > tab {
+  padding: 8px 16px;
+  color: alpha(@foreground, 0.7);
+}
+
+notebook > header > tabs > tab:checked {
+  background-color: alpha(@foreground, 0.08);
+  color: @accent_color;
+}
+
+notebook > header > tabs > tab:hover:not(:checked) {
+  background-color: alpha(@foreground, 0.05);
+}
+
+/* Calendar */
+calendar {
+  background-color: @background;
+  color: @foreground;
+  border: 1px solid @borders;
+}
+
+calendar > header {
+  border-bottom: 1px solid @borders;
+}
+
+calendar > grid > label.today {
+  color: @accent_color;
+  font-weight: bold;
+}
+
+/* Tooltip */
+tooltip,
+tooltip.background {
+  background-color: @surface;
+  color: @foreground;
+  border: 1px solid @borders;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Dialog */
+messagedialog,
+window.dialog.message {
+  background-color: @dialog_bg_color;
+}
+
+messagedialog .titlebar,
+window.dialog.message .titlebar {
+  background-color: @headerbar_bg_color;
+}
+
+/* Infobar */
+infobar.info > revealer > box {
+  background-color: @surface;
+  color: @foreground;
+}
+
+infobar.warning > revealer > box {
+  background-color: @warning_bg_color;
+  color: @warning_fg_color;
+}
+
+infobar.error > revealer > box {
+  background-color: @error_bg_color;
+  color: @error_fg_color;
+}
+
+/* Sidebar separator */
+separator.sidebar {
+  background-color: @borders;
+}
+
+/* File chooser */
+filechooser .dialog-action-box {
+  border-top: 1px solid @borders;
+}
+
+filechooser #pathbarbox {
+  border-bottom: 1px solid @borders;
+}
+
+/* Expander */
+expander {
+  color: alpha(@foreground, 0.7);
+}
+
+expander:hover {
+  color: @foreground;
+}
+
+row.expander:checked image.expander-row-arrow {
+  color: @accent_color;
+}
+
+/* OSD */
+.osd {
+  background-color: alpha(@surface, 0.9);
+  color: @foreground;
+  border: none;
+}
+
+/* App notification */
+.app-notification {
+  background-color: @surface;
+  color: @foreground;
+  border: 1px solid @borders;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Status colors */
+.accent {
+  color: @accent_color;
+}
+
+.success {
+  color: @success_color;
+}
+
+.warning {
+  color: @warning_color;
+}
+
+.error {
+  color: @error_color;
+}
+
+/* Dim labels */
+.dim-label,
+label.subtitle,
+row label.subtitle {
+  color: alpha(@foreground, 0.6);
+}
+
+/* View/Content */
+.view,
+iconview,
+textview,
+textview text {
+  background-color: alpha(@foreground, 0.02);
+  color: @foreground;
+}
+
+/* Frame */
+frame,
+.frame {
+  border: 1px solid @borders;
+}
+
+/* Treeview/Columnview */
+treeview.view,
+columnview.view {
+  background-color: transparent;
+  color: @foreground;
+}
+
+treeview.view:hover,
+columnview.view:hover {
+  background-color: alpha(@foreground, 0.05);
+}
+
+treeview.view:selected,
+columnview.view:selected {
+  background-color: alpha(@accent_color, 0.15);
+}
+
+/* Action bar */
+actionbar > revealer > box {
+  background-color: @surface;
+  border-top: 1px solid @borders;
+}
+
+/* Search bar */
+searchbar > revealer > box {
+  background-color: transparent;
+}
+
+/* Spinner */
+spinner {
+  color: @accent_color;
+}
+
+/* Level bar */
+levelbar block.low {
+  background-color: @warning_color;
+}
+
+levelbar block.high,
+levelbar block:not(.empty) {
+  background-color: @accent_color;
+}
+
+levelbar block.full {
+  background-color: @success_color;
+}
+
+levelbar block.empty {
+  background-color: alpha(@foreground, 0.1);
+}
+
+/* Paned separator */
+paned > separator {
+  background-color: @borders;
+}
+
+/* Menu bar */
+menubar {
+  background-color: @background;
+  color: @foreground;
+}
+
+menubar > item:hover {
+  background-color: alpha(@foreground, 0.1);
+}
+
+/* Window controls styling */
+windowcontrols > button {
+  min-height: 22px;
+  min-width: 22px;
+  padding: 4px;
+  color: alpha(@foreground, 0.7);
+}
+
+windowcontrols > button:hover {
+  color: @foreground;
+  background-color: alpha(@foreground, 0.1);
+}
+
+windowcontrols > button.close:hover {
+  background-color: @red;
+  color: @foreground;
+}
