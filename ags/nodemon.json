@@ -1,8 +1,0 @@
-{
-  "restartable": "rs",
-  "ignore": [".git", "node_modules/**/node_modules", "dist"],
-  "verbose": true,
-  "watch": ["src", "./input.css"],
-  "ext": "js,ts,tsx,scss",
-  "exec": "./dev.sh"
-}
