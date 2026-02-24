@@ -37,6 +37,7 @@ grain_shader_off() {
   hyprshade off
 }
 
+# GDK_BACKEND=wayland WEBKIT_DISABLE_COMPOSITING_MODE=1
 
 case "$arg" in
 select-shot)
@@ -45,7 +46,7 @@ select-shot)
   SATTY_OUTPUT="${IMG_FOLDER}/annotated/satty-$(date '+%Y%m%d-%H:%M:%S').png"
   region=$(slurp -d)
   if [ $? -eq 0 ]; then
-    grim -g "$region" -t ppm - | /home/dalton/dev/napkin/src-tauri/target/debug/napkin --filename -
+    grim -g "$region" -t ppm - |/home/dalton/dev/napkin/src-tauri/target/debug/napkin --filename -
     if [ $? -eq 0 ]; then
       wl-copy < "$SATTY_OUTPUT" && notify_with_open_folder "Successfully took screenshot" "img"
     fi
