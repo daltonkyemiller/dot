@@ -13,7 +13,7 @@ VID_FOLDER="${HOME}/Videos/Screencaptures"
 
 VID="${VID_FOLDER}/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 
-WF_RECORDER_PARAMS="-p color_range=pc -p colorspace=bt709 -p color_primaries=bt709 -p color_trc=gamma22"
+WF_RECORDER_PARAMS=""
 
 get_active_monitor() {
   hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .name'
