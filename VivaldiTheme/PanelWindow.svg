@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28" height="28" width="28">
+<path stroke-width="1.5" stroke="currentColor" d="M6.75 9.75C6.75 8.64543 7.64543 7.75 8.75 7.75H19.25C20.3546 7.75 21.25 8.64543 21.25 9.75V18.25C21.25 19.3546 20.3546 20.25 19.25 20.25H8.75C7.64543 20.25 6.75 19.3546 6.75 18.25V9.75Z"></path>
+<line stroke-width="1.5" stroke="currentColor" y2="11.25" x2="21" y1="11.25" x1="7"></line>
+<line stroke-width="1.5" stroke="currentColor" y2="8" x2="12.25" y1="11" x1="12.25"></line>
+<line stroke-width="1.5" stroke="currentColor" y2="8" x2="15.75" y1="11" x1="15.75"></line>
+</svg>

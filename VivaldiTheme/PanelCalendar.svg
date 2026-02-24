@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28" height="28" width="28">
+<path stroke-width="1.5" stroke="currentColor" d="M6.75 10.75C6.75 9.64543 7.64543 8.75 8.75 8.75H19.25C20.3546 8.75 21.25 9.64543 21.25 10.75V18.25C21.25 19.3546 20.3546 20.25 19.25 20.25H8.75C7.64543 20.25 6.75 19.3546 6.75 18.25V10.75Z"></path>
+<path fill="currentColor" d="M10 8C10 7.44772 10.4477 7 11 7C11.5523 7 12 7.44772 12 8H10Z"></path>
+<path fill="currentColor" d="M13 8C13 7.44772 13.4477 7 14 7C14.5523 7 15 7.44772 15 8H13Z"></path>
+<path fill="currentColor" d="M16 8C16 7.44772 16.4477 7 17 7C17.5523 7 18 7.44772 18 8H16Z"></path>
+<rect fill="currentColor" height="1.5" width="14" y="9" x="7"></rect>
+<path fill="currentColor" d="M13 12H15V14H13V12ZM16 12H18V14H16V12ZM12 15H10V17H12V15ZM13 15H15V17H13V15ZM12 12H10V14H12V12Z" clip-rule="evenodd" fill-rule="evenodd" opacity="0.35"></path>
+<rect fill="currentColor" height="2" width="2" y="15" x="16"></rect>
+</svg>

@@ -1,0 +1,7 @@
+<svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <path d="M6.75 9.25C6.75 8.42157 7.42157 7.75 8.25 7.75H19.75C20.5784 7.75 21.25 8.42157 21.25 9.25V18.75C21.25 19.5784 20.5784 20.25 19.75 20.25H8.25C7.42157 20.25 6.75 19.5784 6.75 18.75V9.25Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+  <rect opacity="0.1" x="13.25" y="8" width="1.5" height="12"/>
+  <rect opacity="0.1" x="7" y="13.25" width="14" height="1.5"/>
+  <rect style="transform: scale(var(--displayTileRow, 1))" opacity="0.9" x="13.25" y="8" width="1.5" height="12"/>
+  <rect style="transform: scale(var(--displayTileColumn, 0))" opacity="0.9" x="7" y="13.25" width="14" height="1.5"/>
+</svg>

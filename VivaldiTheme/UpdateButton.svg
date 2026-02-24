@@ -1,0 +1,5 @@
+<svg width="28" height="28" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+<path d="M14.8534 11.5799L18.9396 7.49372L14.8534 3.40752C14.5384 3.09254 13.9999 3.31562 13.9999 3.76107L13.9999 11.2264C13.9999 11.6718 14.5384 11.8949 14.8534 11.5799Z" fill="currentColor"/>
+<circle cx="21" cy="14" r="3" fill="var(--colorHighlightBg)"/>
+<path fill="none" d="M14 7C9.85786 7 6.5 10.3579 6.5 14.5C6.5 18.6421 9.85786 22 14 22C16.2212 22 18.217 21.0344 19.5903 19.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

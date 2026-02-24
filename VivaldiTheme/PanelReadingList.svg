@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 28 28" height="28" width="28">
+<path stroke-width="1.5" stroke="currentColor" d="M7.74963 7.75H12.5C13.3284 7.75 14 8.42157 14 9.25V18.25C14 18.8023 13.5523 19.25 13 19.25H7.74965C7.19737 19.25 6.74965 18.8023 6.74965 18.25L6.74963 8.75C6.74963 8.19772 7.19735 7.75 7.74963 7.75Z"></path>
+<path stroke-width="1.5" stroke="currentColor" d="M15.5 7.75241H20.25C20.8023 7.75241 21.25 8.20013 21.25 8.75241V18.25C21.25 18.8023 20.8023 19.25 20.25 19.25H15C14.4477 19.25 14 18.8023 14 18.25V9.25241C14 8.42398 14.6716 7.75241 15.5 7.75241Z"></path>
+<path stroke-width="1.5" stroke="currentColor" d="M13 19.25C13.3333 19.816 14.2 20.6083 15 19.25"></path>
+<line stroke-linecap="round" stroke="currentColor" y2="10.5" x2="12" y1="10.5" x1="9" opacity="0.35"></line>
+<line stroke-linecap="round" stroke="currentColor" y2="10.5" x2="19" y1="10.5" x1="16" opacity="0.35"></line>
+<line stroke-linecap="round" stroke="currentColor" y2="12.5" x2="12" y1="12.5" x1="9" opacity="0.35"></line>
+<line stroke-linecap="round" stroke="currentColor" y2="12.5" x2="19" y1="12.5" x1="16" opacity="0.35"></line>
+<line stroke-linecap="round" stroke="currentColor" y2="14.5" x2="12" y1="14.5" x1="9" opacity="0.35"></line>
+<line stroke-linecap="round" stroke="currentColor" y2="14.5" x2="19" y1="14.5" x1="16" opacity="0.35"></line>
+<line stroke-linecap="round" stroke="currentColor" y2="16.5" x2="12" y1="16.5" x1="9" opacity="0.35"></line>
+<line stroke-linecap="round" stroke="currentColor" y2="16.5" x2="19" y1="16.5" x1="16" opacity="0.35"></line>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 28 28">
+  <path d="M5.053 5.053a3.536 3.536 0 0 0 0 5l5-5a3.536 3.536 0 0 0-5 0zm17.947 0a3.536 3.536 0 0 1 0 5l-5-5a3.536 3.536 0 0 1 5 0z" class="ClockIcon-AlarmBell"></path>
+  <circle r="4" cy="14" cx="14" class="ClockIcon-CountdownHour"></circle>
+  <circle r="4" cy="14" cx="14" class="ClockIcon-CountdownMinute"></circle>
+  <path d="M14.5 8.5s0-.5-.5-.5-.5.5-.5.5l-.5 5.357c0 .631.448 1.143 1 1.143s1-.512 1-1.143L14.5 8.5z" class="ClockIcon-TimeMinute"></path>
+  <path d="M13 11v3a1 1 0 1 0 2 0v-3a1 1 0 1 0-2 0z" class="ClockIcon-TimeHour"></path>
+  <circle fill="none" stroke-width="1.5" stroke="currentColor" r="7" cy="14" cx="14"></circle>
+</svg>

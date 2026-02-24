@@ -1,0 +1,194 @@
+:root {
+  --bg: #222222;
+  --bg-dark: #1c1c1c;
+  --bg-darker: #111111;
+  --bg-light: #333333;
+  --fg: #d7c483;
+  --fg-dark: #c2c2b0;
+  --comment: #666666;
+  --selection: #333333;
+  --visual: #78824b;
+  --red: #b36d43;
+  --orange: #bb7744;
+  --yellow: #c9a554;
+  --green: #5f875f;
+  --olive: #78824b;
+  --brown: #685742;
+}
+#browser {
+  /* --densityGap: 15px !important; */
+}
+
+.button-toolbar {
+  padding: 10px 0;
+}
+
+.tab-wrapper[aria-selected="true"], .tab-wrapper[aria-selected="true"] .tab {
+  transition: all 0.2s ease-in-out;
+  background-color: var(--bg) !important;
+}
+
+/* .tablist { */
+/*   max-height: 100vh; */
+/* } */
+/**/
+/* .tab-position .tab .title { */
+/*   font-size: 0.9rem; */
+/* } */
+/**/
+/* div.tab-position { */
+/*   --Height: 40px !important; */
+/*   transform: translateX(var(--PositionX)) */
+/*     translateY(calc(var(--PositionY) * 1.4)) !important; */
+/*   margin-bottom: 4px; */
+/* } */
+/**/
+/* div.button-toolbar.newtab { */
+/*   top: calc(var(--PositionY) * 1.4) !important; */
+/* } */
+/**/
+/* div.tab-position .tab { */
+/*   justify-content: space-around !important; */
+/* } */
+/**/
+/* span.favicon.jstest-favicon-image { */
+/*   margin-right: 4px; */
+/* } */
+
+#webview-container {
+  padding: 10px;
+  background-color: var(--bg-darker);
+}
+
+/* #webview-container::after { */
+/*   content: ""; */
+/*   display: block; */
+/*   position: absolute; */
+/*   top: 0; */
+/*   left: 0; */
+/*   background-color: var(--olive); */
+/*   width: 10px; */
+/*   height: 10px; */
+/* } */
+
+#webview-container > * {
+  border-radius: 3px;
+}
+
+/* Quick Command Styling */
+@keyframes qc-open {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.quick-command-container {
+  background-color: var(--bg-dark);
+  padding: 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--bg-light);
+  animation: qc-open 0.15s ease-out !important;
+  transform-origin: center center !important;
+  translate: none !important;
+}
+
+.quick-command-container header {
+  padding: 0;
+  background-color: var(--bg-dark);
+}
+
+.qc-entry {
+  background-color: var(--bg) !important;
+}
+
+.quick-command-search-hint {
+  display: none !important;
+}
+
+.quick-command-search {
+  width: 100% !important;
+  background-color: var(--bg) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--bg-light) !important;
+  padding: 16px 20px !important;
+  color: var(--fg) !important;
+  font-size: 15px !important;
+}
+
+.quick-command-search:focus {
+  outline: none !important;
+}
+
+.quick-command-search::placeholder {
+  color: var(--comment) !important;
+}
+
+.quick-commands {
+  padding: 0;
+  background-color: var(--bg-dark);
+}
+
+.VivaldiList,
+.VivaldiList-Offset {
+  background-color: var(--bg-dark) !important;
+}
+
+.quick-command-sectionheader {
+  padding: 0 20px !important;
+  color: var(--comment) !important;
+  font-size: 11px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--bg-light);
+  background-color: var(--bg-dark) !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.quick-command-sectionheader .item-count {
+  color: var(--comment);
+  opacity: 0.6;
+  margin-left: 8px;
+}
+
+.quick-command {
+  padding: 0 20px !important;
+  margin: 0;
+  transition: background-color 0.15s ease;
+  background-color: var(--bg-dark) !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.quick-command:hover {
+  background-color: var(--bg-light) !important;
+}
+
+.quick-command[data-selected] {
+  background-color: var(--olive) !important;
+}
+
+.quick-command[data-selected] .quick-command-title {
+  color: var(--bg-darker) !important;
+}
+
+.quick-command[data-selected] .quick-command-meta {
+  color: var(--bg-darker) !important;
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.quick-command-title {
+  color: var(--fg) !important;
+  font-size: 13px;
+}
+
+.quick-command-meta {
+  color: var(--comment) !important;
+  font-size: 11px;
+  background-color: var(--bg);
+  padding: 3px 8px;
+}
