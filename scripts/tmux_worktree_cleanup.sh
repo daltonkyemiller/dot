@@ -13,3 +13,6 @@ display_name="${name:0:30}"
 
 tmux display-popup -E -w 60 -h 5 -b rounded -S "fg=#5f875f" -T " 🌳 Cleanup: $display_name " \
   "gum confirm 'Delete worktree \"$name\"?' && cd '$repo_root' && git worktree remove '.claude/worktrees/$name' --force && git branch -d '$name' 2>/dev/null; true"
+
+tmux display-popup -E -w 60 -h 5 -b rounded -S "fg=#5f875f" -T " 🌳 Switch: $display_name " \
+  "gum confirm 'Switch to $name?' && cd '$repo_root' && git checkout '$name'; true"

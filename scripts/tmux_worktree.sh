@@ -36,3 +36,8 @@ if gum confirm "Delete worktree '$name'?"; then
   git worktree remove ".claude/worktrees/$name" --force
   git branch -d "$name" 2>/dev/null
 fi
+
+if gum confirm "Switch to '$name'?"; then
+  cd "$repo_root"
+  git checkout "$name"
+fi
