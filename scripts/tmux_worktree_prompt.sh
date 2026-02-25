@@ -1,6 +1,20 @@
 #!/bin/bash
 # ~/scripts/tmux_worktree_prompt.sh
 
+# 0. Check for reopenable branches (exist locally, not in a worktree already)
+worktree_branches=$(git worktree list --porcelain | grep '^branch' | sed 's|branch refs/heads/||')
+reopenable=$(git branch --format='%(refname:short)' | grep -vxFf <(echo "$worktree_branches"))
+
+if [ -n "$reopenable" ]; then
+  choice=$(printf "%s\n%s" "✨ New worktree" "$reopenable" | \
+    gum filter --no-show-help --height 10 --placeholder 'Select branch or create new...' --prompt '❯ ' --prompt.foreground '#c9a554') || exit 0
+
+  if [ "$choice" != "✨ New worktree" ]; then
+    tmux new-window -n "$choice" "$HOME/scripts/tmux_worktree.sh" "$choice"
+    exit 0
+  fi
+fi
+
 # 1. Linear issue ID (optional — just hit enter to skip)
 issue=$(gum input --no-show-help --placeholder '(optional) Linear issue ID...' --prompt '❯ ' --prompt.foreground '#c9a554') || exit 0
 

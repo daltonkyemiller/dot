@@ -5,7 +5,12 @@ issue="$3"
 
 repo_root=$(git rev-parse --show-toplevel)
 
-git worktree add -b "$name" ".claude/worktrees/$name" "$branch"
+# Reuse existing branch or create a new one
+if git show-ref --verify --quiet "refs/heads/$name"; then
+  git worktree add ".claude/worktrees/$name" "$name"
+else
+  git worktree add -b "$name" ".claude/worktrees/$name" "$branch"
+fi
 cd ".claude/worktrees/$name"
 
 prompt="You are in a git worktree on branch $name branched from $branch."
@@ -34,10 +39,8 @@ rm -f "/tmp/tmux_worktrees/$pane_id"
 if gum confirm "Delete worktree '$name'?"; then
   cd "$repo_root"
   git worktree remove ".claude/worktrees/$name" --force
-  git branch -d "$name" 2>/dev/null
-fi
 
-if gum confirm "Switch to '$name'?"; then
-  cd "$repo_root"
-  git checkout "$name"
+  if gum confirm "Switch to '$name'?"; then
+    git checkout "$name"
+  fi
 fi
