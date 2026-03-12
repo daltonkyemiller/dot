@@ -10,7 +10,8 @@ if [ -n "$reopenable" ]; then
     gum filter --no-show-help --height 10 --placeholder 'Select branch or create new...' --prompt '❯ ' --prompt.foreground '#c9a554') || exit 0
 
   if [ "$choice" != "✨ New worktree" ]; then
-    tmux new-window -n "$choice" "$HOME/scripts/tmux_worktree.sh" "$choice"
+    ai=$(printf "claude\nopencode" | gum filter --no-show-help --height 4 --placeholder 'AI tool...' --prompt '❯ ' --prompt.foreground '#c9a554') || ai="claude"
+    tmux new-window -n "$choice" "$HOME/scripts/tmux_worktree.sh" "$choice" "" "" "$ai"
     exit 0
   fi
 fi
@@ -35,4 +36,7 @@ name=$(gum input --no-show-help --value "$suggested_name" --placeholder 'Worktre
 # 4. Base branch (optional)
 branch=$(gum input --no-show-help --placeholder '(optional) base branch...' --prompt '❯ ' --prompt.foreground '#c9a554') || branch=""
 
-tmux new-window -n "$name" "$HOME/scripts/tmux_worktree.sh" "$name" "$branch" "$issue"
+# 5. AI tool
+ai=$(printf "claude\nopencode" | gum filter --no-show-help --height 4 --placeholder 'AI tool...' --prompt '❯ ' --prompt.foreground '#c9a554') || ai="claude"
+
+tmux new-window -n "$name" "$HOME/scripts/tmux_worktree.sh" "$name" "$branch" "$issue" "$ai"
