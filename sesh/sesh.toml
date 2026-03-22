@@ -1,4 +1,4 @@
 #:schema https://github.com/joshmedeski/sesh/raw/main/sesh.schema.json
 dir_length = 2
 
-blacklist  = ["claude*", "opencode*"]
+blacklist  = ["claude *", "opencode *", "pi *"]

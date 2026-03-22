@@ -1,5 +1,20 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "lsp": {
+    "typescript": {
+      "disabled": true,
+    },
+    "tsgo": {
+      "command": [
+        "bunx",
+        "-y",
+        "@typescript-language-server/tsgo",
+        "--lsp",
+        "-stdio"
+      ],
+      "extensions": [".ts", ".tsx"]
+    }
+  },
   "mcp": {
     "context7": {
       "type": "local",
