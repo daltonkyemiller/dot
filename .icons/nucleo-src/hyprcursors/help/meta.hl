@@ -1,0 +1,9 @@
+resize_algorithm = none
+hotspot_x = 0.25
+hotspot_y = 0.09
+
+define_override = question_arrow
+define_override = whats_this
+define_override = d9ce0ab605698f320427677b458ad60b
+
+define_size = 0, cursor.svg

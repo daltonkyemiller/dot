@@ -1,0 +1,16 @@
+(defcfg
+  process-unmapped-keys yes
+  concurrent-tap-hold yes
+  linux-dev-names-exclude (
+    "Apple MTP keyboard"
+    "kanata-internal"
+  )
+  linux-output-device-bus-type USB
+  linux-output-device-name "kanata-external"
+
+  macos-dev-names-exclude (
+    "Corne"
+  )
+)
+
+(include shared.kbd)

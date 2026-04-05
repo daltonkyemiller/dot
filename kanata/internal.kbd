@@ -1,0 +1,14 @@
+(defcfg
+  process-unmapped-keys yes
+  concurrent-tap-hold yes
+  linux-dev-names-include ("Apple MTP keyboard")
+  linux-dev-names-exclude ("kanata-external")
+  linux-output-device-bus-type I8042
+  linux-output-device-name "kanata-internal"
+
+  macos-dev-names-exclude (
+    "Corne"
+  )
+)
+
+(include shared.kbd)
