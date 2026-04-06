@@ -1,9 +1,8 @@
 (defcfg
   process-unmapped-keys yes
   concurrent-tap-hold yes
-  linux-dev-names-exclude (
-    "Apple MTP keyboard"
-    "kanata-internal"
+  linux-dev-names-include (
+    "Compx Flow84@Lofree"
   )
   linux-output-device-bus-type USB
   linux-output-device-name "kanata-external"
