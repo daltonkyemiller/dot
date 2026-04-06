@@ -186,7 +186,9 @@ cmd_list() {
 
   [[ -d "$STATE_DIR" ]] || return 0
 
-  for f in "$STATE_DIR"/*.json; do
+  # Sort by most recently updated (idle agents bubble to top naturally
+  # since they get written to when transitioning from working → idle)
+  for f in $(ls -t "$STATE_DIR"/*.json 2>/dev/null); do
     [[ -f "$f" ]] || continue
 
     local json
@@ -248,10 +250,11 @@ cmd_pick() {
   local selected
   selected=$(echo "$list" | fzf --ansi --reverse --no-sort \
     --delimiter=$'\t' --with-nth=1 \
-    --header='Jump to agent (ctrl-r: refresh)' \
+    --header='Jump to agent (ctrl-r: refresh, ctrl-d: remove)' \
     --pointer='▶' \
     --no-info \
     --bind "ctrl-r:reload($self list)" \
+    --bind "ctrl-d:execute-silent(rm -f $STATE_DIR/\$(echo {3} | tr -d %).json)+reload($self list)" \
     --preview 'tmux capture-pane -ep -t {3}' \
     --preview-window='right:60%') || true
 

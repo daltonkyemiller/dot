@@ -21,6 +21,17 @@ Add the following hooks to `~/.claude/settings.json` under the `"hooks"` key:
 ```json
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/dalton/dev/dot/scripts/agent-mux update claude idle"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "matcher": "",
@@ -62,6 +73,7 @@ Add the following hooks to `~/.claude/settings.json` under the `"hooks"` key:
 
 | Hook | Event | Effect |
 |------|-------|--------|
+| `SessionStart` | Claude session launches | Registers agent as **idle** (visible in picker immediately) |
 | `UserPromptSubmit` | User sends a prompt | Marks agent as **working**, captures prompt preview |
 | `Stop` | Claude finishes a turn | Marks agent as **idle**, sends notification |
 | `SessionEnd` | Claude session exits | Removes agent state file |
