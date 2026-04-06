@@ -29,11 +29,17 @@ notify_with_open_folder() {
 }
 
 
-grain_shader_on() {
-  hyprshade on grain
+was_grain_on() {
+  [[ "$(hyprshade current)" == "grain" ]]
+}
+
+grain_shader_restore() {
+  "$GRAIN_WAS_ON" && hyprshade on grain
 }
 
 grain_shader_off() {
+  GRAIN_WAS_ON=false
+  was_grain_on && GRAIN_WAS_ON=true
   hyprshade off
 }
 
@@ -51,7 +57,7 @@ select-shot)
       wl-copy < "$SATTY_OUTPUT" && notify_with_open_folder "Successfully took screenshot" "img"
     fi
   fi
-  grain_shader_on
+  grain_shader_restore
   ;;
 screen-shot)
   grain_shader_off
@@ -61,17 +67,17 @@ screen-shot)
   if [ $? -eq 0 ]; then
     wl-copy < "$SATTY_OUTPUT" && notify_with_open_folder "Successfully took screenshot" "img"
   fi
-  grain_shader_on
+  grain_shader_restore
   ;;
 record-screen)
   grain_shader_off
-  wf-recorder -f "$VID" -o $(get_active_monitor) $WF_RECORDER_PARAMS >/dev/null 2>&1 && grain_shader_on && notify_with_open_folder "Successfully recorded screen" "vid"
+  wf-recorder -f "$VID" -o $(get_active_monitor) $WF_RECORDER_PARAMS >/dev/null 2>&1 && grain_shader_restore && notify_with_open_folder "Successfully recorded screen" "vid"
   ;;
 select-record-screen)
   grain_shader_off
   region=$(slurp -d)
   if [ $? -eq 0 ]; then
-    wf-recorder -g "$region" -f "$VID" -o $(get_active_monitor) $WF_RECORDER_PARAMS >/dev/null 2>&1 && grain_shader_on && notify_with_open_folder "Successfully recorded screen" "vid"
+    wf-recorder -g "$region" -f "$VID" -o $(get_active_monitor) $WF_RECORDER_PARAMS >/dev/null 2>&1 && grain_shader_restore && notify_with_open_folder "Successfully recorded screen" "vid"
   fi
   ;;
 esac

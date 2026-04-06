@@ -1,0 +1,295 @@
+#!/usr/bin/env bash
+# agent-mux: Track and navigate AI agent instances across tmux panes
+#
+# Subcommands:
+#   update <tool> <status>  - Update agent state (reads hook JSON from stdin)
+#   remove                  - Remove current pane's agent state
+#   list                    - List all agents (used by picker for reload)
+#   pick                    - FZF picker to jump to an agent
+#   wrap <tool> <cmd...>    - Wrap a command with basic agent tracking
+#   cleanup                 - Remove stale entries for dead panes
+
+set -euo pipefail
+
+STATE_DIR="$HOME/.local/state/agent-mux"
+
+_pane_id() {
+  echo "${TMUX_PANE:-}"
+}
+
+_state_file() {
+  echo "$STATE_DIR/${1#%}.json"
+}
+
+# Detect if a session name belongs to a sidekick-managed tmux session
+_is_sidekick_session() {
+  [[ "$1" =~ ^(claude|opencode|pi)\ [0-9a-f]+$ ]]
+}
+
+# Walk process tree upward to find which outer tmux pane owns a given PID
+_find_ancestor_pane() {
+  local target_pid="$1"
+
+  declare -A pane_map
+  while IFS=' ' read -r pid pane; do
+    pane_map["$pid"]="$pane"
+  done < <(tmux list-panes -a -F '#{pane_pid} #{pane_id}' 2>/dev/null)
+
+  local current="$target_pid"
+  while [[ -n "$current" && "$current" != "1" && "$current" != "0" ]]; do
+    if [[ -n "${pane_map[$current]:-}" ]]; then
+      echo "${pane_map[$current]}"
+      return 0
+    fi
+    current=$(ps -o ppid= -p "$current" 2>/dev/null | tr -d ' ')
+  done
+  return 1
+}
+
+# Resolve a sidekick pane to its parent Neovim pane
+_resolve_target() {
+  local pane_id="$1"
+  local session
+  session=$(tmux display-message -t "$pane_id" -p '#{session_name}' 2>/dev/null || echo "")
+
+  if _is_sidekick_session "$session"; then
+    local client_pid
+    client_pid=$(tmux list-clients -t "$session" -F '#{client_pid}' 2>/dev/null | head -1)
+    if [[ -n "$client_pid" ]]; then
+      local parent_pane
+      if parent_pane=$(_find_ancestor_pane "$client_pid"); then
+        echo "$parent_pane"
+        return 0
+      fi
+    fi
+  fi
+
+  echo "$pane_id"
+}
+
+_write_state() {
+  local tool="$1" status="$2" pane_id="$3" prompt_preview="${4:-}"
+  mkdir -p "$STATE_DIR"
+
+  local session window_index window_name
+  session=$(tmux display-message -t "$pane_id" -p '#{session_name}' 2>/dev/null || echo "?")
+  window_index=$(tmux display-message -t "$pane_id" -p '#{window_index}' 2>/dev/null || echo "?")
+  window_name=$(tmux display-message -t "$pane_id" -p '#{window_name}' 2>/dev/null || echo "?")
+
+  jq -nc \
+    --arg tool "$tool" \
+    --arg status "$status" \
+    --arg pane_id "$pane_id" \
+    --arg session "$session" \
+    --arg window_index "$window_index" \
+    --arg window_name "$window_name" \
+    --arg prompt_preview "$prompt_preview" \
+    --arg updated_at "$(date -Iseconds)" \
+    '{$tool, $status, $pane_id, $session, $window_index, $window_name, $prompt_preview, $updated_at}' \
+    > "$(_state_file "$pane_id")"
+}
+
+_notify() {
+  local tool="$1" pane_id="$2" preview="${3:-}"
+
+  # Check focus on resolved target (Neovim pane for sidekick sessions)
+  local target_pane
+  target_pane=$(_resolve_target "$pane_id")
+
+  local is_focused
+  is_focused=$(tmux display-message -t "$target_pane" -p \
+    '#{&&:#{session_attached},#{&&:#{window_active},#{pane_active}}}' 2>/dev/null || echo "0")
+
+  [[ "$is_focused" == "1" ]] && return 0
+
+  local title
+  case "$tool" in
+    claude)   title="Claude" ;;
+    opencode) title="OpenCode" ;;
+    *)        title="$tool" ;;
+  esac
+
+  # Check if Ghostty is the focused window
+  local active_class
+  active_class=$(hyprctl activewindow -j 2>/dev/null | jq -r '.class // empty' 2>/dev/null)
+
+  if [[ "$active_class" == *ghostty* ]]; then
+    # Ghostty focused — trigger in-terminal OSD via Quickshell
+    mkdir -p "$STATE_DIR"
+    printf '{"title":"%s idle","body":"%s","ts":%d}\n' \
+      "$title" "${preview:-Agent finished}" "$(date +%s%N)" \
+      > "$STATE_DIR/osd-trigger"
+  else
+    # Terminal not focused — desktop notification
+    notify-send "${title} idle" "${preview:-Agent finished}" \
+      -t 4000 --app-name "agent-mux" 2>/dev/null &
+  fi
+}
+
+cmd_update() {
+  local tool="${1:-}" status="${2:-}"
+  [[ -z "$tool" || -z "$status" ]] && { echo "Usage: agent-mux update <tool> <status>" >&2; exit 1; }
+
+  local pane_id
+  pane_id=$(_pane_id)
+  [[ -z "$pane_id" ]] && exit 0
+
+  local prompt_preview=""
+
+  # Read hook JSON from stdin if available
+  if [[ ! -t 0 ]]; then
+    local stdin_data
+    stdin_data=$(timeout 2 cat 2>/dev/null || true)
+    if [[ -n "$stdin_data" ]]; then
+      prompt_preview=$(echo "$stdin_data" | jq -r '(.prompt // empty)' 2>/dev/null | head -c 80)
+    fi
+  fi
+
+  # Preserve existing prompt preview if no new one
+  local state_file
+  state_file=$(_state_file "$pane_id")
+  if [[ -z "$prompt_preview" && -f "$state_file" ]]; then
+    prompt_preview=$(jq -r '.prompt_preview // empty' "$state_file" 2>/dev/null || true)
+  fi
+
+  _write_state "$tool" "$status" "$pane_id" "$prompt_preview"
+
+  if [[ "$status" == "idle" ]]; then
+    _notify "$tool" "$pane_id" "$prompt_preview"
+  fi
+}
+
+cmd_remove() {
+  local pane_id
+  pane_id=$(_pane_id)
+  [[ -z "$pane_id" ]] && exit 0
+  rm -f "$(_state_file "$pane_id")"
+  # Drain stdin from hook
+  [[ ! -t 0 ]] && cat > /dev/null 2>&1 || true
+}
+
+cmd_cleanup() {
+  [[ -d "$STATE_DIR" ]] || return 0
+  for f in "$STATE_DIR"/*.json; do
+    [[ -f "$f" ]] || continue
+    local pane_id
+    pane_id=$(jq -r '.pane_id' "$f" 2>/dev/null || true)
+    [[ -z "$pane_id" ]] && { rm -f "$f"; continue; }
+    if ! tmux display-message -t "$pane_id" -p '' &>/dev/null; then
+      rm -f "$f"
+    fi
+  done
+}
+
+cmd_list() {
+  cmd_cleanup
+
+  [[ -d "$STATE_DIR" ]] || return 0
+
+  for f in "$STATE_DIR"/*.json; do
+    [[ -f "$f" ]] || continue
+
+    local json
+    json=$(cat "$f")
+
+    local tool status pane_id prompt_preview
+    tool=$(echo "$json" | jq -r '.tool')
+    status=$(echo "$json" | jq -r '.status')
+    pane_id=$(echo "$json" | jq -r '.pane_id')
+    prompt_preview=$(echo "$json" | jq -r '.prompt_preview // empty' | cut -c1-50)
+
+    local target_pane
+    target_pane=$(_resolve_target "$pane_id")
+
+    local display_session display_window
+    display_session=$(tmux display-message -t "$target_pane" -p '#{session_name}' 2>/dev/null || echo "?")
+    display_window=$(tmux display-message -t "$target_pane" -p '#{window_name}' 2>/dev/null || echo "?")
+
+    local status_icon
+    case "$status" in
+      working)
+        status_icon="\033[33m●\033[0m"  # yellow
+        ;;
+      idle)
+        status_icon="\033[32m○\033[0m"  # green
+        ;;
+      *)
+        status_icon="\033[34m◆\033[0m"  # blue for running/unknown
+        ;;
+    esac
+
+    local tool_label
+    case "$tool" in
+      claude)   tool_label="Claude" ;;
+      opencode) tool_label="OCode" ;;
+      *)        tool_label="$tool" ;;
+    esac
+
+    local location="$display_session:$display_window"
+
+    printf '%b  %-7s  %-7s  %-18s  %s\t%s\t%s\n' \
+      "$status_icon" "$status" "$tool_label" "$location" "$prompt_preview" "$target_pane" "$pane_id"
+  done
+}
+
+cmd_pick() {
+  local list
+  list=$(cmd_list)
+
+  if [[ -z "$list" ]]; then
+    echo "No agents running"
+    read -r -t 2 || true
+    exit 0
+  fi
+
+  local self
+  self=$(readlink -f "$0")
+
+  local selected
+  selected=$(echo "$list" | fzf --ansi --reverse --no-sort \
+    --delimiter=$'\t' --with-nth=1 \
+    --header='Jump to agent (ctrl-r: refresh)' \
+    --pointer='▶' \
+    --no-info \
+    --bind "ctrl-r:reload($self list)" \
+    --preview 'tmux capture-pane -ep -t {3}' \
+    --preview-window='right:60%') || true
+
+  if [[ -n "$selected" ]]; then
+    local target_pane
+    target_pane=$(echo "$selected" | awk -F$'\t' '{print $2}')
+    # Select the target pane's window first, then switch the most recent client to it
+    tmux select-window -t "$target_pane"
+    tmux select-pane -t "$target_pane"
+    tmux switch-client -t "$target_pane"
+  fi
+}
+
+cmd_wrap() {
+  local tool="${1:-}"; shift || true
+  [[ -z "$tool" || $# -eq 0 ]] && { echo "Usage: agent-mux wrap <tool> <command...>" >&2; exit 1; }
+
+  local pane_id
+  pane_id=$(_pane_id)
+  if [[ -z "$pane_id" ]]; then
+    "$@"
+    exit $?
+  fi
+
+  local state_file
+  state_file=$(_state_file "$pane_id")
+
+  _write_state "$tool" "running" "$pane_id" ""
+  trap 'rm -f "'"$state_file"'"' EXIT
+  "$@"
+}
+
+case "${1:-help}" in
+  update)  shift; cmd_update "$@" ;;
+  remove)  cmd_remove ;;
+  list)    cmd_list ;;
+  pick)    cmd_pick ;;
+  wrap)    shift; cmd_wrap "$@" ;;
+  cleanup) cmd_cleanup ;;
+  *)       echo "Usage: agent-mux {update|remove|list|pick|wrap|cleanup}" >&2 ;;
+esac
