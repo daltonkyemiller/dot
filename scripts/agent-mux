@@ -8,10 +8,516 @@
 #   pick                    - FZF picker to jump to an agent
 #   wrap <tool> <cmd...>    - Wrap a command with basic agent tracking
 #   cleanup                 - Remove stale entries for dead panes
+#   panel-select <pane-id>  - Pick/create an agent session and open panel
+#   panel-toggle <pane-id>  - Toggle selected agent panel for pane
+#   panel-picker <pane-id>  - Always show session picker popup
+#   panel-kill <token>      - Kill a session from panel picker token
+#   panel-source <cwd>      - List sessions + new-session actions
+#   apply-focus <client-tty> - Apply deferred pane focus after picker
+#   launch-picker <pane> <client-tty> - Open picker on correct client
+#   detach <pane-id>        - Detach an agent session from tmux clients
 
 set -euo pipefail
 
 STATE_DIR="$HOME/.local/state/agent-mux"
+PANEL_DIR="$STATE_DIR/panels"
+
+_normalize_path() {
+  realpath -m "$1" 2>/dev/null || echo "$1"
+}
+
+_session_option() {
+  local session="$1" key="$2"
+  tmux show-options -t "$session" -qv "$key" 2>/dev/null || true
+}
+
+_set_session_option() {
+  local session="$1" key="$2" value="$3"
+  tmux set-option -t "$session" -q "$key" "$value"
+}
+
+_panel_state_file() {
+  local pane_id="$1"
+  echo "$PANEL_DIR/${pane_id#%}.json"
+}
+
+_focus_state_file() {
+  local client_tty="${1:-default}"
+  local sanitized
+  sanitized=$(printf '%s' "$client_tty" | tr '/ ' '__')
+  echo "$STATE_DIR/focus-${sanitized}.json"
+}
+
+_cleanup_panel_state() {
+  [[ -d "$PANEL_DIR" ]] || return 0
+
+  local f
+  for f in "$PANEL_DIR"/*.json; do
+    [[ -f "$f" ]] || continue
+
+    local pane_id session
+    pane_id=$(jq -r '.pane_id // empty' "$f" 2>/dev/null || true)
+    session=$(jq -r '.session // empty' "$f" 2>/dev/null || true)
+
+    if [[ -z "$pane_id" || -z "$session" ]]; then
+      rm -f "$f"
+      continue
+    fi
+
+    if ! tmux display-message -t "$pane_id" -p '' &>/dev/null; then
+      rm -f "$f"
+      continue
+    fi
+
+    if ! tmux has-session -t "$session" 2>/dev/null; then
+      rm -f "$f"
+    fi
+  done
+}
+
+_save_panel_selection() {
+  local pane_id="$1" cwd="$2" session="$3"
+  mkdir -p "$PANEL_DIR"
+  jq -nc \
+    --arg pane_id "$pane_id" \
+    --arg cwd "$cwd" \
+    --arg session "$session" \
+    '{pane_id: $pane_id, cwd: $cwd, session: $session}' > "$(_panel_state_file "$pane_id")"
+}
+
+_clear_panel_selection() {
+  local pane_id="$1"
+  rm -f "$(_panel_state_file "$pane_id")"
+}
+
+_get_panel_selection() {
+  local pane_id="$1" cwd="$2"
+  local state_file
+  state_file=$(_panel_state_file "$pane_id")
+  [[ -f "$state_file" ]] || return 1
+
+  local selected_cwd selected_session
+  selected_cwd=$(jq -r '.cwd // empty' "$state_file" 2>/dev/null || true)
+  selected_session=$(jq -r '.session // empty' "$state_file" 2>/dev/null || true)
+  [[ -z "$selected_cwd" || -z "$selected_session" ]] && return 1
+
+  local normalized_current normalized_selected
+  normalized_current=$(_normalize_path "$cwd")
+  normalized_selected=$(_normalize_path "$selected_cwd")
+  [[ "$normalized_current" == "$normalized_selected" ]] || return 1
+
+  tmux has-session -t "$selected_session" 2>/dev/null || return 1
+  echo "$selected_session"
+}
+
+_generate_session_name() {
+  local tool="$1"
+  printf '%s-%s' "$tool" "$(date +%y%m%d-%H%M%S)-$RANDOM"
+}
+
+_tool_command() {
+  local tool="$1"
+  case "$tool" in
+    claude)
+      printf '%s\n' 'claude --allow-dangerously-skip-permissions'
+      ;;
+    opencode)
+      if command -v opencode >/dev/null 2>&1; then
+        printf '%s\n' 'opencode'
+      elif [[ -x "$HOME/.opencode/bin/opencode" ]]; then
+        printf '%s\n' "$HOME/.opencode/bin/opencode"
+      else
+        echo "opencode not found in PATH and ~/.opencode/bin/opencode missing" >&2
+        return 1
+      fi
+      ;;
+    *)
+      echo "Unsupported tool: $tool" >&2
+      return 1
+      ;;
+  esac
+}
+
+_create_agent_session() {
+  local tool="$1" cwd="$2"
+  local session cmd
+  session=$(_generate_session_name "$tool")
+  cmd=$(_tool_command "$tool")
+
+  tmux new-session -d -s "$session" -c "$cwd" "$cmd"
+  tmux set-option -t "$session" -q status off
+  _set_session_option "$session" '@agent_mux_tool' "$tool"
+  _set_session_option "$session" '@agent_mux_cwd' "$(_normalize_path "$cwd")"
+  tmux rename-window -t "$session:0" "$tool"
+
+  echo "$session"
+}
+
+_session_tool() {
+  local session="$1"
+  local tool
+  tool=$(_session_option "$session" '@agent_mux_tool')
+  if [[ -n "$tool" ]]; then
+    echo "$tool"
+    return
+  fi
+
+  case "$session" in
+    claude-*|"claude "*) echo "claude" ;;
+    opencode-*|"opencode "*) echo "opencode" ;;
+    *)
+      local pane_cmd
+      pane_cmd=$(tmux display-message -p -t "$session:0.0" '#{pane_current_command}' 2>/dev/null || true)
+      if [[ "$pane_cmd" == *claude* ]]; then
+        echo "claude"
+      elif [[ "$pane_cmd" == *opencode* ]]; then
+        echo "opencode"
+      else
+        echo ""
+      fi
+      ;;
+  esac
+}
+
+_session_cwd() {
+  local session="$1"
+  local stored
+  stored=$(_session_option "$session" '@agent_mux_cwd')
+  if [[ -n "$stored" ]]; then
+    _normalize_path "$stored"
+    return
+  fi
+
+  local pane_cwd
+  pane_cwd=$(tmux display-message -p -t "$session:0.0" '#{pane_current_path}' 2>/dev/null || true)
+  [[ -n "$pane_cwd" ]] && _normalize_path "$pane_cwd"
+}
+
+_format_display_path() {
+  local path="$1"
+  local home_prefix="$HOME"
+  local rendered="$path"
+
+  if [[ -n "$home_prefix" && "$rendered" == "$home_prefix"* ]]; then
+    rendered="~${rendered#$home_prefix}"
+  fi
+
+  local max_len=56
+  if [[ ${#rendered} -gt $max_len ]]; then
+    rendered="…${rendered: -$((max_len - 1))}"
+  fi
+
+  printf '%s\n' "$rendered"
+}
+
+_is_detachable_agent_session() {
+  local session="$1"
+  local tool_opt
+  tool_opt=$(_session_option "$session" '@agent_mux_tool')
+  if [[ -n "$tool_opt" ]]; then
+    return 0
+  fi
+
+  if _is_sidekick_session "$session"; then
+    return 0
+  fi
+
+  case "$session" in
+    claude-*|opencode-*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+_list_agent_sessions_for_cwd() {
+  local cwd="$1"
+  local normalized_cwd
+  normalized_cwd=$(_normalize_path "$cwd")
+
+  local session
+  while IFS= read -r session; do
+    [[ -n "$session" ]] || continue
+    local tool session_cwd
+    tool=$(_session_tool "$session")
+    [[ -n "$tool" ]] || continue
+
+    session_cwd=$(_session_cwd "$session")
+    [[ -n "$session_cwd" ]] || continue
+    [[ "$session_cwd" == "$normalized_cwd" ]] || continue
+
+    local attached mark label
+    attached=$(tmux list-clients -t "$session" 2>/dev/null | wc -l | tr -d ' ' || true)
+    [[ -n "$attached" ]] || attached="0"
+    if [[ "$attached" -gt 0 ]]; then
+      mark="attached"
+    else
+      mark="detached"
+    fi
+
+    case "$tool" in
+      claude) label="Claude" ;;
+      opencode) label="OpenCode" ;;
+      *) label="$tool" ;;
+    esac
+
+    printf '%-9s %-10s %s\tsession:%s\n' "$label" "$mark" "$session" "$session"
+  done < <(tmux list-sessions -F '#{session_name}' 2>/dev/null)
+}
+
+_find_panel_view_pane() {
+  local owner_pane="$1" session="$2"
+  local window_id
+  window_id=$(tmux display-message -p -t "$owner_pane" '#{window_id}' 2>/dev/null || true)
+  [[ -n "$window_id" ]] || return 1
+
+  tmux list-panes -t "$window_id" -F '#{pane_id}|#{@agent_mux_view_owner}|#{@agent_mux_view_session}' \
+    | awk -F '|' -v owner="$owner_pane" -v target_session="$session" '$2 == owner && $3 == target_session { print $1; exit }'
+}
+
+_find_any_owner_view_pane() {
+  local owner_pane="$1"
+  local window_id
+  window_id=$(tmux display-message -p -t "$owner_pane" '#{window_id}' 2>/dev/null || true)
+  [[ -n "$window_id" ]] || return 1
+
+  tmux list-panes -t "$window_id" -F '#{pane_id}|#{@agent_mux_view_owner}' \
+    | awk -F '|' -v owner="$owner_pane" '$2 == owner { print $1; exit }'
+}
+
+_find_view_pane_for_session() {
+  local session="$1"
+  tmux list-panes -a -F '#{pane_id}|#{@agent_mux_view_session}' \
+    | awk -F '|' -v target_session="$session" '$2 == target_session { print $1; exit }'
+}
+
+_find_owner_pane_for_session() {
+  local session="$1"
+  [[ -d "$PANEL_DIR" ]] || return 1
+
+  local f
+  for f in "$PANEL_DIR"/*.json; do
+    [[ -f "$f" ]] || continue
+    local selected owner_pane
+    selected=$(jq -r '.session // empty' "$f" 2>/dev/null || true)
+    [[ "$selected" == "$session" ]] || continue
+
+    owner_pane=$(jq -r '.pane_id // empty' "$f" 2>/dev/null || true)
+    [[ -n "$owner_pane" ]] || continue
+    if tmux display-message -t "$owner_pane" -p '' &>/dev/null; then
+      echo "$owner_pane"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+_pane_option() {
+  local pane_id="$1" key="$2"
+  tmux show-options -p -t "$pane_id" -qv "$key" 2>/dev/null || true
+}
+
+_resolve_owner_pane() {
+  local pane_id="$1"
+  local owner
+  owner=$(_pane_option "$pane_id" '@agent_mux_view_owner')
+  if [[ -n "$owner" ]] && tmux display-message -t "$owner" -p '' &>/dev/null; then
+    echo "$owner"
+    return
+  fi
+
+  local window_id
+  window_id=$(tmux display-message -p -t "$pane_id" '#{window_id}' 2>/dev/null || true)
+  if [[ -n "$window_id" ]]; then
+    local owners
+    owners=$(tmux list-panes -t "$window_id" -F '#{@agent_mux_view_owner}' \
+      | awk 'NF > 0' \
+      | sort -u)
+    local owner_count
+    owner_count=$(printf '%s\n' "$owners" | awk 'NF > 0' | wc -l | tr -d ' ')
+    if [[ "$owner_count" == "1" ]]; then
+      local only_owner
+      only_owner=$(printf '%s\n' "$owners" | awk 'NF > 0 { print; exit }')
+      if [[ -n "$only_owner" ]] && tmux display-message -t "$only_owner" -p '' &>/dev/null; then
+        echo "$only_owner"
+        return
+      fi
+    fi
+  fi
+
+  echo "$pane_id"
+}
+
+_open_panel_view() {
+  local owner_pane="$1" session="$2"
+  local cwd
+  cwd=$(tmux display-message -p -t "$owner_pane" '#{pane_current_path}' 2>/dev/null || pwd)
+
+  tmux set-option -t "$session" -q status off
+
+  local existing_for_owner
+  existing_for_owner=$(_find_any_owner_view_pane "$owner_pane" || true)
+  if [[ -n "$existing_for_owner" ]]; then
+    tmux kill-pane -t "$existing_for_owner"
+  fi
+
+  local new_pane
+  new_pane=$(tmux split-window -h -t "$owner_pane" -c "$cwd" -p 45 -P -F '#{pane_id}' \
+    "TMUX= tmux attach-session -t \"$session\"")
+  tmux set-option -p -t "$new_pane" -q @agent_mux_view_owner "$owner_pane"
+  tmux set-option -p -t "$new_pane" -q @agent_mux_view_session "$session"
+}
+
+_toggle_panel_view() {
+  local owner_pane="$1" session="$2"
+  local existing
+  existing=$(_find_panel_view_pane "$owner_pane" "$session" || true)
+  if [[ -n "$existing" ]]; then
+    tmux kill-pane -t "$existing"
+  else
+    _open_panel_view "$owner_pane" "$session"
+  fi
+}
+
+_pick_or_create_session() {
+  local cwd="$1"
+  local self
+  local quoted_cwd
+  self=$(readlink -f "$0")
+  quoted_cwd=$(printf '%q' "$cwd")
+
+  local selected
+  selected=$(
+    "$self" panel-source "$cwd" | fzf --ansi --reverse --no-sort \
+      --delimiter=$'\t' --with-nth=1 \
+      --header='Select session (ctrl-d: kill, ctrl-r: refresh)' \
+      --pointer='▶' \
+      --no-info \
+      --bind "ctrl-d:execute-silent($self panel-kill {2})+reload($self panel-source $quoted_cwd)" \
+      --bind "ctrl-r:reload($self panel-source $quoted_cwd)"
+  ) || true
+
+  local token
+  token=$(printf '%s' "$selected" | awk -F$'\t' '{print $2}')
+  [[ -n "$token" ]] || return 1
+
+  if [[ "$token" == action:new:* ]]; then
+    local tool
+    tool=${token#action:new:}
+    _create_agent_session "$tool" "$cwd"
+  elif [[ "$token" == session:* ]]; then
+    printf '%s\n' "${token#session:}"
+  else
+    return 1
+  fi
+}
+
+cmd_panel_kill() {
+  local token="${1:-}"
+  [[ -z "$token" ]] && { echo "Usage: agent-mux panel-kill <token>" >&2; exit 1; }
+
+  if [[ "$token" != session:* ]]; then
+    exit 0
+  fi
+
+  local session
+  session=${token#session:}
+  [[ -n "$session" ]] || exit 0
+
+  tmux has-session -t "$session" 2>/dev/null || exit 0
+  tmux kill-session -t "$session" 2>/dev/null || true
+
+  if [[ -d "$PANEL_DIR" ]]; then
+    local f
+    for f in "$PANEL_DIR"/*.json; do
+      [[ -f "$f" ]] || continue
+      local selected
+      selected=$(jq -r '.session // empty' "$f" 2>/dev/null || true)
+      if [[ "$selected" == "$session" ]]; then
+        rm -f "$f"
+      fi
+    done
+  fi
+}
+
+cmd_panel_list() {
+  local cwd="${1:-}"
+  [[ -z "$cwd" ]] && { echo "Usage: agent-mux panel-list <cwd>" >&2; exit 1; }
+  _list_agent_sessions_for_cwd "$cwd"
+}
+
+cmd_panel_source() {
+  local cwd="${1:-}"
+  [[ -z "$cwd" ]] && { echo "Usage: agent-mux panel-source <cwd>" >&2; exit 1; }
+
+  _list_agent_sessions_for_cwd "$cwd"
+  echo 'New Claude session          	action:new:claude'
+  echo 'New OpenCode session        	action:new:opencode'
+}
+
+cmd_panel_select() {
+  local source_pane="${1:-}"
+  [[ -z "$source_pane" ]] && { echo "Usage: agent-mux panel-select <owner-pane-id>" >&2; exit 1; }
+
+  local owner_pane
+  owner_pane=$(_resolve_owner_pane "$source_pane")
+
+  local cwd
+  cwd=$(tmux display-message -p -t "$owner_pane" '#{pane_current_path}' 2>/dev/null || pwd)
+
+  local session
+  session=$(_pick_or_create_session "$cwd" || true)
+  [[ -n "$session" ]] || exit 0
+
+  _save_panel_selection "$owner_pane" "$cwd" "$session"
+
+  local existing_same
+  existing_same=$(_find_panel_view_pane "$owner_pane" "$session" || true)
+  if [[ -n "$existing_same" ]]; then
+    tmux select-pane -t "$existing_same"
+    exit 0
+  fi
+
+  _open_panel_view "$owner_pane" "$session"
+}
+
+cmd_panel_toggle() {
+  local source_pane="${1:-}"
+  [[ -z "$source_pane" ]] && { echo "Usage: agent-mux panel-toggle <owner-pane-id>" >&2; exit 1; }
+
+  local source_owner
+  source_owner=$(_pane_option "$source_pane" '@agent_mux_view_owner')
+  if [[ -n "$source_owner" ]]; then
+    tmux kill-pane -t "$source_pane"
+    exit 0
+  fi
+
+  local owner_pane
+  owner_pane=$(_resolve_owner_pane "$source_pane")
+
+  local cwd selected
+  cwd=$(tmux display-message -p -t "$owner_pane" '#{pane_current_path}' 2>/dev/null || pwd)
+  selected=$(_get_panel_selection "$owner_pane" "$cwd" || true)
+
+  if [[ -z "$selected" ]]; then
+    _clear_panel_selection "$owner_pane"
+    tmux display-popup -w 70% -h 60% -b rounded -S "fg=#666666" -T " Agent Sessions " \
+      -E "$0 panel-select $owner_pane"
+    exit 0
+  fi
+
+  _toggle_panel_view "$owner_pane" "$selected"
+}
+
+cmd_panel_picker() {
+  local source_pane="${1:-}"
+  [[ -z "$source_pane" ]] && { echo "Usage: agent-mux panel-picker <pane-id>" >&2; exit 1; }
+
+  local owner_pane
+  owner_pane=$(_resolve_owner_pane "$source_pane")
+
+  tmux display-popup -w 70% -h 60% -b rounded -S "fg=#666666" -T " Agent Sessions " \
+    -E "$0 panel-select $owner_pane"
+}
 
 _pane_id() {
   echo "${TMUX_PANE:-}"
@@ -51,6 +557,22 @@ _resolve_target() {
   local pane_id="$1"
   local session
   session=$(tmux display-message -t "$pane_id" -p '#{session_name}' 2>/dev/null || echo "")
+
+  if [[ -n "$session" ]]; then
+    local view_pane
+    view_pane=$(_find_view_pane_for_session "$session" || true)
+    if [[ -n "$view_pane" ]]; then
+      echo "$view_pane"
+      return 0
+    fi
+
+    local owner_pane
+    owner_pane=$(_find_owner_pane_for_session "$session" || true)
+    if [[ -n "$owner_pane" ]]; then
+      echo "$owner_pane"
+      return 0
+    fi
+  fi
 
   if _is_sidekick_session "$session"; then
     local client_pid
@@ -141,7 +663,7 @@ cmd_update() {
     local stdin_data
     stdin_data=$(timeout 2 cat 2>/dev/null || true)
     if [[ -n "$stdin_data" ]]; then
-      prompt_preview=$(echo "$stdin_data" | jq -r '(.prompt // empty)' 2>/dev/null | head -c 80)
+      prompt_preview=$(echo "$stdin_data" | jq -r '(.prompt // empty)' 2>/dev/null | tr '\n\t' '  ' | head -c 80)
     fi
   fi
 
@@ -179,6 +701,8 @@ cmd_cleanup() {
       rm -f "$f"
     fi
   done
+
+  _cleanup_panel_state
 }
 
 cmd_list() {
@@ -198,14 +722,16 @@ cmd_list() {
     tool=$(echo "$json" | jq -r '.tool')
     status=$(echo "$json" | jq -r '.status')
     pane_id=$(echo "$json" | jq -r '.pane_id')
-    prompt_preview=$(echo "$json" | jq -r '.prompt_preview // empty' | cut -c1-50)
+    prompt_preview=$(echo "$json" | jq -r '.prompt_preview // empty' | tr '\n\t' '  ' | cut -c1-30)
+    [[ ${#prompt_preview} -ge 30 ]] && prompt_preview="${prompt_preview}…"
 
     local target_pane
     target_pane=$(_resolve_target "$pane_id")
 
-    local display_session display_window
+    local display_session display_cwd
     display_session=$(tmux display-message -t "$target_pane" -p '#{session_name}' 2>/dev/null || echo "?")
-    display_window=$(tmux display-message -t "$target_pane" -p '#{window_name}' 2>/dev/null || echo "?")
+    display_cwd=$(tmux display-message -t "$target_pane" -p '#{pane_current_path}' 2>/dev/null || echo "?")
+    display_cwd=$(_format_display_path "$display_cwd")
 
     local status_icon
     case "$status" in
@@ -227,14 +753,15 @@ cmd_list() {
       *)        tool_label="$tool" ;;
     esac
 
-    local location="$display_session:$display_window"
-
-    printf '%b  %-7s  %-7s  %-18s  %s\t%s\t%s\n' \
-      "$status_icon" "$status" "$tool_label" "$location" "$prompt_preview" "$target_pane" "$pane_id"
+    printf '%b %-7s %-7s %s  (%s)  %s\t%s\t%s\n' \
+      "$status_icon" "$status" "$tool_label" "$display_cwd" "$display_session" "$prompt_preview" "$target_pane" "$pane_id"
   done
 }
 
 cmd_pick() {
+  local caller_client_tty="${1:-}"
+  _cleanup_panel_state
+
   local list
   list=$(cmd_list)
 
@@ -250,21 +777,115 @@ cmd_pick() {
   local selected
   selected=$(echo "$list" | fzf --ansi --reverse --no-sort \
     --delimiter=$'\t' --with-nth=1 \
-    --header='Jump to agent (ctrl-r: refresh, ctrl-d: remove)' \
+    --header='Jump to agent (ctrl-r: refresh, ctrl-d: detach)' \
     --pointer='▶' \
     --no-info \
     --bind "ctrl-r:reload($self list)" \
-    --bind "ctrl-d:execute-silent(rm -f $STATE_DIR/\$(echo {3} | tr -d %).json)+reload($self list)" \
+    --bind "ctrl-d:execute-silent($self detach {3})+reload($self list)" \
     --preview 'tmux capture-pane -ep -t {3}' \
-    --preview-window='right:60%') || true
+    --preview-window='right:50%') || true
 
   if [[ -n "$selected" ]]; then
-    local target_pane
-    target_pane=$(echo "$selected" | awk -F$'\t' '{print $2}')
-    # Select the target pane's window first, then switch the most recent client to it
-    tmux select-window -t "$target_pane"
-    tmux select-pane -t "$target_pane"
-    tmux switch-client -t "$target_pane"
+    local target_pane source_pane focus_pane focus_session
+    target_pane=$(echo "$selected" | awk -F$'\t' '{print $(NF-1)}')
+    source_pane=$(echo "$selected" | awk -F$'\t' '{print $NF}')
+
+    focus_pane=$(_resolve_target "$source_pane" || true)
+    [[ -n "$focus_pane" ]] || focus_pane="$target_pane"
+
+    focus_session=$(tmux display-message -p -t "$focus_pane" '#{session_name}' 2>/dev/null || true)
+    [[ -n "$focus_session" ]] || focus_session="$focus_pane"
+
+    mkdir -p "$STATE_DIR"
+    jq -nc --arg pane "$focus_pane" --arg session "$focus_session" \
+      '{pane: $pane, session: $session}' > "$(_focus_state_file "$caller_client_tty")"
+  fi
+}
+
+cmd_apply_focus() {
+  local client_tty="${1:-}"
+
+  local state_file
+  state_file=$(_focus_state_file "$client_tty")
+  if [[ ! -f "$state_file" ]]; then
+    state_file=$(_focus_state_file default)
+  fi
+  [[ -f "$state_file" ]] || exit 0
+
+  local pane session
+  pane=$(jq -r '.pane // empty' "$state_file" 2>/dev/null || true)
+  session=$(jq -r '.session // empty' "$state_file" 2>/dev/null || true)
+  rm -f "$state_file"
+
+  [[ -n "$pane" && -n "$session" ]] || exit 0
+  tmux display-message -t "$pane" -p '' &>/dev/null || exit 0
+
+  if [[ -n "$client_tty" ]]; then
+    tmux switch-client -c "$client_tty" -t "$session"
+  else
+    tmux switch-client -t "$session"
+  fi
+  tmux select-window -t "$pane"
+  tmux select-pane -t "$pane"
+}
+
+cmd_launch_picker() {
+  local source_pane="${1:-}"
+  local current_client_tty="${2:-}"
+  [[ -z "$source_pane" ]] && { echo "Usage: agent-mux launch-picker <pane-id> <client-tty>" >&2; exit 1; }
+
+  if [[ -z "$current_client_tty" ]]; then
+    current_client_tty=$(tmux display-message -p '#{client_tty}' 2>/dev/null || true)
+  fi
+
+  local target_client_tty
+  target_client_tty="$current_client_tty"
+
+  local owner_pane
+  owner_pane=$(_pane_option "$source_pane" '@agent_mux_view_owner')
+  if [[ -n "$owner_pane" ]] && tmux display-message -t "$owner_pane" -p '' &>/dev/null; then
+    local owner_session
+    owner_session=$(tmux display-message -p -t "$owner_pane" '#{session_name}' 2>/dev/null || true)
+    if [[ -n "$owner_session" ]]; then
+      local owner_client
+      owner_client=$(tmux list-clients -t "$owner_session" -F '#{client_tty}' 2>/dev/null \
+        | awk -v current="$current_client_tty" '$0 != current { print; exit }')
+      if [[ -n "$owner_client" ]]; then
+        target_client_tty="$owner_client"
+      fi
+    fi
+  fi
+
+  [[ -n "$target_client_tty" ]] || exit 1
+
+  tmux display-popup -t "$target_client_tty" -w 80% -h 50% -b rounded -S "fg=#666666" -T " Agents " \
+    -E "$0 pick $target_client_tty" || true
+  tmux run-shell "$0 apply-focus $target_client_tty"
+}
+
+cmd_detach() {
+  local pane_id="${1:-}"
+  [[ -z "$pane_id" ]] && { echo "Usage: agent-mux detach <pane-id>" >&2; exit 1; }
+
+  local state_file
+  state_file=$(_state_file "$pane_id")
+
+  if ! tmux display-message -t "$pane_id" -p '' &>/dev/null; then
+    rm -f "$state_file"
+    exit 0
+  fi
+
+  local session
+  session=$(tmux display-message -t "$pane_id" -p '#{session_name}' 2>/dev/null || true)
+  if [[ -z "$session" ]]; then
+    rm -f "$state_file"
+    exit 0
+  fi
+
+  if _is_detachable_agent_session "$session"; then
+    tmux detach-client -s "$session" 2>/dev/null || true
+  else
+    rm -f "$state_file"
   fi
 }
 
@@ -292,7 +913,16 @@ case "${1:-help}" in
   remove)  cmd_remove ;;
   list)    cmd_list ;;
   pick)    cmd_pick ;;
+  panel-list) shift; cmd_panel_list "$@" ;;
+  panel-source) shift; cmd_panel_source "$@" ;;
+  panel-select) shift; cmd_panel_select "$@" ;;
+  panel-toggle) shift; cmd_panel_toggle "$@" ;;
+  panel-picker) shift; cmd_panel_picker "$@" ;;
+  panel-kill) shift; cmd_panel_kill "$@" ;;
+  apply-focus) shift; cmd_apply_focus "$@" ;;
+  launch-picker) shift; cmd_launch_picker "$@" ;;
+  detach) shift; cmd_detach "$@" ;;
   wrap)    shift; cmd_wrap "$@" ;;
   cleanup) cmd_cleanup ;;
-  *)       echo "Usage: agent-mux {update|remove|list|pick|wrap|cleanup}" >&2 ;;
+  *)       echo "Usage: agent-mux {update|remove|list|pick|panel-list|panel-source|panel-select|panel-toggle|panel-picker|panel-kill|apply-focus|launch-picker|detach|wrap|cleanup}" >&2 ;;
 esac
