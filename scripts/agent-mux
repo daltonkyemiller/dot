@@ -455,6 +455,7 @@ cmd_panel_source() {
   _list_agent_sessions_for_cwd "$cwd"
   echo 'New Claude session          	action:new:claude'
   echo 'New OpenCode session        	action:new:opencode'
+  echo 'New Codex session        	action:new:codex'
 }
 
 cmd_panel_select() {
