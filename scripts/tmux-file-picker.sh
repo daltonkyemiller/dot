@@ -3,13 +3,35 @@
 # Shows a preview on top and a fuzzy file list on bottom.
 # On confirm, sends "@<relative-path>" to the target pane.
 #
-# Usage: tmux-file-picker.sh <target-pane-id>
+# Usage: tmux-file-picker.sh <target-pane-id> [--root <search-root>] [--mode files|dirs]
 set -euo pipefail
+
+DEBUG_LOG="${XDG_STATE_HOME:-$HOME/.local/state}/agent-mux/tmux-file-picker.log"
+mkdir -p "$(dirname "$DEBUG_LOG")"
+log_debug() {
+  printf '%s [tmux-file-picker] %s\n' "$(date -Iseconds)" "$*" >> "$DEBUG_LOG"
+}
 
 TARGET_PANE="${1:-}"
 if [[ -z "$TARGET_PANE" ]]; then
+  log_debug "exit missing target pane args=$*"
   echo "Usage: $0 <target-pane-id>" >&2
   exit 1
+fi
+
+SEARCH_ROOT=""
+SEARCH_MODE="files"
+if [[ "${2:-}" == "--root" ]]; then
+  SEARCH_ROOT="${3:-}"
+fi
+if [[ "${4:-}" == "--mode" ]]; then
+  SEARCH_MODE="${5:-files}"
+fi
+if [[ "${2:-}" == "--mode" ]]; then
+  SEARCH_MODE="${3:-files}"
+fi
+if [[ "$SEARCH_MODE" != "files" && "$SEARCH_MODE" != "dirs" ]]; then
+  SEARCH_MODE="files"
 fi
 
 SEND_PANE="$TARGET_PANE"
@@ -26,7 +48,36 @@ fi
 # Resolve the target pane's current directory so paths are relative to it.
 TARGET_CWD=$(tmux display-message -p -t "$TARGET_PANE" '#{pane_current_path}' 2>/dev/null || pwd)
 [[ -n "$TARGET_CWD" ]] || TARGET_CWD="$HOME"
-cd "$TARGET_CWD" 2>/dev/null || cd "$HOME"
+
+if [[ -z "$SEARCH_ROOT" ]]; then
+  SEARCH_ROOT="$TARGET_CWD"
+fi
+
+SEARCH_ROOT=$(realpath -m "$SEARCH_ROOT" 2>/dev/null || printf '%s' "$SEARCH_ROOT")
+TARGET_CWD=$(realpath -m "$TARGET_CWD" 2>/dev/null || printf '%s' "$TARGET_CWD")
+log_debug "start pane=$TARGET_PANE mode=$SEARCH_MODE cwd=$TARGET_CWD root=$SEARCH_ROOT"
+
+SEARCH_IS_CWD=0
+if [[ "$SEARCH_ROOT" == "$TARGET_CWD" ]]; then
+  SEARCH_IS_CWD=1
+fi
+
+SELF_Q=$(printf '%q' "$0")
+PANE_Q=$(printf '%q' "$TARGET_PANE")
+ROOT_Q=$(printf '%q' "$SEARCH_ROOT")
+PARENT_ROOT=$(dirname "$SEARCH_ROOT")
+PARENT_Q=$(printf '%q' "$PARENT_ROOT")
+CWD_Q=$(printf '%q' "$TARGET_CWD")
+BASH_BIN="$(command -v bash || echo /usr/bin/bash)"
+UP_CMD=$(printf '%q -lc %q %q %q %q %q %q %q' "$BASH_BIN" 'exec "$1" "$2" --root "$3" --mode "$4"' _ "$0" "$TARGET_PANE" "$PARENT_ROOT" dirs)
+RESET_CMD=$(printf '%q -lc %q %q %q %q %q %q %q' "$BASH_BIN" 'exec "$1" "$2" --root "$3" --mode "$4"' _ "$0" "$TARGET_PANE" "$TARGET_CWD" "$SEARCH_MODE")
+TOGGLE_MODE="dirs"
+if [[ "$SEARCH_MODE" == "dirs" ]]; then
+  TOGGLE_MODE="files"
+fi
+TOGGLE_CMD=$(printf '%q -lc %q %q %q %q %q %q %q' "$BASH_BIN" 'exec "$1" "$2" --root "$3" --mode "$4"' _ "$0" "$TARGET_PANE" "$SEARCH_ROOT" "$TOGGLE_MODE")
+
+cd "$SEARCH_ROOT" 2>/dev/null || cd "$TARGET_CWD" 2>/dev/null || cd "$HOME"
 
 JQ_BIN="$(command -v jq || true)"
 SHA_BIN=""
@@ -78,6 +129,11 @@ if [[ -z "$CUT_BIN" ]]; then
   CUT_BIN="/usr/bin/cut"
 fi
 
+LS_BIN="$(command -v ls || true)"
+if [[ -z "$LS_BIN" ]]; then
+  LS_BIN="/usr/bin/ls"
+fi
+
 FD_BIN="$(command -v fd || true)"
 if [[ -z "$FD_BIN" ]]; then
   for candidate in /usr/bin/fd /usr/bin/fdfind /bin/fd /bin/fdfind "$HOME/.local/bin/fd"; do
@@ -93,10 +149,54 @@ if [[ -z "$FD_BIN" ]]; then
   exit 0
 fi
 
-PREVIEW_CMD='path=$(printf "%s" {} | '"$CUT_BIN"' -f3-); '"$BAT_BIN"' --style=numbers --color=always --line-range=:300 -- "$path"'
+FD_ARGS=(
+  --type f
+  --follow
+  --hidden
+  --exclude .git
+  --exclude node_modules
+  --exclude .next
+  --exclude dist
+  --exclude build
+  --exclude .turbo
+  --exclude .cache
+  --exclude .yarn
+  --exclude .pnpm-store
+  --exclude target
+)
+
+DIR_ARGS=(
+  --type d
+  --min-depth 1
+  --max-depth 1
+  --follow
+  --hidden
+  --exclude .git
+  --exclude node_modules
+  --exclude .next
+  --exclude dist
+  --exclude build
+  --exclude .turbo
+  --exclude .cache
+  --exclude .yarn
+  --exclude .pnpm-store
+  --exclude target
+)
+
+if [[ "$SEARCH_IS_CWD" -ne 1 ]]; then
+  FD_ARGS+=(--max-depth 8)
+fi
+
+PREVIEW_FIELD=2
+PREVIEW_CMD='path=$(printf "%s" {} | '"$CUT_BIN"' -f2-); '"$BAT_BIN"' --style=numbers --color=always --line-range=:300 -- "$path"'
+if [[ "$SEARCH_MODE" == "dirs" ]]; then
+  PREVIEW_CMD='path=$(printf "%s" {} | '"$CUT_BIN"' -f2-); '"$LS_BIN"' -la -- "$path"'
+fi
 
 CONTEXT_RANK_FILE=""
 build_context_rank_file() {
+  [[ "$SEARCH_MODE" == "files" ]] || return 0
+  [[ "$SEARCH_ROOT" == "$TARGET_CWD" ]] || return 0
   [[ -n "$JQ_BIN" && -n "$SHA_BIN" ]] || return 0
 
   local hash
@@ -107,7 +207,11 @@ build_context_rank_file() {
   fi
 
   local context_file="${XDG_STATE_HOME:-$HOME/.local/state}/agent-mux/nvim-context/${hash}.json"
-  [[ -f "$context_file" ]] || return 0
+  if [[ ! -f "$context_file" ]]; then
+    log_debug "context missing file=$context_file"
+    return 0
+  fi
+  log_debug "context found file=$context_file"
 
   if ! CONTEXT_RANK_FILE=$(mktemp 2>/dev/null); then
     CONTEXT_RANK_FILE="/tmp/tmux-file-picker-rank.$$.$RANDOM"
@@ -116,12 +220,15 @@ build_context_rank_file() {
 
   to_relative() {
     local path="$1"
-    [[ -n "$path" && "$path" != "null" ]] || return
+    [[ -n "$path" && "$path" != "null" ]] || { printf '\n'; return 0; }
     if [[ "$path" == "$TARGET_CWD/"* ]]; then
       printf '%s\n' "${path#"$TARGET_CWD"/}"
     elif [[ "$path" != /* ]]; then
       printf '%s\n' "$path"
+    else
+      printf '\n'
     fi
+    return 0
   }
 
   local value rel rank
@@ -155,11 +262,12 @@ build_context_rank_file() {
   else
     rm -f "$CONTEXT_RANK_FILE"
     CONTEXT_RANK_FILE=""
+    log_debug "context produced empty rank file"
   fi
 }
 
 format_candidates() {
-  { "$FD_BIN" --type f --hidden --follow --exclude .git 2>/dev/null || true; } \
+  { "$FD_BIN" "${FD_ARGS[@]}" 2>/dev/null || true; } \
     | "$AWK_BIN" '
       function nonicon(name) {
         if (name == "c") return sprintf("%c", 61718)
@@ -288,22 +396,68 @@ format_candidates() {
     '
 }
 
+format_directories() {
+  {
+    printf '.\n'
+    "$FD_BIN" "${DIR_ARGS[@]}" 2>/dev/null || true
+  } | "$AWK_BIN" '
+      {
+        path = $0
+        if (path == ".") {
+          printf "\033[38;5;39m%c\033[0m %s\t%s\n", 62011, "./", path
+          next
+        }
+
+        count = split(path, parts, "/")
+        base = parts[count]
+        dir = ""
+        for (i = 1; i < count; i++) {
+          dir = dir parts[i] "/"
+        }
+
+        icon_color = "\033[38;5;39m"
+        dim = "\033[2;38;5;245m"
+        reset = "\033[0m"
+        display = icon_color sprintf("%c", 62011) reset " "
+        if (dir != "") {
+          display = display dim dir reset base "/"
+        } else {
+          display = display base "/"
+        }
+
+        printf "%s\t%s\n", display, path
+      }
+    '
+}
+
 # List files with fd (respects .gitignore, follows symlinks, includes hidden).
 if ! CANDIDATE_FILE=$(mktemp 2>/dev/null); then
   CANDIDATE_FILE="/tmp/tmux-file-picker.$$.$RANDOM.candidates"
   : > "$CANDIDATE_FILE"
 fi
 
-if ! format_candidates > "$CANDIDATE_FILE"; then
+if [[ "$SEARCH_MODE" == "dirs" ]]; then
+  if ! format_directories > "$CANDIDATE_FILE"; then
+    log_debug "exit format_directories failed root=$SEARCH_ROOT"
+    rm -f "$CANDIDATE_FILE"
+    exit 0
+  fi
+elif ! format_candidates > "$CANDIDATE_FILE"; then
+  log_debug "exit format_candidates failed root=$SEARCH_ROOT"
   rm -f "$CANDIDATE_FILE"
   exit 0
 fi
 
 build_context_rank_file
 
-RANKED_FILE=$(mktemp 2>/dev/null || echo "/tmp/tmux-file-picker-ranked.$$.$RANDOM")
+INPUT_FILE="$CANDIDATE_FILE"
+DISPLAY_FIELD=1
+PATH_FIELD=2
+RANKED_FILE=""
+
 if [[ -n "$CONTEXT_RANK_FILE" && -f "$CONTEXT_RANK_FILE" ]]; then
-  if ! awk -F $'\t' -v rank_file="$CONTEXT_RANK_FILE" 'BEGIN {
+  RANKED_FILE=$(mktemp 2>/dev/null || echo "/tmp/tmux-file-picker-ranked.$$.$RANDOM")
+  if awk -F $'\t' -v rank_file="$CONTEXT_RANK_FILE" 'BEGIN {
         while ((getline < rank_file) > 0) {
           split($0, a, "\t")
           if (!(a[2] in rank)) rank[a[2]] = a[1]
@@ -313,49 +467,93 @@ if [[ -n "$CONTEXT_RANK_FILE" && -f "$CONTEXT_RANK_FILE" ]]; then
         r = ($2 in rank) ? rank[$2] : 9999
         printf "%04d\t%s\t%s\n", r, $1, $2
       }' "$CANDIDATE_FILE" | sort -t $'\t' -k1,1n -k3,3 > "$RANKED_FILE"; then
-    awk -F $'\t' '{ printf "9999\t%s\t%s\n", $1, $2 }' "$CANDIDATE_FILE" > "$RANKED_FILE"
+    INPUT_FILE="$RANKED_FILE"
+    DISPLAY_FIELD=2
+    PATH_FIELD=3
+    PREVIEW_FIELD=3
+    PREVIEW_CMD='path=$(printf "%s" {} | '"$CUT_BIN"' -f3-); '"$BAT_BIN"' --style=numbers --color=always --line-range=:300 -- "$path"'
+  else
+    rm -f "$RANKED_FILE"
+    RANKED_FILE=""
   fi
-else
-  awk -F $'\t' '{ printf "9999\t%s\t%s\n", $1, $2 }' "$CANDIDATE_FILE" > "$RANKED_FILE"
 fi
 
-CANDIDATE_COUNT=$(wc -l < "$RANKED_FILE" | tr -d ' ')
+CANDIDATE_COUNT=$(wc -l < "$INPUT_FILE" | tr -d ' ')
 
 if [[ "$CANDIDATE_COUNT" == "0" ]]; then
+  log_debug "exit zero candidates mode=$SEARCH_MODE root=$SEARCH_ROOT"
   rm -f "$CANDIDATE_FILE"
-  rm -f "$RANKED_FILE"
+  [[ -n "$RANKED_FILE" ]] && rm -f "$RANKED_FILE"
   [[ -n "$CONTEXT_RANK_FILE" ]] && rm -f "$CONTEXT_RANK_FILE"
   tmux display-message "No files found in ${TARGET_CWD/#$HOME/~}"
   exit 0
 fi
 
-SELECTED=$(
-  cat "$RANKED_FILE" | fzf \
+MULTI_FLAG="--multi"
+if [[ "$SEARCH_MODE" == "dirs" ]]; then
+  MULTI_FLAG=""
+fi
+
+if ! SELECTED=$(
+  cat "$INPUT_FILE" | fzf \
         --ansi \
-        --multi \
+        $MULTI_FLAG \
         --delimiter $'\t' \
-        --with-nth=2 \
+        --with-nth="$DISPLAY_FIELD" \
         --reverse \
         --no-sort \
         --pointer '▶' \
         --no-info \
-        --header 'Select files to insert as @path' \
-        --prompt '@ > ' \
+        --header "Select ${SEARCH_MODE} (ctrl-e: toggle mode, ctrl-u: up, ctrl-r: reset) [root: ${SEARCH_ROOT/#$HOME/~}]" \
+        --prompt '⦿ > ' \
         --preview "$PREVIEW_CMD" \
         --preview-window 'up,40%,border-bottom' \
-        --bind 'ctrl-/:toggle-preview'
-) || exit 0
+        --bind 'ctrl-/:toggle-preview' \
+        --bind "ctrl-e:become($TOGGLE_CMD)" \
+        --bind "ctrl-u:become($UP_CMD)" \
+        --bind "ctrl-r:become($RESET_CMD)"
+); then
+  rc=$?
+  log_debug "fzf exit rc=$rc mode=$SEARCH_MODE root=$SEARCH_ROOT"
+  rm -f "$CANDIDATE_FILE"
+  [[ -n "$RANKED_FILE" ]] && rm -f "$RANKED_FILE"
+  [[ -n "$CONTEXT_RANK_FILE" ]] && rm -f "$CONTEXT_RANK_FILE"
+  exit 0
+fi
 rm -f "$CANDIDATE_FILE"
-rm -f "$RANKED_FILE"
+[[ -n "$RANKED_FILE" ]] && rm -f "$RANKED_FILE"
 [[ -n "$CONTEXT_RANK_FILE" ]] && rm -f "$CONTEXT_RANK_FILE"
 
 [[ -z "$SELECTED" ]] && exit 0
 
+if [[ "$SEARCH_MODE" == "dirs" ]]; then
+  selected_dir=$(printf '%s\n' "$SELECTED" | "$AWK_BIN" -F$'\t' -v idx="$PATH_FIELD" 'NR==1 {print $idx; exit}')
+  [[ -n "$selected_dir" ]] || exit 0
+
+  next_root="$selected_dir"
+  if [[ "$next_root" != /* ]]; then
+    next_root="$SEARCH_ROOT/$selected_dir"
+  fi
+  next_root=$(realpath -m "$next_root" 2>/dev/null || printf '%s' "$next_root")
+
+  exec "$0" "$TARGET_PANE" --root "$next_root" --mode dirs
+fi
+
 # Build space-separated "@path" tokens, one per selected file.
 TOKENS=()
 while IFS= read -r line; do
-  path=$(printf '%s\n' "$line" | "$AWK_BIN" -F$'\t' '{print $3}')
-  [[ -n "$path" ]] && TOKENS+=("@$path ")
+  selected_path=$(printf '%s\n' "$line" | "$AWK_BIN" -F$'\t' -v idx="$PATH_FIELD" '{print $idx}')
+  [[ -n "$selected_path" ]] || continue
+
+  abs_path="$selected_path"
+  if [[ "$abs_path" != /* ]]; then
+    abs_path="$SEARCH_ROOT/$selected_path"
+  fi
+
+  rel_path=$(realpath --relative-to="$TARGET_CWD" "$abs_path" 2>/dev/null || true)
+  [[ -n "$rel_path" ]] || rel_path="$selected_path"
+
+  TOKENS+=("@$rel_path ")
 done <<< "$SELECTED"
 
 # Paste into the target pane without submitting (-l = literal).

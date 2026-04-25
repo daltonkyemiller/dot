@@ -119,7 +119,10 @@ _tool_command() {
   local tool="$1"
   case "$tool" in
     claude)
-      printf '%s\n' 'claude --allow-dangerously-skip-permissions'
+      printf '%s\n' 'CLAUDE_CODE_NO_FLICKER=1 claude --allow-dangerously-skip-permissions'
+      ;;
+    codex)
+      printf '%s\n' 'codex --full-auto'
       ;;
     opencode)
       if command -v opencode >/dev/null 2>&1; then

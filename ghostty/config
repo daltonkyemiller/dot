@@ -58,4 +58,4 @@ keybind = alt+backspace=text:\x1b\x7f
 
 # keybind = ctrl+shift+j=write_screen_file:paste
 
-command=tmux attach || tmux
+# command=tmux attach || tmux

@@ -1,0 +1,6 @@
+# bat configuration
+# https://github.com/sharkdp/bat#configuration-file
+
+--theme="miasma"
+--style="numbers,changes"
+--italic-text=always
