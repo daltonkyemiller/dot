@@ -12,6 +12,7 @@
 #   panel-toggle <pane-id>  - Toggle selected agent panel for pane
 #   panel-picker <pane-id>  - Always show session picker popup
 #   panel-kill <token>      - Kill a session from panel picker token
+#   panel-copy-mode <pane-id> - Enter copy mode for the underlying agent pane
 #   panel-source <cwd>      - List sessions + new-session actions
 #   apply-focus <client-tty> - Apply deferred pane focus after picker
 #   launch-picker <pane> <client-tty> - Open picker on correct client
@@ -21,6 +22,9 @@ set -euo pipefail
 
 STATE_DIR="$HOME/.local/state/agent-mux"
 PANEL_DIR="$STATE_DIR/panels"
+PANEL_WIDTH_PERCENT=45
+PANEL_MIN_WIDTH=82
+PANEL_OWNER_MIN_WIDTH=40
 
 _normalize_path() {
   realpath -m "$1" 2>/dev/null || echo "$1"
@@ -122,7 +126,7 @@ _tool_command() {
       printf '%s\n' 'CLAUDE_CODE_NO_FLICKER=1 claude --allow-dangerously-skip-permissions'
       ;;
     codex)
-      printf '%s\n' 'codex --full-auto'
+      printf '%s\n' 'codex --yolo'
       ;;
     opencode)
       if command -v opencode >/dev/null 2>&1; then
@@ -363,8 +367,18 @@ _open_panel_view() {
     tmux kill-pane -t "$existing_for_owner"
   fi
 
-  local new_pane
-  new_pane=$(tmux split-window -h -t "$owner_pane" -c "$cwd" -p 45 -P -F '#{pane_id}' \
+  local window_width panel_width max_panel_width new_pane
+  window_width=$(tmux display-message -p -t "$owner_pane" '#{window_width}' 2>/dev/null || echo 0)
+  panel_width=$((window_width * PANEL_WIDTH_PERCENT / 100))
+  max_panel_width=$((window_width - PANEL_OWNER_MIN_WIDTH))
+  if ((panel_width < PANEL_MIN_WIDTH)); then
+    panel_width=$PANEL_MIN_WIDTH
+  fi
+  if ((panel_width > max_panel_width)); then
+    panel_width=$max_panel_width
+  fi
+
+  new_pane=$(tmux split-window -h -t "$owner_pane" -c "$cwd" -l "$panel_width" -P -F '#{pane_id}' \
     "TMUX= tmux attach-session -t \"$session\"")
   tmux set-option -p -t "$new_pane" -q @agent_mux_view_owner "$owner_pane"
   tmux set-option -p -t "$new_pane" -q @agent_mux_view_session "$session"
@@ -521,6 +535,26 @@ cmd_panel_picker() {
 
   tmux display-popup -w 70% -h 60% -b rounded -S "fg=#666666" -T " Agent Sessions " \
     -E "$0 panel-select $owner_pane"
+}
+
+cmd_panel_copy_mode() {
+  local source_pane="${1:-}"
+  [[ -z "$source_pane" ]] && { echo "Usage: agent-mux panel-copy-mode <pane-id>" >&2; exit 1; }
+
+  local session
+  session=$(_pane_option "$source_pane" '@agent_mux_view_session')
+  if [[ -z "$session" ]]; then
+    tmux copy-mode -t "$source_pane"
+    exit 0
+  fi
+
+  tmux has-session -t "$session" 2>/dev/null || exit 0
+
+  local agent_pane
+  agent_pane=$(tmux display-message -p -t "$session:0.0" '#{pane_id}' 2>/dev/null || true)
+  [[ -n "$agent_pane" ]] || exit 0
+
+  tmux copy-mode -t "$agent_pane"
 }
 
 _pane_id() {
@@ -923,10 +957,11 @@ case "${1:-help}" in
   panel-toggle) shift; cmd_panel_toggle "$@" ;;
   panel-picker) shift; cmd_panel_picker "$@" ;;
   panel-kill) shift; cmd_panel_kill "$@" ;;
+  panel-copy-mode) shift; cmd_panel_copy_mode "$@" ;;
   apply-focus) shift; cmd_apply_focus "$@" ;;
   launch-picker) shift; cmd_launch_picker "$@" ;;
   detach) shift; cmd_detach "$@" ;;
   wrap)    shift; cmd_wrap "$@" ;;
   cleanup) cmd_cleanup ;;
-  *)       echo "Usage: agent-mux {update|remove|list|pick|panel-list|panel-source|panel-select|panel-toggle|panel-picker|panel-kill|apply-focus|launch-picker|detach|wrap|cleanup}" >&2 ;;
+  *)       echo "Usage: agent-mux {update|remove|list|pick|panel-list|panel-source|panel-select|panel-toggle|panel-picker|panel-kill|panel-copy-mode|apply-focus|launch-picker|detach|wrap|cleanup}" >&2 ;;
 esac

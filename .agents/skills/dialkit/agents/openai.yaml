@@ -1,0 +1,4 @@
+interface:
+  display_name: "DialKit"
+  short_description: "Use DialKit controls when a project already depends on dialkit"
+  default_prompt: "Use DialKit to add live tuning controls for this existing UI."

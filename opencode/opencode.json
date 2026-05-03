@@ -1,5 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "/home/dalton/.agents/instructions/always.md"
+  ],
   "lsp": {
     "typescript": {
       "disabled": true
@@ -12,13 +15,20 @@
         "--lsp",
         "-stdio"
       ],
-      "extensions": [".ts", ".tsx"]
+      "extensions": [
+        ".ts",
+        ".tsx"
+      ]
     }
   },
   "mcp": {
     "context7": {
       "type": "local",
-      "command": ["bunx", "-y", "@upstash/context7-mcp"],
+      "command": [
+        "bunx",
+        "-y",
+        "@upstash/context7-mcp"
+      ],
       "enabled": true
     },
     "figma": {
@@ -32,6 +42,22 @@
     "linear": {
       "type": "remote",
       "url": "https://mcp.linear.app/mcp"
+    },
+    "uidotsh": {
+      "type": "remote",
+      "url": "https://ui.sh/mcp?agent=opencode",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {env:UIDOTSH_TOKEN}"
+      }
+    },
+    "Neon": {
+      "type": "remote",
+      "url": "https://mcp.neon.tech/mcp",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {env:NEON_API_KEY}"
+      }
     }
   },
   "permission": "allow"

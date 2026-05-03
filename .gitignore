@@ -3,6 +3,7 @@ __pycache__
 
 .DS_Store
 antigravity-accounts.json
+opencode/opencode.json.uidotsh.*
 
 icons
 .worktrees

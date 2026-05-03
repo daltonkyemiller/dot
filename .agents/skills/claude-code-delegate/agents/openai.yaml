@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claude Code Delegate"
+  short_description: "Delegate frontend or planning work to Claude Code through tmux."
+  default_prompt: "Use Claude Code through tmux to help with this frontend task."

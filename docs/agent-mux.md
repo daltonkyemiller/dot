@@ -36,6 +36,8 @@ TMUX= tmux attach-session -t <agent-session>
 
 This attaches a dedicated agent tmux session inside the split pane.
 
+`prefix + [` in an agent side pane enters copy mode on the underlying agent pane, not the outer pane that hosts the nested tmux client. That keeps the full agent scrollback available instead of only the visible screen.
+
 ### Agent session creation
 
 When you pick `New Claude session` or `New OpenCode session`, `agent-mux` creates a detached tmux session with only the agent process:

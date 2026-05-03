@@ -27,6 +27,20 @@ agent-browser wait --load networkidle
 agent-browser snapshot -i  # Check result
 ```
 
+## Browser Engines
+
+The default engine is Lightpanda, a completely headless browser with no rendering engine. It is fast for navigation, DOM snapshots, form interaction, extraction, and other non-visual automation. Lightpanda source: https://github.com/lightpanda-io/browser
+
+Use Chromium when rendering output matters:
+
+```bash
+agent-browser --engine chrome open https://example.com
+agent-browser --engine chrome screenshot page.png
+agent-browser --engine chrome record start demo.webm
+```
+
+Any time you need to save an image, screenshot, PDF, video, annotated screenshot, visual diff, or recording, pass `--engine chrome` so agent-browser uses Chromium for rendering.
+
 ## Command Chaining
 
 Commands can be chained with `&&` in a single shell invocation. The browser persists between commands via a background daemon, so chaining is safe and more efficient than separate calls.
@@ -39,7 +53,7 @@ agent-browser open https://example.com && agent-browser wait --load networkidle 
 agent-browser fill @e1 "user@example.com" && agent-browser fill @e2 "password123" && agent-browser click @e3
 
 # Navigate and capture
-agent-browser open https://example.com && agent-browser wait --load networkidle && agent-browser screenshot page.png
+agent-browser --engine chrome open https://example.com && agent-browser --engine chrome wait --load networkidle && agent-browser --engine chrome screenshot page.png
 ```
 
 **When to chain:** Use `&&` when you don't need to read the output of an intermediate command before proceeding (e.g., open + wait + screenshot). Run commands separately when you need to parse the output first (e.g., snapshot to discover refs, then interact using those refs).
@@ -80,15 +94,15 @@ agent-browser wait --url "**/page"    # Wait for URL pattern
 agent-browser wait 2000               # Wait milliseconds
 
 # Capture
-agent-browser screenshot              # Screenshot to temp dir
-agent-browser screenshot --full       # Full page screenshot
-agent-browser screenshot --annotate   # Annotated screenshot with numbered element labels
-agent-browser pdf output.pdf          # Save as PDF
+agent-browser --engine chrome screenshot              # Screenshot to temp dir
+agent-browser --engine chrome screenshot --full       # Full page screenshot
+agent-browser --engine chrome screenshot --annotate   # Annotated screenshot with numbered element labels
+agent-browser --engine chrome pdf output.pdf          # Save as PDF
 
 # Diff (compare page states)
 agent-browser diff snapshot                          # Compare current vs last snapshot
 agent-browser diff snapshot --baseline before.txt    # Compare current vs saved file
-agent-browser diff screenshot --baseline before.png  # Visual pixel diff
+agent-browser --engine chrome diff screenshot --baseline before.png  # Visual pixel diff
 agent-browser diff url <url1> <url2>                 # Compare two pages
 agent-browser diff url <url1> <url2> --wait-until networkidle  # Custom wait strategy
 agent-browser diff url <url1> <url2> --selector "#main"  # Scope to element
@@ -200,9 +214,9 @@ agent-browser set media dark
 ### Visual Browser (Debugging)
 
 ```bash
-agent-browser --headed open https://example.com
-agent-browser highlight @e1          # Highlight element
-agent-browser record start demo.webm # Record session
+agent-browser --engine chrome --headed open https://example.com
+agent-browser --engine chrome highlight @e1          # Highlight element
+agent-browser --engine chrome record start demo.webm # Record session
 agent-browser profiler start         # Start Chrome DevTools profiling
 agent-browser profiler stop trace.json # Stop and save profile (path optional)
 ```
@@ -213,7 +227,7 @@ agent-browser profiler stop trace.json # Stop and save profile (path optional)
 # Open local files with file:// URLs
 agent-browser --allow-file-access open file:///path/to/document.pdf
 agent-browser --allow-file-access open file:///path/to/page.html
-agent-browser screenshot output.png
+agent-browser --engine chrome screenshot output.png
 ```
 
 ### iOS Simulator (Mobile Safari)
@@ -257,12 +271,12 @@ For visual regression testing or monitoring:
 
 ```bash
 # Save a baseline screenshot, then compare later
-agent-browser screenshot baseline.png
+agent-browser --engine chrome screenshot baseline.png
 # ... time passes or changes are made ...
-agent-browser diff screenshot --baseline baseline.png
+agent-browser --engine chrome diff screenshot --baseline baseline.png
 
 # Compare staging vs production
-agent-browser diff url https://staging.example.com https://prod.example.com --screenshot
+agent-browser --engine chrome diff url https://staging.example.com https://prod.example.com --screenshot
 ```
 
 `diff snapshot` output uses `+` for additions and `-` for removals, similar to git diff. `diff screenshot` produces a diff image with changed pixels highlighted in red, plus a mismatch percentage.
@@ -332,7 +346,7 @@ agent-browser click @e1              # Use new refs
 Use `--annotate` to take a screenshot with numbered labels overlaid on interactive elements. Each label `[N]` maps to ref `@eN`. This also caches refs, so you can interact with elements immediately without a separate snapshot.
 
 ```bash
-agent-browser screenshot --annotate
+agent-browser --engine chrome screenshot --annotate
 # Output includes the image path and a legend:
 #   [1] @e1 button "Submit"
 #   [2] @e2 link "Home"
