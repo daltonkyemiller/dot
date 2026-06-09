@@ -1,0 +1,31 @@
+onboarding = false
+
+[theme]
+name = "gruvbox"
+
+[theme.custom]
+panel_bg = "#222222"
+surface_dim = "#333333"
+accent = "#78824b"
+red = "#b36d43"
+peach = "#bb7744"
+yellow = "#c9a554"
+green = "#5f875f"
+mauve = "#685742"
+
+[ui.toast]
+delivery = "herdr"
+
+[keys]
+previous_tab = "alt+["
+next_tab = "alt+]"
+focus_pane_left = "alt+h"
+focus_pane_down = "alt+j"
+focus_pane_up = "alt+k"
+focus_pane_right = "alt+l"
+
+[ui.sound]
+enabled = false
+
+[ui]
+agent_panel_scope = "all"
