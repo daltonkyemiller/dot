@@ -4,7 +4,7 @@
 
 stroke_size_preset: S
 font_size: 32
-sketchiness: null
+sketchiness_preset: subtle
 default_save_location: /home/dalton/Pictures/Screenshots/annotated
 auto_save_to_default: true
 close_after_save: true

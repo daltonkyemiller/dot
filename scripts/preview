@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Universal previewer for fzf-tab in Ghostty
+
+target="$1"
+
+if [[ -z "$target" ]]; then
+    exit 0
+fi
+
+# Strip trailing slash for consistent handling
+target="${target%/}"
+
+if [[ ! -e "$target" ]]; then
+    echo "not found: $target"
+    exit 0
+fi
+
+# Directory: list contents
+if [[ -d "$target" ]]; then
+    if command -v eza &>/dev/null; then
+        eza -la --color=always --icons --group-directories-first "$target"
+    else
+        ls -la --color=always "$target"
+    fi
+    exit 0
+fi
+
+# Detect mime type
+mime=$(file --mime-type -b "$target")
+
+case "$mime" in
+    image/*)
+        # Use chafa with kitty protocol for real image rendering in Ghostty
+        if command -v chafa &>/dev/null; then
+            chafa -f kitty -s "${FZF_PREVIEW_COLUMNS:-80}x${FZF_PREVIEW_LINES:-25}" "$target"
+        else
+            echo "install chafa for image previews"
+        fi
+        ;;
+    application/pdf)
+        if command -v pdftotext &>/dev/null; then
+            pdftotext -l 10 -nopgbrk -q "$target" -
+        else
+            echo "PDF: install poppler for text preview"
+        fi
+        ;;
+    application/json)
+        if command -v jq &>/dev/null; then
+            jq -C . "$target" 2>/dev/null || bat --color=always "$target"
+        else
+            cat "$target"
+        fi
+        ;;
+    text/*|application/javascript|application/xml)
+        if command -v bat &>/dev/null; then
+            bat --color=always --style=numbers --line-range=:200 "$target"
+        else
+            head -200 "$target"
+        fi
+        ;;
+    *)
+        # Binary or unknown - show file info
+        file "$target"
+        echo "---"
+        if command -v bat &>/dev/null; then
+            bat --color=always --style=numbers --line-range=:50 "$target" 2>/dev/null
+        fi
+        ;;
+esac
