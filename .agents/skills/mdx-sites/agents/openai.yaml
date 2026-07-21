@@ -1,0 +1,4 @@
+interface:
+  display_name: "MDX Sites"
+  short_description: "Create local MDX sites and visual plans"
+  default_prompt: "Use $mdx-sites to create a local MDX site with the right built-in components."

@@ -84,6 +84,8 @@ json_count() {
 
 write_pr_rows() {
   jq -r '
+    def codiff_pr_url:
+      "codiff://github/" + (.repository.nameWithOwner // "") + "/pull/" + (.number | tostring);
     if length == 0 then
       "_No pull requests found for this range._"
     else
@@ -91,11 +93,11 @@ write_pr_rows() {
       "| --- | --- | --- | --- | --- | --- |",
       (.[] | [
         (.repository.nameWithOwner // ""),
-        ("[#" + (.number | tostring) + " " + (.title // "" | gsub("\\|"; "\\|")) + "](" + (.url // "") + ")"),
+        ("[#" + (.number | tostring) + " " + (.title // "" | gsub("\\|"; "\\|")) + "](" + codiff_pr_url + ")"),
         (.state // ""),
         (.author.login // ""),
         ((.updatedAt // .createdAt // "")[0:10]),
-        ("[diff](" + (.url // "") + ".diff) · [files](" + (.url // "") + "/files)")
+        ("[codiff](" + codiff_pr_url + ")")
       ] | "| " + join(" | ") + " |")
     end
   ' "$1"
@@ -103,6 +105,8 @@ write_pr_rows() {
 
 write_commit_rows() {
   jq -r '
+    def codiff_commit_url:
+      "codiff://github/" + (.repository.nameWithOwner // .repository.fullName // .repository.name // "") + "/commit/" + (.sha // "");
     if length == 0 then
       "_No commits found for this range._"
     else
@@ -110,11 +114,11 @@ write_commit_rows() {
       "| --- | --- | --- | --- | --- | --- |",
       (.[] | [
         (.repository.nameWithOwner // .repository.fullName // .repository.name // ""),
-        ("[`" + ((.sha // "")[0:7]) + "`](" + (.url // "") + ")"),
+        ("[`" + ((.sha // "")[0:7]) + "`](" + codiff_commit_url + ")"),
         ((.commit.author.date // .commit.committer.date // "")[0:10]),
         (.author.login // .commit.author.name // ""),
         ((.commit.messageHeadline // .commit.message // "" | split("\n")[0]) | gsub("\\|"; "\\|")),
-        ("[diff](" + (.url // "") + ".diff)")
+        ("[codiff](" + codiff_commit_url + ")")
       ] | "| " + join(" | ") + " |")
     end
   ' "$1"
@@ -122,6 +126,8 @@ write_commit_rows() {
 
 write_my_pr_rows() {
   jq -r '
+    def codiff_pr_url:
+      "codiff://github/" + (.repository.nameWithOwner // "") + "/pull/" + (.number | tostring);
     if length == 0 then
       "_No pull requests authored by the authenticated user found for this range._"
     else
@@ -129,10 +135,10 @@ write_my_pr_rows() {
       "| --- | --- | --- | --- | --- |",
       (.[] | [
         (.repository.nameWithOwner // ""),
-        ("[#" + (.number | tostring) + " " + (.title // "" | gsub("\\|"; "\\|")) + "](" + (.url // "") + ")"),
+        ("[#" + (.number | tostring) + " " + (.title // "" | gsub("\\|"; "\\|")) + "](" + codiff_pr_url + ")"),
         (.state // ""),
         ((.updatedAt // .createdAt // "")[0:10]),
-        ("[diff](" + (.url // "") + ".diff) · [files](" + (.url // "") + "/files)")
+        ("[codiff](" + codiff_pr_url + ")")
       ] | "| " + join(" | ") + " |")
     end
   ' "$1"
@@ -140,6 +146,8 @@ write_my_pr_rows() {
 
 write_my_commit_rows() {
   jq -r '
+    def codiff_commit_url:
+      "codiff://github/" + (.repository.nameWithOwner // .repository.fullName // .repository.name // "") + "/commit/" + (.sha // "");
     if length == 0 then
       "_No commits authored by the authenticated user found for this range._"
     else
@@ -147,10 +155,10 @@ write_my_commit_rows() {
       "| --- | --- | --- | --- | --- |",
       (.[] | [
         (.repository.nameWithOwner // .repository.fullName // .repository.name // ""),
-        ("[`" + ((.sha // "")[0:7]) + "`](" + (.url // "") + ")"),
+        ("[`" + ((.sha // "")[0:7]) + "`](" + codiff_commit_url + ")"),
         ((.commit.author.date // .commit.committer.date // "")[0:10]),
         ((.commit.messageHeadline // .commit.message // "" | split("\n")[0]) | gsub("\\|"; "\\|")),
-        ("[diff](" + (.url // "") + ".diff)")
+        ("[codiff](" + codiff_commit_url + ")")
       ] | "| " + join(" | ") + " |")
     end
   ' "$1"

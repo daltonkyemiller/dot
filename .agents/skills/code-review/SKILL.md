@@ -11,7 +11,7 @@ args:
 
 # GitHub Code Review Report
 
-Generate a Markdown report of recent GitHub code changes with links to PRs, commits, diffs, and review targets. Prefer Codiff commands for local review targets when the `codiff` binary is installed.
+Generate a Markdown report of recent GitHub code changes with Codiff links for PRs and commits, plus links to diffs and review targets. Prefer Codiff commands for local review targets when the `codiff` binary is installed.
 
 ## Workflow
 
@@ -32,13 +32,21 @@ Generate a Markdown report of recent GitHub code changes with links to PRs, comm
    command -v codiff
    ```
 
-   If available, use Codiff for local diff review instead of GitHub's diff UI. When the `codiff://` URL handler is registered, add Markdown links that open Codiff directly. Keep normal GitHub links too, because not every Markdown viewer allows custom URL schemes.
+   If available, use Codiff for review links instead of GitHub's PR/commit UI. For GitHub PRs and commits, use remote protocol links as the primary Markdown link:
+   - Remote GitHub PR URL format: `codiff://github/<owner>/<repo>/pull/<number>`
+   - Remote GitHub commit URL format: `codiff://github/<owner>/<repo>/commit/<sha>`
+   - Example: `codiff://github/better-bookkeeping/abacus/pull/1875`
+   - Example: `codiff://github/better-bookkeeping/abacus/commit/9672c6de226ab14defad22260c4d93cfca220328`
+
+   Keep normal GitHub links only when Codiff cannot open that target directly.
 
 5. Enrich the report where useful:
    - Group changes by repo and theme.
    - Highlight risky or review-worthy changes.
-   - Add direct links to important PR diffs and commits.
+   - Add direct Codiff links to important PRs and commits.
    - For important PRs and commits, add a `Codiff` column or note with the best local link and command:
+     - Remote GitHub PR URL format: `codiff://github/<owner>/<repo>/pull/<number>`
+     - Remote GitHub commit URL format: `codiff://github/<owner>/<repo>/commit/<sha>`
      - URL format: `codiff://open?repo=<url-encoded-absolute-repo-path>&pr=<number>`
      - GitHub PR URL format: `codiff://open?repo=<url-encoded-absolute-repo-path>&url=<url-encoded-github-pr-url>`
      - Commit URL format: `codiff://open?repo=<url-encoded-absolute-repo-path>&commit=<url-encoded-ref>`
