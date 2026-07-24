@@ -217,9 +217,11 @@ main() {
 
   mkdir -p "$OUTPUT_DIR"
 
-  local stamp report pr_json commit_json my_pr_json my_commit_json
+  local stamp report_dir report pr_json commit_json my_pr_json my_commit_json
   stamp=$(date +%Y%m%d-%H%M%S)
-  report="$OUTPUT_DIR/code-review-${slug}-${since}-to-${until}-${stamp}.md"
+  report_dir="$OUTPUT_DIR/code-review-${slug}-${since}-to-${until}-${stamp}"
+  report="$report_dir/index.mdx"
+  mkdir -p "$report_dir"
   pr_json=$(mktemp)
   commit_json=$(mktemp)
   my_pr_json=$(mktemp)
@@ -252,20 +254,24 @@ main() {
   my_commit_count=$(json_count "$my_commit_json")
 
   {
+    printf 'import { Callout, Metric, TableOfContents } from "mdx-preview/components";\n\n'
     printf '# Code Review: %s\n\n' "$scope_label"
     printf -- '- Period: `%s` (`%s` to `%s`)\n' "$period_label" "$since" "$until"
     printf -- '- Scope: `%s`\n' "$scope_label"
     printf -- '- Generated: `%s`\n' "$(date -Is)"
-    printf -- '- Pull requests found: `%s`\n' "$pr_count"
-    printf -- '- Commits found: `%s`\n' "$commit_count"
-    printf -- '- My pull requests found: `%s`\n' "$my_pr_count"
-    printf -- '- My commits found: `%s`\n' "$my_commit_count"
     printf -- '- Search limit per section: `%s`\n\n' "$LIMIT"
 
-    printf '## Executive Summary\n\n'
+    printf '<Metric label="Pull requests" value="%s" detail="Updated during the review period." />\n' "$pr_count"
+    printf '<Metric label="Commits" value="%s" detail="Authored during the review period." />\n' "$commit_count"
+    printf '<Metric label="My pull requests" value="%s" detail="Authored by the authenticated GitHub user." />\n' "$my_pr_count"
+    printf '<Metric label="My commits" value="%s" detail="Authored by the authenticated GitHub user." />\n\n' "$my_commit_count"
+
+    printf '%s\n\n' '<TableOfContents items={[{ id: "executive-summary", label: "Executive summary" }, { id: "my-changes", label: "My changes" }, { id: "review-priorities", label: "Review priorities" }, { id: "pull-requests", label: "Pull requests" }, { id: "commits", label: "Commits" }, { id: "suggested-deep-dives", label: "Suggested deep dives" }, { id: "caveats", label: "Caveats" }]} />'
+
+    printf '<h2 id="executive-summary">Executive Summary</h2>\n\n'
     printf '_Agent: replace this section with a concise summary of the most important themes, risk areas, and review priorities._\n\n'
 
-    printf '## My Changes\n\n'
+    printf '<h2 id="my-changes">My Changes</h2>\n\n'
     printf '_Agent: summarize the authenticated user'\''s work here. Include authored PRs, authored commits, direct commits, and branch-only work that may not appear in PR search._\n\n'
 
     printf '### My PRs\n\n'
@@ -283,22 +289,22 @@ main() {
     printf '### Direct / Branch Commits\n\n'
     printf '_Agent: add commits from non-default branches or direct branch work that GitHub Search did not surface. Use `gh api repos/<owner>/<repo>/commits?sha=<branch>&since=<since>T00:00:00Z&until=<until>T23:59:59Z&per_page=100` when a branch is known or suspected._\n\n'
 
-    printf '## Review Priorities\n\n'
+    printf '<h2 id="review-priorities">Review Priorities</h2>\n\n'
     printf -- '- _Agent: list PRs or commits that deserve closer human review._\n'
     printf -- '- _Agent: call out large changes, risky migrations, auth/payment/data changes, or unclear test coverage._\n\n'
 
-    printf '## Pull Requests\n\n'
+    printf '<h2 id="pull-requests">Pull Requests</h2>\n\n'
     write_pr_rows "$pr_json"
     printf '\n\n'
 
-    printf '## Commits\n\n'
+    printf '<h2 id="commits">Commits</h2>\n\n'
     write_commit_rows "$commit_json"
     printf '\n\n'
 
-    printf '## Suggested Deep Dives\n\n'
+    printf '<h2 id="suggested-deep-dives">Suggested Deep Dives</h2>\n\n'
     printf '_Agent: add repo-specific notes and direct `gh pr view` / diff links for important changes._\n\n'
 
-    printf '## Caveats\n\n'
+    printf '<h2 id="caveats">Caveats</h2>\n\n'
     printf -- '- GitHub search results are capped by `CODE_REVIEW_LIMIT` or the script default.\n'
     printf -- '- Private repository coverage depends on the authenticated `gh` account permissions.\n'
     printf -- '- PRs are selected by updated date; commits are selected by author date.\n'

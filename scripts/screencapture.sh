@@ -77,7 +77,7 @@ select-record-screen)
   grain_shader_off
   region=$(slurp -d)
   if [ $? -eq 0 ]; then
-    wf-recorder -g "$region" -f "$VID" -o $(get_active_monitor) $WF_RECORDER_PARAMS >/dev/null 2>&1 && grain_shader_restore && notify_with_open_folder "Successfully recorded screen" "vid"
+    wf-recorder --audio="$(pactl get-default-sink).monitor" -g "$region" -f "$VID" -o $(get_active_monitor) $WF_RECORDER_PARAMS >/dev/null 2>&1 && grain_shader_restore && notify_with_open_folder "Successfully recorded screen" "vid"
   fi
   ;;
 esac

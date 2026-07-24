@@ -25,16 +25,17 @@
   },
   "settings": {
     "agentBackend": "codex",
-    "claudeModel": "claude-sonnet-4-6",
+    "claudeModel": "claude-haiku-4-5",
+    "codeFontFamily": "",
+    "codeFontSize": 13,
     "copyCommentsOnClose": false,
     "diffStyle": "split",
     "editorCommand": "",
-    "lastRepositoryPath": "",
+    "lastRepositoryPath": "/home/dalton/dev/bbk/abacus-platform/abacus-transaction-categorizer",
     "openAIModel": "gpt-5.3-codex-spark",
     "showOutdated": false,
     "showWhitespace": false,
     "theme": "system",
-    "walkthroughOrder": "keys",
     "wordWrap": false
   }
 }
