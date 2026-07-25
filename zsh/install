@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly ZSHRC_SOURCE="$DOTFILES_DIR/zsh/zshrc"
+readonly ZSHRC_TARGET="$HOME/.zshrc"
+readonly OH_MY_ZSH_DIR="$HOME/.oh-my-zsh"
+readonly CUSTOM_PLUGIN_DIR="$OH_MY_ZSH_DIR/custom/plugins"
+
+install_packages=false
+force=false
+
+usage() {
+  cat <<'EOF'
+Usage: ./zsh/install [--packages] [--force]
+
+Creates ~/.zshrc as a symlink to this repository, installs Oh My Zsh and the
+configured plugins. --packages also installs zsh, git, fzf, zoxide, and eza
+when available through the current system package manager. --force replaces an
+existing ~/.zshrc after backing it up.
+EOF
+}
+
+install_system_packages() {
+  if command -v brew >/dev/null 2>&1; then
+    brew install zsh git fzf zoxide eza
+    return
+  fi
+
+  if command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo apt-get install -y zsh git fzf zoxide || sudo apt-get install -y zsh git
+    return
+  fi
+
+  if command -v dnf >/dev/null 2>&1; then
+    sudo dnf install -y zsh git fzf zoxide eza || sudo dnf install -y zsh git
+    return
+  fi
+
+  if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --needed zsh git fzf zoxide eza || sudo pacman -S --needed zsh git
+    return
+  fi
+
+  if command -v apk >/dev/null 2>&1; then
+    sudo apk add zsh git fzf zoxide eza || sudo apk add zsh git
+    return
+  fi
+
+  printf 'No supported package manager found. Install zsh and git, then rerun.\n' >&2
+  exit 1
+}
+
+link_zshrc() {
+  if [[ -L "$ZSHRC_TARGET" && "$(readlink "$ZSHRC_TARGET")" == "$ZSHRC_SOURCE" ]]; then
+    return
+  fi
+
+  if [[ -e "$ZSHRC_TARGET" || -L "$ZSHRC_TARGET" ]]; then
+    if [[ "$force" != true ]]; then
+      printf '%s already exists. Re-run with --force to back it up and replace it.\n' "$ZSHRC_TARGET" >&2
+      exit 1
+    fi
+
+    local backup_path="${ZSHRC_TARGET}.before-dotfiles.$(date +%Y%m%d%H%M%S)"
+    mv "$ZSHRC_TARGET" "$backup_path"
+    printf 'Backed up %s to %s\n' "$ZSHRC_TARGET" "$backup_path"
+  fi
+
+  ln -s "$ZSHRC_SOURCE" "$ZSHRC_TARGET"
+}
+
+install_plugin() {
+  local repository="$1"
+  local name="$2"
+  local destination="$CUSTOM_PLUGIN_DIR/$name"
+
+  [[ -d "$destination/.git" ]] && return
+  git clone --depth=1 "$repository" "$destination"
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --packages) install_packages=true ;;
+    --force) force=true ;;
+    --help|-h) usage; exit 0 ;;
+    *) usage >&2; exit 1 ;;
+  esac
+  shift
+done
+
+if [[ "$install_packages" == true ]]; then
+  install_system_packages
+fi
+
+command -v zsh >/dev/null 2>&1 || { printf 'zsh is required. Re-run with --packages.\n' >&2; exit 1; }
+command -v git >/dev/null 2>&1 || { printf 'git is required. Re-run with --packages.\n' >&2; exit 1; }
+
+if [[ ! -d "$OH_MY_ZSH_DIR/.git" ]]; then
+  git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git "$OH_MY_ZSH_DIR"
+fi
+
+mkdir -p "$CUSTOM_PLUGIN_DIR"
+install_plugin https://github.com/jeffreytse/zsh-vi-mode.git zsh-vi-mode
+install_plugin https://github.com/b4b4r07/zsh-system-clipboard.git zsh-system-clipboard
+install_plugin https://github.com/Aloxaf/fzf-tab.git fzf-tab
+link_zshrc
+
+printf 'Installed zsh dotfiles. Restart zsh or run: exec zsh\n'

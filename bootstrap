@@ -1,0 +1,199 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly NVIM_SOURCE="$DOTFILES_DIR/nvim"
+readonly NVIM_TARGET="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+readonly MDX_REPOSITORY="daltonkyemiller/mdx-preview.nvim"
+readonly MDX_DIRECTORY="$HOME/dev/mdx-preview.nvim"
+
+force=false
+install_packages=false
+authenticate=false
+
+usage() {
+  cat <<'EOF'
+Usage: ./bootstrap [--packages] [--force] [--auth]
+
+Sets up the zsh dotfiles, Neovim config, Bob, stable Neovim, and the local MDX
+preview plugin. --packages installs system prerequisites. --force backs up and
+replaces existing ~/.zshrc and ~/.config/nvim entries. --auth opens gh auth
+login when GitHub CLI is not already authenticated.
+EOF
+}
+
+install_system_packages() {
+  if command -v brew >/dev/null 2>&1; then
+    brew install zsh git gh ripgrep node fzf zoxide eza
+    return
+  fi
+
+  if command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo apt-get install -y zsh git gh ripgrep nodejs npm curl build-essential fzf zoxide || sudo apt-get install -y zsh git ripgrep nodejs npm curl build-essential
+    return
+  fi
+
+  if command -v dnf >/dev/null 2>&1; then
+    sudo dnf install -y zsh git gh ripgrep nodejs npm curl gcc make fzf zoxide eza || sudo dnf install -y zsh git ripgrep nodejs npm curl gcc make
+    return
+  fi
+
+  if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --needed zsh git github-cli ripgrep nodejs npm curl base-devel fzf zoxide eza
+    return
+  fi
+
+  if command -v apk >/dev/null 2>&1; then
+    sudo apk add zsh git github-cli ripgrep nodejs npm curl build-base fzf zoxide eza || sudo apk add zsh git ripgrep nodejs npm curl build-base
+    return
+  fi
+
+  printf 'No supported package manager found. Install zsh, git, gh, ripgrep, Node.js, curl, and a C compiler, then rerun.\n' >&2
+  exit 1
+}
+
+install_github_cli() {
+  command -v gh >/dev/null 2>&1 && return
+
+  if command -v brew >/dev/null 2>&1; then
+    brew install gh
+    return
+  fi
+
+  if command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo apt-get install -y wget
+    sudo install -d -m 755 /etc/apt/keyrings
+    local keyring_file
+    keyring_file="$(mktemp)"
+    wget -nv -O "$keyring_file" https://cli.github.com/packages/githubcli-archive-keyring.gpg
+    sudo install -m 644 "$keyring_file" /etc/apt/keyrings/githubcli-archive-keyring.gpg
+    rm "$keyring_file"
+    sudo install -d -m 755 /etc/apt/sources.list.d
+    printf 'deb [arch=%s signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\n' "$(dpkg --print-architecture)" | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+    sudo apt-get update
+    sudo apt-get install -y gh
+    return
+  fi
+
+  if command -v dnf >/dev/null 2>&1; then
+    sudo dnf install -y gh
+    return
+  fi
+
+  if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --needed github-cli
+    return
+  fi
+
+  if command -v apk >/dev/null 2>&1; then
+    sudo apk add github-cli
+    return
+  fi
+
+  printf 'GitHub CLI is required. Install gh, then rerun.\n' >&2
+  exit 1
+}
+
+install_bob() {
+  if command -v bob >/dev/null 2>&1; then
+    return
+  fi
+
+  if ! command -v cargo >/dev/null 2>&1; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  fi
+
+  export PATH="$HOME/.cargo/bin:$PATH"
+  cargo install bob-nvim --locked
+}
+
+link_directory() {
+  local source_directory="$1"
+  local target_directory="$2"
+
+  if [[ -L "$target_directory" && "$(readlink "$target_directory")" == "$source_directory" ]]; then
+    return
+  fi
+
+  if [[ -e "$target_directory" || -L "$target_directory" ]]; then
+    if [[ "$force" != true ]]; then
+      printf '%s already exists. Re-run with --force to back it up and replace it.\n' "$target_directory" >&2
+      exit 1
+    fi
+
+    local backup_path="${target_directory}.before-dotfiles.$(date +%Y%m%d%H%M%S)"
+    mv "$target_directory" "$backup_path"
+    printf 'Backed up %s to %s\n' "$target_directory" "$backup_path"
+  fi
+
+  mkdir -p "$(dirname "$target_directory")"
+  ln -s "$source_directory" "$target_directory"
+}
+
+authenticate_github() {
+  command -v gh >/dev/null 2>&1 || return
+  gh auth status >/dev/null 2>&1 && return
+
+  if [[ "$authenticate" == true ]]; then
+    gh auth login
+    return
+  fi
+
+  if [[ ! -t 0 ]]; then
+    printf 'GitHub CLI is not authenticated; skipping login without a terminal.\n'
+    return
+  fi
+
+  local response
+  read -r -p 'Authenticate GitHub CLI now? [y/N] ' response
+  [[ "$response" =~ ^[Yy]$ ]] && gh auth login
+}
+
+clone_mdx_plugin() {
+  [[ -d "$MDX_DIRECTORY/.git" ]] && return
+  mkdir -p "$(dirname "$MDX_DIRECTORY")"
+
+  if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    gh repo clone "$MDX_REPOSITORY" "$MDX_DIRECTORY"
+    return
+  fi
+
+  git clone "https://github.com/$MDX_REPOSITORY.git" "$MDX_DIRECTORY"
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --packages) install_packages=true ;;
+    --force) force=true ;;
+    --auth) authenticate=true ;;
+    --help|-h) usage; exit 0 ;;
+    *) usage >&2; exit 1 ;;
+  esac
+  shift
+done
+
+if [[ "$install_packages" == true ]]; then
+  install_system_packages
+  install_github_cli
+fi
+
+command -v git >/dev/null 2>&1 || { printf 'git is required. Re-run with --packages.\n' >&2; exit 1; }
+command -v gh >/dev/null 2>&1 || { printf 'gh is required. Re-run with --packages.\n' >&2; exit 1; }
+authenticate_github
+git -C "$DOTFILES_DIR" submodule update --init --recursive
+zsh_install_arguments=()
+if [[ "$force" == true ]]; then
+  zsh_install_arguments+=(--force)
+fi
+"$DOTFILES_DIR/zsh/install" "${zsh_install_arguments[@]}"
+install_bob
+export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
+bob use stable
+link_directory "$NVIM_SOURCE" "$NVIM_TARGET"
+clone_mdx_plugin
+nvim --headless '+Lazy! restore' +qa
+
+printf 'Bootstrap complete. Restart zsh or run: exec zsh\n'

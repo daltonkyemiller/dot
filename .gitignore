@@ -7,3 +7,6 @@ opencode/opencode.json.uidotsh.*
 
 icons
 .worktrees
+
+# Host-specific zsh settings belong outside the tracked configuration.
+zsh/zshrc.local
