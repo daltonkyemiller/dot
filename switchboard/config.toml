@@ -1,0 +1,16 @@
+# switchboard config — agent spawn commands.
+# `command` is shell-quoted as a single word by `switchboard new`, so env vars
+# are set via env(1) rather than a VAR=1 prefix.
+
+[agents.claude]
+command = "env"
+args = [
+  "CLAUDE_CODE_NO_FLICKER=1",
+  "claude",
+  "--allow-dangerously-skip-permissions",
+  "--remote-control",
+]
+
+[agents.codex]
+command = "codex"
+args = ["--yolo"]
