@@ -78,7 +78,7 @@ install_plugin() {
   local destination="$CUSTOM_PLUGIN_DIR/$name"
 
   [[ -d "$destination/.git" ]] && return
-  git clone --depth=1 "$repository" "$destination"
+  GIT_TERMINAL_PROMPT=0 git clone --depth=1 "$repository" "$destination"
 }
 
 while (( $# > 0 )); do
@@ -104,7 +104,7 @@ fi
 
 mkdir -p "$CUSTOM_PLUGIN_DIR"
 install_plugin https://github.com/jeffreytse/zsh-vi-mode.git zsh-vi-mode
-install_plugin https://github.com/b4b4r07/zsh-system-clipboard.git zsh-system-clipboard
+install_plugin https://github.com/kutsan/zsh-system-clipboard.git zsh-system-clipboard
 install_plugin https://github.com/Aloxaf/fzf-tab.git fzf-tab
 link_zshrc
 
