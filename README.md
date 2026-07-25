@@ -14,6 +14,8 @@ The bootstrap script:
 
 - installs the shell, editor, GitHub CLI, and Neovim prerequisites;
 - installs Oh My Zsh plus the tracked zsh plugins and links `~/.zshrc`;
+- links every tracked `.agents/skills` entry into `~/.agents/skills` and
+  `~/.claude/skills` while preserving extra machine-local skills;
 - initializes the `nvim` submodule and links it to `~/.config/nvim`;
 - installs or updates [Bob](https://github.com/MordechaiHadad/bob), installs
   the Tree-sitter CLI, and selects stable Neovim while preserving a working

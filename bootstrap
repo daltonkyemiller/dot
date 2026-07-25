@@ -8,6 +8,9 @@ readonly NVIM_SOURCE="$DOTFILES_DIR/nvim"
 readonly NVIM_TARGET="$CONFIG_DIRECTORY/nvim"
 readonly LAZYGIT_TARGET="$CONFIG_DIRECTORY/lazygit"
 readonly LAZYDOCKER_TARGET="$CONFIG_DIRECTORY/lazydocker"
+readonly SKILLS_SOURCE="$DOTFILES_DIR/.agents/skills"
+readonly AGENT_SKILLS_TARGET="$HOME/.agents/skills"
+readonly CLAUDE_SKILLS_TARGET="$HOME/.claude/skills"
 readonly MDX_REPOSITORY="daltonkyemiller/mdx-preview.nvim"
 readonly MDX_DIRECTORY="$HOME/dev/mdx-preview.nvim"
 readonly SWITCHBOARD_REPOSITORY="daltonkyemiller/switchboard"
@@ -23,10 +26,10 @@ usage() {
   cat <<'EOF'
 Usage: ./bootstrap [--packages] [--force] [--auth]
 
-Sets up the zsh dotfiles, Neovim config, Bob, stable Neovim, and the local MDX
-preview plugin. --packages installs system prerequisites. --force backs up and
-replaces existing ~/.zshrc and ~/.config/nvim entries. --auth opens gh auth
-login when GitHub CLI is not already authenticated.
+Sets up the zsh dotfiles, shared agent skills, Neovim config, Bob, stable
+Neovim, and the local MDX preview plugin. --packages installs system
+prerequisites. --force backs up and replaces conflicting entries. --auth opens
+gh auth login when GitHub CLI is not already authenticated.
 EOF
 }
 
@@ -162,7 +165,7 @@ link_directory() {
   local source_directory="$1"
   local target_directory="$2"
 
-  if [[ -L "$target_directory" && "$(readlink "$target_directory")" == "$source_directory" ]]; then
+  if [[ -L "$target_directory" && "$target_directory" -ef "$source_directory" ]]; then
     return
   fi
 
@@ -179,6 +182,20 @@ link_directory() {
 
   mkdir -p "$(dirname "$target_directory")"
   ln -s "$source_directory" "$target_directory"
+}
+
+link_skills() {
+  mkdir -p "$AGENT_SKILLS_TARGET" "$CLAUDE_SKILLS_TARGET"
+
+  local skill_directory
+  for skill_directory in "$SKILLS_SOURCE"/*; do
+    [[ -d "$skill_directory" ]] || continue
+
+    local skill_name
+    skill_name="$(basename "$skill_directory")"
+    link_directory "$skill_directory" "$AGENT_SKILLS_TARGET/$skill_name"
+    link_directory "$skill_directory" "$CLAUDE_SKILLS_TARGET/$skill_name"
+  done
 }
 
 authenticate_github() {
@@ -252,6 +269,7 @@ if [[ "$force" == true ]]; then
   zsh_install_arguments+=(--force)
 fi
 "$DOTFILES_DIR/zsh/install" "${zsh_install_arguments[@]}"
+link_skills
 install_bob
 install_tree_sitter
 install_terminal_tools
