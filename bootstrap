@@ -3,12 +3,17 @@
 set -euo pipefail
 
 readonly DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly CONFIG_DIRECTORY="${XDG_CONFIG_HOME:-$HOME/.config}"
 readonly NVIM_SOURCE="$DOTFILES_DIR/nvim"
-readonly NVIM_TARGET="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+readonly NVIM_TARGET="$CONFIG_DIRECTORY/nvim"
+readonly LAZYGIT_TARGET="$CONFIG_DIRECTORY/lazygit"
+readonly LAZYDOCKER_TARGET="$CONFIG_DIRECTORY/lazydocker"
 readonly MDX_REPOSITORY="daltonkyemiller/mdx-preview.nvim"
 readonly MDX_DIRECTORY="$HOME/dev/mdx-preview.nvim"
 readonly SWITCHBOARD_REPOSITORY="daltonkyemiller/switchboard"
 readonly SWITCHBOARD_DIRECTORY="$HOME/dev/switchboard"
+
+export PATH="$HOME/.local/bin:$PATH"
 
 force=false
 install_packages=false
@@ -27,28 +32,28 @@ EOF
 
 install_system_packages() {
   if command -v brew >/dev/null 2>&1; then
-    brew install zsh git gh ripgrep node llvm fzf zoxide eza
+    brew install zsh git gh ripgrep node go llvm fzf zoxide eza lazygit lazydocker
     return
   fi
 
   if command -v apt-get >/dev/null 2>&1; then
     sudo apt-get update
-    sudo apt-get install -y zsh git gh ripgrep nodejs npm curl build-essential clang libclang-dev fzf zoxide || sudo apt-get install -y zsh git ripgrep nodejs npm curl build-essential clang libclang-dev
+    sudo apt-get install -y zsh git gh ripgrep nodejs npm curl build-essential clang libclang-dev golang-go fzf zoxide lazygit lazydocker || sudo apt-get install -y zsh git ripgrep nodejs npm curl build-essential clang libclang-dev golang-go
     return
   fi
 
   if command -v dnf >/dev/null 2>&1; then
-    sudo dnf install -y zsh git gh ripgrep nodejs npm curl gcc make clang clang-libs fzf zoxide eza || sudo dnf install -y zsh git ripgrep nodejs npm curl gcc make clang clang-libs
+    sudo dnf install -y zsh git gh ripgrep nodejs npm curl gcc make clang clang-libs golang fzf zoxide eza lazygit lazydocker || sudo dnf install -y zsh git ripgrep nodejs npm curl gcc make clang clang-libs golang
     return
   fi
 
   if command -v pacman >/dev/null 2>&1; then
-    sudo pacman -S --needed zsh git github-cli ripgrep nodejs npm curl base-devel clang fzf zoxide eza
+    sudo pacman -S --needed zsh git github-cli ripgrep nodejs npm curl base-devel clang go fzf zoxide eza lazygit lazydocker
     return
   fi
 
   if command -v apk >/dev/null 2>&1; then
-    sudo apk add zsh git github-cli ripgrep nodejs npm curl build-base clang-dev fzf zoxide eza || sudo apk add zsh git ripgrep nodejs npm curl build-base clang-dev
+    sudo apk add zsh git github-cli ripgrep nodejs npm curl build-base clang-dev go fzf zoxide eza lazygit lazydocker || sudo apk add zsh git ripgrep nodejs npm curl build-base clang-dev go
     return
   fi
 
@@ -125,6 +130,18 @@ install_tree_sitter() {
 
   install_rust
   cargo install --locked tree-sitter-cli
+}
+
+install_terminal_tools() {
+  if ! command -v lazygit >/dev/null 2>&1; then
+    command -v go >/dev/null 2>&1 || { printf 'Go is required to install lazygit. Re-run with --packages.\n' >&2; exit 1; }
+    GOBIN="$HOME/.local/bin" go install github.com/jesseduffield/lazygit@latest
+  fi
+
+  if ! command -v lazydocker >/dev/null 2>&1; then
+    command -v go >/dev/null 2>&1 || { printf 'Go is required to install lazydocker. Re-run with --packages.\n' >&2; exit 1; }
+    GOBIN="$HOME/.local/bin" go install github.com/jesseduffield/lazydocker@latest
+  fi
 }
 
 link_directory() {
@@ -223,9 +240,12 @@ fi
 "$DOTFILES_DIR/zsh/install" "${zsh_install_arguments[@]}"
 install_bob
 install_tree_sitter
+install_terminal_tools
 export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
 bob use stable
 link_directory "$NVIM_SOURCE" "$NVIM_TARGET"
+link_directory "$DOTFILES_DIR/lazygit" "$LAZYGIT_TARGET"
+link_directory "$DOTFILES_DIR/lazydocker" "$LAZYDOCKER_TARGET"
 clone_local_plugin "$MDX_REPOSITORY" "$MDX_DIRECTORY"
 clone_local_plugin "$SWITCHBOARD_REPOSITORY" "$SWITCHBOARD_DIRECTORY"
 install_switchboard

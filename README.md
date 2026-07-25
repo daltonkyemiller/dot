@@ -17,6 +17,8 @@ The bootstrap script:
 - initializes the `nvim` submodule and links it to `~/.config/nvim`;
 - installs [Bob](https://github.com/MordechaiHadad/bob), the Tree-sitter CLI,
   and stable Neovim;
+- installs LazyGit and Lazydocker;
+- links the tracked LazyGit and Lazydocker themes into the XDG config directory;
 - offers GitHub CLI authentication when needed;
 - clones `~/dev/mdx-preview.nvim`, required by the Neovim MDX preview plugin;
 - clones `~/dev/switchboard`, installs its Linux CLI release, and loads its
