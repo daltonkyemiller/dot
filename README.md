@@ -15,8 +15,9 @@ The bootstrap script:
 - installs the shell, editor, GitHub CLI, and Neovim prerequisites;
 - installs Oh My Zsh plus the tracked zsh plugins and links `~/.zshrc`;
 - initializes the `nvim` submodule and links it to `~/.config/nvim`;
-- installs [Bob](https://github.com/MordechaiHadad/bob), the Tree-sitter CLI,
-  and stable Neovim;
+- installs or updates [Bob](https://github.com/MordechaiHadad/bob), installs
+  the Tree-sitter CLI, and selects stable Neovim while preserving a working
+  existing Neovim if the update fails;
 - installs LazyGit and Lazydocker;
 - links the tracked LazyGit and Lazydocker themes into the XDG config directory;
 - offers GitHub CLI authentication when needed;

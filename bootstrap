@@ -119,10 +119,24 @@ install_rust() {
 }
 
 install_bob() {
-  command -v bob >/dev/null 2>&1 && return
-
   install_rust
   cargo install bob-nvim --locked
+}
+
+install_neovim() {
+  export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
+
+  if bob use stable; then
+    return
+  fi
+
+  if command -v nvim >/dev/null 2>&1; then
+    printf 'Could not update stable Neovim with Bob; continuing with %s.\n' "$(nvim --version | head -n 1)" >&2
+    return
+  fi
+
+  printf 'Could not install stable Neovim and no existing nvim was found.\n' >&2
+  exit 1
 }
 
 install_tree_sitter() {
@@ -241,8 +255,7 @@ fi
 install_bob
 install_tree_sitter
 install_terminal_tools
-export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
-bob use stable
+install_neovim
 link_directory "$NVIM_SOURCE" "$NVIM_TARGET"
 link_directory "$DOTFILES_DIR/lazygit" "$LAZYGIT_TARGET"
 link_directory "$DOTFILES_DIR/lazydocker" "$LAZYDOCKER_TARGET"
