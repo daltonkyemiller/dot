@@ -1,0 +1,104 @@
+;; Elytra-only instance (macOS). The Elytra firmware already provides home-row
+;; mods and layers, so this config adds none of that — it only implements the
+;; Linux-style Ctrl convention: while Ctrl is held, keys send real Ctrl+key
+;; (terminals, CLI) unless the frontmost app is one of the GUI apps listed in
+;; the app-ctrl switches, which get Cmd+key instead.
+;;
+;; Runs as a second kanata instance on TCP port 5830 (see
+;; com.dalton.kanata-elytra.plist); virtual app keys are driven by a second
+;; kanata-vk-agent pointed at that port. The main instance excludes "Elytra"
+;; in its defcfg, so the two never grab the same device.
+
+(defcfg
+  process-unmapped-keys yes
+  concurrent-tap-hold yes
+
+  macos-dev-names-include (
+    "Elytra"
+  )
+)
+
+(defsrc
+  esc f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
+  grv   1   2   3   4   5   6   7   8   9   0   -   = del
+  tab  q   w   e   r   t   y   u   i   o   p   [   ] \
+  caps a   s   d   f   g   h   j   k   l   ;   ' enter
+  lsft z   x   c   v   b   n   m   ,   .   / rsft
+  lctl rctl lalt lmet spc rmet ralt
+)
+
+(deflayer base
+  _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _ _
+  _ _ _ _ _ _ _ _ _ _ _ _
+  (layer-toggle control) (layer-toggle control) _ _ _ _ _
+)
+
+(defalias
+  app-ctrl-t (switch
+    ((input virtual app.zen-browser.zen)) M-t break
+    () C-t break
+  )
+  app-ctrl-a (switch
+    ((input virtual app.zen-browser.zen)) M-a break
+    ((input virtual com.tinyspeck.slackmacgap)) M-a break
+    ((input virtual com.figma.Desktop)) M-a break
+    () C-a break
+  )
+  app-ctrl-w (switch
+    ((input virtual app.zen-browser.zen)) M-w break
+    () C-w break
+  )
+  app-ctrl-c (switch
+    ((input virtual app.zen-browser.zen)) M-c break
+    ((input virtual com.tinyspeck.slackmacgap)) M-c break
+    ((input virtual com.figma.Desktop)) M-c break
+    () C-c break
+  )
+  app-ctrl-v (switch
+    ((input virtual app.zen-browser.zen)) M-v break
+    ((input virtual com.tinyspeck.slackmacgap)) M-v break
+    ((input virtual com.figma.Desktop)) M-v break
+    () C-v break
+  )
+  app-ctrl-z (switch
+    ((input virtual app.zen-browser.zen)) M-z break
+    ((input virtual com.tinyspeck.slackmacgap)) M-z break
+    ((input virtual com.figma.Desktop)) M-z break
+    () C-z break
+  )
+  app-ctrl-x (switch
+    ((input virtual app.zen-browser.zen)) M-x break
+    ((input virtual com.tinyspeck.slackmacgap)) M-x break
+    ((input virtual com.figma.Desktop)) M-x break
+    () C-x break
+  )
+  app-ctrl-r (switch
+    ((input virtual app.zen-browser.zen)) M-r break
+    () C-r break
+  )
+  app-ctrl-enter (switch
+    ((input virtual app.zen-browser.zen)) M-enter break
+    ((input virtual com.tinyspeck.slackmacgap)) M-enter break
+    () C-enter break
+  )
+)
+
+(deflayer control
+  _ _ _ _ _ _ _ _ _ _ _ _ _
+  C-grv C-1 C-2 C-3 C-4 C-5 C-6 C-7 C-8 C-9 C-0 C-- C-= C-del
+  C-tab C-q @app-ctrl-w C-e @app-ctrl-r @app-ctrl-t C-y C-u C-i C-o C-p C-[ C-] C-\
+  _ @app-ctrl-a C-s C-d C-f C-g C-h C-j C-k C-l C-; C-' @app-ctrl-enter
+  _ @app-ctrl-z @app-ctrl-x @app-ctrl-c @app-ctrl-v C-b C-n C-m C-, C-. C-/ _
+  _ _ _ _ C-spc _ _
+)
+
+(defvirtualkeys
+  com.tinyspeck.slackmacgap nop0
+  app.zen-browser.zen nop0
+  com.figma.Desktop nop0
+
+  com.apple.keylayout.UnicodeHexInput nop0
+)

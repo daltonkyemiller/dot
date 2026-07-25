@@ -4,6 +4,7 @@
 
   macos-dev-names-exclude (
     "Corne"
+    "Elytra"
   )
 
   linux-dev-names-exclude (
@@ -145,7 +146,7 @@
     )
     app-ctrl-r (switch
       ((input virtual app.zen-browser.zen)) M-r break
-      () C-x break
+      () C-r break
     )
     app-ctrl-enter (switch
       ((input virtual app.zen-browser.zen)) M-enter break
