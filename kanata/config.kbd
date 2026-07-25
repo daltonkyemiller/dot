@@ -24,6 +24,7 @@
   caps a   s   d   f   h   j   k   l   ; enter
   lsft z   x   c   v   b   n   m   ,   .  / rsft
   fn lctl lalt lmet spc rmet ralt
+  mlft
 )
 
 (defvar
@@ -79,6 +80,7 @@
     @cap @a  @s  @d  @f h @j  @k  @l  @; enter
     lsft z x c v b n m  ,  .  / rsft
     fn lctl lalt lmet spc rmet ralt
+    mlft
   )
 
 
@@ -90,6 +92,7 @@
     @cap @a  @s  @d  @f h @j  @k  @l  @; enter
     lsft z x c v b n m  ,  .  / rsft
     (layer-toggle function) lctl lalt lmet spc rmet ralt
+    mlft
   )
 )
 
@@ -101,6 +104,7 @@
     @cap @a  @s  @d  @f h @j  @k  @l  @; enter
     lsft z x c v b n m  ,  .  / rsft
     (layer-toggle function) (layer-toggle control) lalt lmet spc rmet ralt
+    mlft
   )
 )
 
@@ -153,6 +157,10 @@
       ((input virtual com.tinyspeck.slackmacgap)) M-enter break
       () C-enter break
     )
+    app-ctrl-click (switch
+      ((input virtual app.zen-browser.zen)) M-mlft break
+      () C-mlft break
+    )
   )
 )
 
@@ -166,6 +174,7 @@
     _ @app-ctrl-a C-s C-d C-f C-h _ _ C-l C-; @app-ctrl-enter
     _ @app-ctrl-z @app-ctrl-x @app-ctrl-c @app-ctrl-v C-b C-n C-m C-, C-. C-/ _
     _ _ _ _ C-spc _ _
+    @app-ctrl-click
   )
 )
 
@@ -176,6 +185,7 @@
   @base _ _ _ _ @ms← @ms↓ @ms↑ @ms→ _ @clk
   @fst _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _
+  mlft
 )
 
 (deflayer arrows
@@ -185,6 +195,7 @@
   _ _ _ _ _ left down up right _ _
   _ _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _
+  mlft
 )
 
 (deflayer fn
@@ -194,6 +205,7 @@
   _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _ _ _ _ _ _
   _ _ _ _ _ _ _
+  mlft
 )
 
 
@@ -204,6 +216,7 @@
   esc a s d f h j k l ; enter
   lsft z x c v b n m  ,  .  / rsft
   fn lctl lalt lmet spc rmet ralt
+  mlft
 )
 
 
