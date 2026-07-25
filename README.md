@@ -18,6 +18,8 @@ The bootstrap script:
 - installs [Bob](https://github.com/MordechaiHadad/bob) and uses stable Neovim;
 - offers GitHub CLI authentication when needed;
 - clones `~/dev/mdx-preview.nvim`, required by the Neovim MDX preview plugin;
+- clones `~/dev/switchboard`, installs its Linux CLI release, and loads its
+  Neovim companion plugin;
 - restores the locked Lazy.nvim plugin set headlessly.
 
 Use `--auth` to require the GitHub CLI login flow rather than being prompted.

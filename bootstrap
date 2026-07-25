@@ -7,6 +7,8 @@ readonly NVIM_SOURCE="$DOTFILES_DIR/nvim"
 readonly NVIM_TARGET="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
 readonly MDX_REPOSITORY="daltonkyemiller/mdx-preview.nvim"
 readonly MDX_DIRECTORY="$HOME/dev/mdx-preview.nvim"
+readonly SWITCHBOARD_REPOSITORY="daltonkyemiller/switchboard"
+readonly SWITCHBOARD_DIRECTORY="$HOME/dev/switchboard"
 
 force=false
 install_packages=false
@@ -152,16 +154,31 @@ authenticate_github() {
   [[ "$response" =~ ^[Yy]$ ]] && gh auth login
 }
 
-clone_mdx_plugin() {
-  [[ -d "$MDX_DIRECTORY/.git" ]] && return
-  mkdir -p "$(dirname "$MDX_DIRECTORY")"
+clone_local_plugin() {
+  local repository="$1"
+  local directory="$2"
+
+  [[ -d "$directory/.git" ]] && return
+  mkdir -p "$(dirname "$directory")"
 
   if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
-    gh repo clone "$MDX_REPOSITORY" "$MDX_DIRECTORY"
+    gh repo clone "$repository" "$directory"
     return
   fi
 
-  git clone "https://github.com/$MDX_REPOSITORY.git" "$MDX_DIRECTORY"
+  GIT_TERMINAL_PROMPT=0 git clone "https://github.com/$repository.git" "$directory"
+}
+
+install_switchboard() {
+  command -v switchboard >/dev/null 2>&1 && return
+
+  if [[ "$(uname -s)" != Linux ]]; then
+    printf 'Switchboard was cloned, but its prebuilt CLI is currently available only for Linux.\n'
+    return
+  fi
+
+  PREFIX="$HOME/.local" TMUX_PLUGIN_DIR="$HOME/.tmux/plugins/switchboard" "$SWITCHBOARD_DIRECTORY/scripts/install.sh"
+  export PATH="$HOME/.local/bin:$PATH"
 }
 
 while (( $# > 0 )); do
@@ -193,7 +210,9 @@ install_bob
 export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
 bob use stable
 link_directory "$NVIM_SOURCE" "$NVIM_TARGET"
-clone_mdx_plugin
+clone_local_plugin "$MDX_REPOSITORY" "$MDX_DIRECTORY"
+clone_local_plugin "$SWITCHBOARD_REPOSITORY" "$SWITCHBOARD_DIRECTORY"
+install_switchboard
 nvim --headless '+Lazy! restore' +qa
 
 printf 'Bootstrap complete. Restart zsh or run: exec zsh\n'

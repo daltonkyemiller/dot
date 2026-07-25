@@ -64,7 +64,17 @@ if (( $+commands[zoxide] )); then
 fi
 
 if (( $+commands[fzf] )); then
-  source <(fzf --zsh)
+  if fzf --zsh >/dev/null 2>&1; then
+    source <(fzf --zsh)
+  else
+    for fzf_integration in \
+      /usr/share/doc/fzf/examples/key-bindings.zsh \
+      /usr/share/doc/fzf/examples/completion.zsh \
+      /opt/homebrew/opt/fzf/shell/key-bindings.zsh \
+      /opt/homebrew/opt/fzf/shell/completion.zsh; do
+      [[ -r "$fzf_integration" ]] && source "$fzf_integration"
+    done
+  fi
 fi
 
 if (( $+commands[try] )) && [[ -d "$HOME/dev/experiments" ]]; then
