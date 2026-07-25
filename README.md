@@ -15,7 +15,8 @@ The bootstrap script:
 - installs the shell, editor, GitHub CLI, and Neovim prerequisites;
 - installs Oh My Zsh plus the tracked zsh plugins and links `~/.zshrc`;
 - initializes the `nvim` submodule and links it to `~/.config/nvim`;
-- installs [Bob](https://github.com/MordechaiHadad/bob) and uses stable Neovim;
+- installs [Bob](https://github.com/MordechaiHadad/bob), the Tree-sitter CLI,
+  and stable Neovim;
 - offers GitHub CLI authentication when needed;
 - clones `~/dev/mdx-preview.nvim`, required by the Neovim MDX preview plugin;
 - clones `~/dev/switchboard`, installs its Linux CLI release, and loads its

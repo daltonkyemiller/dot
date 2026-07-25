@@ -99,17 +99,26 @@ install_github_cli() {
   exit 1
 }
 
-install_bob() {
-  if command -v bob >/dev/null 2>&1; then
-    return
-  fi
-
+install_rust() {
   if ! command -v cargo >/dev/null 2>&1; then
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   fi
 
   export PATH="$HOME/.cargo/bin:$PATH"
+}
+
+install_bob() {
+  command -v bob >/dev/null 2>&1 && return
+
+  install_rust
   cargo install bob-nvim --locked
+}
+
+install_tree_sitter() {
+  command -v tree-sitter >/dev/null 2>&1 && return
+
+  install_rust
+  cargo install --locked tree-sitter-cli
 }
 
 link_directory() {
@@ -207,6 +216,7 @@ if [[ "$force" == true ]]; then
 fi
 "$DOTFILES_DIR/zsh/install" "${zsh_install_arguments[@]}"
 install_bob
+install_tree_sitter
 export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
 bob use stable
 link_directory "$NVIM_SOURCE" "$NVIM_TARGET"
