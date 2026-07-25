@@ -27,28 +27,28 @@ EOF
 
 install_system_packages() {
   if command -v brew >/dev/null 2>&1; then
-    brew install zsh git gh ripgrep node fzf zoxide eza
+    brew install zsh git gh ripgrep node llvm fzf zoxide eza
     return
   fi
 
   if command -v apt-get >/dev/null 2>&1; then
     sudo apt-get update
-    sudo apt-get install -y zsh git gh ripgrep nodejs npm curl build-essential fzf zoxide || sudo apt-get install -y zsh git ripgrep nodejs npm curl build-essential
+    sudo apt-get install -y zsh git gh ripgrep nodejs npm curl build-essential clang libclang-dev fzf zoxide || sudo apt-get install -y zsh git ripgrep nodejs npm curl build-essential clang libclang-dev
     return
   fi
 
   if command -v dnf >/dev/null 2>&1; then
-    sudo dnf install -y zsh git gh ripgrep nodejs npm curl gcc make fzf zoxide eza || sudo dnf install -y zsh git ripgrep nodejs npm curl gcc make
+    sudo dnf install -y zsh git gh ripgrep nodejs npm curl gcc make clang clang-libs fzf zoxide eza || sudo dnf install -y zsh git ripgrep nodejs npm curl gcc make clang clang-libs
     return
   fi
 
   if command -v pacman >/dev/null 2>&1; then
-    sudo pacman -S --needed zsh git github-cli ripgrep nodejs npm curl base-devel fzf zoxide eza
+    sudo pacman -S --needed zsh git github-cli ripgrep nodejs npm curl base-devel clang fzf zoxide eza
     return
   fi
 
   if command -v apk >/dev/null 2>&1; then
-    sudo apk add zsh git github-cli ripgrep nodejs npm curl build-base fzf zoxide eza || sudo apk add zsh git ripgrep nodejs npm curl build-base
+    sudo apk add zsh git github-cli ripgrep nodejs npm curl build-base clang-dev fzf zoxide eza || sudo apk add zsh git ripgrep nodejs npm curl build-base clang-dev
     return
   fi
 
@@ -105,6 +105,12 @@ install_rust() {
   fi
 
   export PATH="$HOME/.cargo/bin:$PATH"
+
+  if [[ "$(uname -s)" == Darwin ]] && command -v brew >/dev/null 2>&1; then
+    local llvm_library_directory
+    llvm_library_directory="$(brew --prefix llvm)/lib"
+    [[ -d "$llvm_library_directory" ]] && export LIBCLANG_PATH="$llvm_library_directory"
+  fi
 }
 
 install_bob() {
