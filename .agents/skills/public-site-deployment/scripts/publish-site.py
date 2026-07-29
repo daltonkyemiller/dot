@@ -25,6 +25,8 @@ CADDY_SERVICE = "public-caddy"
 LOCK_FILE = Path("/run/publish-dalton-site/lock")
 MAX_STATIC_BYTES = 1_073_741_824
 MAX_STATIC_FILES = 50_000
+MIN_PUBLIC_APP_PORT = 9130
+MAX_PUBLIC_APP_PORT = 9199
 NAME_PATTERN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
 USER_PATTERN = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
 
@@ -181,6 +183,11 @@ def validate_upstream(upstream: str) -> str:
         raise PublishError("upstream must include a valid port") from error
     if port is None or not 1 <= port <= 65535:
         raise PublishError("upstream must include an explicit port")
+    if not MIN_PUBLIC_APP_PORT <= port <= MAX_PUBLIC_APP_PORT:
+        raise PublishError(
+            f"upstream port must be in the dedicated public app range "
+            f"{MIN_PUBLIC_APP_PORT}-{MAX_PUBLIC_APP_PORT}"
+        )
     if parsed.path not in {"", "/"} or parsed.query or parsed.fragment:
         raise PublishError("upstream must not include a path, query, or fragment")
     host = f"[{parsed.hostname}]" if parsed.hostname == "::1" else parsed.hostname
