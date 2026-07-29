@@ -56,7 +56,7 @@ pnpm dlx @tanstack/cli@latest create <name> \
   -y
 ```
 
-Do not use `--blank` when Tailwind or Intent should be present; blank intentionally omits them. Current Start/Oxc packages require Node 22.12 or newer.
+Do not use `--blank` when Tailwind or Intent should be present; blank intentionally omits them. Current Start/Oxc packages and pnpm 11.18 require Node 22.13 or newer.
 
 ## Version-matched package skills
 
