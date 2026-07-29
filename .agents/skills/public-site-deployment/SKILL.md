@@ -34,7 +34,7 @@ Password protection prompts privately and stores only a bcrypt hash in Caddy con
 publish-dalton-site static <name> <directory> --protect
 ```
 
-For non-interactive automation, use `--password-stdin` or a root-readable `--password-file`; do not put plaintext passwords in command arguments, repositories, or generated Caddy snippets. Passwords must contain at least 12 characters. The default username is `dalton`; override with `--username` when needed.
+For non-interactive automation, use `--password-stdin` or a root-readable `--password-file`; do not put plaintext passwords in command arguments, repositories, or generated Caddy snippets. Password input without `--protect` is rejected to prevent accidental public publishing. Passwords must contain at least 12 characters. The default username is `dalton`; override with `--username` when needed.
 
 ## TanStack Start and other services
 
