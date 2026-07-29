@@ -14,9 +14,9 @@ metadata:
 
 ## Boundary
 
-Use the shared Caddy process for public `*.dalton.computer` routes while preserving the private `*.miller.tools` Tailnet listener. Public routes are explicit and unknown wildcard hosts abort. Apps bind loopback only; Caddy alone binds the VPS public addresses on ports 80 and 443.
+Use the dedicated public Caddy container for `*.dalton.computer` routes while preserving `*.miller.tools` in a separate private Caddy container and TLS cache. The two containers share only the systemd-managed Compose lifecycle; public routes have no DNS API credentials or private artifact mounts. Apps bind loopback only; public Caddy alone binds the VPS public addresses on ports 80 and 443.
 
-Publishing command: `/usr/local/bin/publish-dalton-site` (also available as `publish-dalton-site`). It validates DNS labels, permits only loopback proxy upstreams, validates the complete Caddy config, and applies Caddy through `caddy-private.service`.
+Publishing command: `/usr/local/bin/publish-dalton-site` (also available as `publish-dalton-site`). It validates DNS labels, permits only loopback proxy upstreams, validates the complete public Caddy config, and applies it with a graceful admin reload that leaves the private container untouched.
 
 ## Static artifacts
 
