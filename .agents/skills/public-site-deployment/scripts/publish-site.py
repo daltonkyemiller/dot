@@ -132,19 +132,24 @@ def auth_block(username: str, password_hash: str | None) -> str:
     )
 
 
-def static_config(name: str, username: str, password_hash: str | None) -> str:
+def static_config(
+    name: str,
+    username: str,
+    password_hash: str | None,
+    release_id: str,
+) -> str:
     host = f"{name}.{DOMAIN}"
     return (
-		f"http://{host} {{\n"
-		"\timport public_bind\n"
-		"\tredir https://{host}{uri} 308\n"
-		"}\n\n"
-		f"https://{host} {{\n"
-		"\timport public_bind\n"
-		f"{auth_block(username, password_hash)}"
-        f"\troot * /srv/public-sites/{name}/current\n"
-        "\tencode zstd gzip\n"
-        "\tfile_server\n"
+        f"http://{host} {{\n"
+        "	import public_bind\n"
+        "	redir https://{host}{uri} 308\n"
+        "}\n\n"
+        f"https://{host} {{\n"
+        "	import public_bind\n"
+        f"{auth_block(username, password_hash)}"
+        f"	root * /srv/public-sites/{name}/releases/{release_id}\n"
+        "	encode zstd gzip\n"
+        "	file_server\n"
         "}\n"
     )
 
@@ -258,6 +263,51 @@ def validate_caddy() -> None:
     )
 
 
+def validate_candidate(config_path: Path, candidate: str | None) -> None:
+    import_marker = "import /etc/caddy/public-sites/*.caddy"
+    base = CADDYFILE.read_text(encoding="utf-8")
+    if base.count(import_marker) != 1:
+        raise PublishError("public Caddyfile has an unexpected route import contract")
+    with tempfile.TemporaryDirectory(prefix=".candidate-", dir=CADDYFILE.parent) as temporary:
+        validation_root = Path(temporary)
+        validation_sites = validation_root / "public-sites"
+        validation_sites.mkdir()
+        for existing in CONFIG_DIR.glob("*.caddy"):
+            if existing == config_path:
+                continue
+            metadata = existing.lstat()
+            if not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != 0:
+                raise PublishError("public route snippets must be root-owned regular files")
+            (validation_sites / existing.name).write_text(
+                existing.read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+        if candidate is not None:
+            (validation_sites / config_path.name).write_text(candidate, encoding="utf-8")
+        validation_caddyfile = validation_root / "Caddyfile"
+        validation_caddyfile.write_text(
+            base.replace(import_marker, "import /validation/public-sites/*.caddy"),
+            encoding="utf-8",
+        )
+        run(
+            [
+                "docker",
+                "run",
+                "--rm",
+                "--entrypoint",
+                "caddy",
+                "-v",
+                f"{validation_root}:/validation:ro",
+                IMAGE,
+                "validate",
+                "--config",
+                "/validation/Caddyfile",
+                "--adapter",
+                "caddyfile",
+            ]
+        )
+
+
 def apply_caddy() -> None:
     run(
         [
@@ -330,6 +380,12 @@ def install_static(args: argparse.Namespace) -> None:
 
     config_path = CONFIG_DIR / f"{name}.caddy"
     previous_config = config_path.read_text(encoding="utf-8") if config_path.exists() else None
+    candidate_config = static_config(name, username, password_hash, release_id)
+    try:
+        validate_candidate(config_path, candidate_config)
+    except Exception:
+        shutil.rmtree(final_release, ignore_errors=True)
+        raise
     current_link = site_dir / "current"
     previous_target = os.readlink(current_link) if current_link.is_symlink() else None
     next_link = site_dir / ".current.next"
@@ -337,11 +393,11 @@ def install_static(args: argparse.Namespace) -> None:
     next_link.symlink_to(Path("releases") / release_id)
 
     try:
-        atomic_write(config_path, static_config(name, username, password_hash))
+        atomic_write(config_path, candidate_config)
         validate_caddy()
+        apply_caddy()
         os.replace(next_link, current_link)
         fsync_directory(site_dir)
-        apply_caddy()
     except Exception as error:
         next_link.unlink(missing_ok=True)
         if previous_config is None:
@@ -382,8 +438,10 @@ def install_proxy(args: argparse.Namespace) -> None:
     password_hash = hash_password(password) if password is not None else None
     config_path = CONFIG_DIR / f"{name}.caddy"
     previous_config = config_path.read_text(encoding="utf-8") if config_path.exists() else None
+    candidate_config = proxy_config(name, upstream, username, password_hash)
+    validate_candidate(config_path, candidate_config)
     try:
-        atomic_write(config_path, proxy_config(name, upstream, username, password_hash))
+        atomic_write(config_path, candidate_config)
         validate_caddy()
         apply_caddy()
     except Exception as error:
@@ -412,6 +470,7 @@ def remove_site(args: argparse.Namespace) -> None:
     if not config_path.exists():
         raise PublishError(f"{name}.{DOMAIN} is not published")
     previous_config = config_path.read_text(encoding="utf-8")
+    validate_candidate(config_path, None)
     config_path.unlink()
     fsync_directory(config_path.parent)
     try:

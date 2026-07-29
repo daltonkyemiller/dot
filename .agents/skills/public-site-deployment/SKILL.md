@@ -20,7 +20,7 @@ Publishing command: `/usr/local/bin/publish-dalton-site` (also available as `pub
 
 ## Static artifacts
 
-The source must contain `index.html` at its root and live beneath root-owned, non-writable ancestor directories (for example `/root/dev/...` or `/srv/...`, not `/tmp`). Deployment copies a timestamped immutable release and atomically switches `current`:
+The source must contain `index.html` at its root and live beneath root-owned, non-writable ancestor directories (for example `/root/dev/...` or `/srv/...`, not `/tmp`). Deployment copies a timestamped immutable release, validates the full candidate configuration without mutating the live route, reloads Caddy against that immutable release, and only then updates `current` as rollback bookkeeping:
 
 ```sh
 publish-dalton-site static <name> <directory>
