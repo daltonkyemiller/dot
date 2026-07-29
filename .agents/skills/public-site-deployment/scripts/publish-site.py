@@ -68,6 +68,8 @@ def escape_caddy_token(value: str) -> str:
 
 def read_password(args: argparse.Namespace) -> str | None:
     if not args.protect:
+        if args.password_file or args.password_stdin:
+            raise PublishError("password input requires --protect")
         return None
     sources = sum(bool(value) for value in (args.password_file, args.password_stdin))
     if sources > 1:
@@ -283,8 +285,14 @@ def validate_candidate(config_path: Path, candidate: str | None) -> None:
             if existing == config_path:
                 continue
             metadata = existing.lstat()
-            if not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != 0:
-                raise PublishError("public route snippets must be root-owned regular files")
+            if (
+                not stat.S_ISREG(metadata.st_mode)
+                or metadata.st_uid != 0
+                or stat.S_IMODE(metadata.st_mode) & 0o022
+            ):
+                raise PublishError(
+                    "public route snippets must be root-owned, non-writable regular files"
+                )
             (validation_sites / existing.name).write_text(
                 existing.read_text(encoding="utf-8"),
                 encoding="utf-8",
