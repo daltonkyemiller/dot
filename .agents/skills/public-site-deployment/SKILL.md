@@ -20,7 +20,7 @@ Publishing command: `/usr/local/bin/publish-dalton-site` (also available as `pub
 
 ## Static artifacts
 
-The source must contain `index.html` at its root. Deployment copies a timestamped immutable release and atomically switches `current`:
+The source must contain `index.html` at its root and live beneath root-owned, non-writable ancestor directories (for example `/root/dev/...` or `/srv/...`, not `/tmp`). Deployment copies a timestamped immutable release and atomically switches `current`:
 
 ```sh
 publish-dalton-site static <name> <directory>
@@ -67,8 +67,9 @@ After every publish:
 1. Verify the direct loopback app or static release.
 2. Verify HTTPS and expected content through the final hostname.
 3. For protected sites, verify unauthenticated requests return 401, valid credentials return 200, and the plaintext password does not appear in config/process output.
-4. Verify an existing private route such as `brief.miller.tools` still works.
-5. Verify an unknown `*.dalton.computer` hostname fails closed.
-6. Inspect Caddy and application logs for errors.
+4. Verify an existing private route such as `brief.miller.tools` still works on the loopback/Tailnet path.
+5. Probe a private `*.miller.tools` SNI name against the public listener and confirm it receives no private certificate or content.
+6. Verify an unknown `*.dalton.computer` hostname fails closed.
+7. Inspect both Caddy containers and application logs for errors.
 
 Never report a deployment complete before DNS resolves publicly and the final HTTPS request passes from outside the loopback path.
