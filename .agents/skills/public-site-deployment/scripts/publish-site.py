@@ -325,7 +325,7 @@ def apply_caddy() -> None:
             "--adapter",
             "caddyfile",
             "--address",
-            "127.0.0.1:2020",
+            "unix//run/caddy/admin.sock",
         ]
     )
 

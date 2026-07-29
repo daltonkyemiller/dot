@@ -1,6 +1,6 @@
 {
 	email hello@daltons.email
-	admin 127.0.0.1:2019
+	admin unix//run/caddy/admin.sock
 	auto_https disable_redirects
 }
 

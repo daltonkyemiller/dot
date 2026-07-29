@@ -3,6 +3,7 @@ x-hardened: &hardened
   read_only: true
   tmpfs:
     - /tmp:size=32m,mode=1777
+    - /run/caddy:size=1m,mode=0700
   cap_drop:
     - ALL
   cap_add:
@@ -26,7 +27,7 @@ services:
       - spaceship_api_key
       - spaceship_api_secret
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:2019/config/"]
+      test: ["CMD-SHELL", "test -S /run/caddy/admin.sock && kill -0 1"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -44,7 +45,7 @@ services:
       - caddy-public-data:/data
       - caddy-public-config:/config
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:2020/config/"]
+      test: ["CMD-SHELL", "test -S /run/caddy/admin.sock && kill -0 1"]
       interval: 30s
       timeout: 5s
       retries: 3
