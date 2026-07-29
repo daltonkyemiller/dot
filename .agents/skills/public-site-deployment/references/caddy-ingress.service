@@ -1,0 +1,21 @@
+[Unit]
+Description=Private and public Caddy ingress managed by Docker Compose
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/docker/caddy-private
+ExecStartPre=/usr/bin/docker compose -f docker-compose.yml config --quiet
+ExecStart=/usr/bin/docker compose -f docker-compose.yml up --remove-orphans --abort-on-container-exit
+ExecReload=/usr/bin/docker compose -f docker-compose.yml exec -T private-caddy /usr/local/bin/caddy-private-reload
+ExecReload=/usr/bin/docker compose -f docker-compose.yml exec -T public-caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile --address 127.0.0.1:2020
+ExecStop=/usr/bin/docker compose -f docker-compose.yml down
+Restart=always
+RestartSec=5
+TimeoutStartSec=180
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

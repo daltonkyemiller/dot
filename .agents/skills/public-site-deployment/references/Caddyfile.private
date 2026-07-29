@@ -1,0 +1,47 @@
+{
+	email hello@daltons.email
+	admin 127.0.0.1:2019
+	auto_https disable_redirects
+}
+
+https://*.miller.tools:9443 {
+	bind 127.0.0.1
+
+	tls {
+		dns spaceship {
+			api_key {env.LIBDNS_SPACESHIP_APIKEY}
+			api_secret {env.LIBDNS_SPACESHIP_APISECRET}
+		}
+		resolvers 1.1.1.1 8.8.8.8
+	}
+
+	@hermes host hermes.miller.tools
+	handle @hermes {
+		reverse_proxy http://172.17.0.1:9119 {
+			header_up Host 172.17.0.1:9119
+			header_up Origin http://172.17.0.1:9119
+		}
+	}
+
+	@morrow host morrow.miller.tools
+	handle @morrow {
+		reverse_proxy http://127.0.0.1:9120
+	}
+
+	@chat host chat.miller.tools
+	handle @chat {
+		reverse_proxy http://127.0.0.1:9121
+	}
+
+	@brief host brief.miller.tools
+	handle @brief {
+		root * /srv/daily-brief
+		@brief_root path /
+		redir @brief_root /latest/ 302
+		file_server
+	}
+
+	handle {
+		abort
+	}
+}

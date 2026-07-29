@@ -16,7 +16,7 @@ metadata:
 
 Use the dedicated public Caddy container for `*.dalton.computer` routes while preserving `*.miller.tools` in a separate private Caddy container and TLS cache. The two containers share only the systemd-managed Compose lifecycle; public routes have no DNS API credentials or private artifact mounts. Apps bind loopback only; public Caddy alone binds the VPS public addresses on ports 80 and 443.
 
-Publishing command: `/usr/local/bin/publish-dalton-site` (also available as `publish-dalton-site`). It validates DNS labels, permits only loopback proxy upstreams, validates the complete public Caddy config, and applies it with a graceful admin reload that leaves the private container untouched.
+Publishing command: `/usr/local/bin/publish-dalton-site` (also available as `publish-dalton-site`). It validates DNS labels, permits only loopback proxy upstreams, validates the complete public Caddy config, and applies it with a graceful admin reload that leaves the private container untouched. The durable implementation and sanitized ingress templates are tracked beside this skill under `scripts/` and `references/`; they contain secret-file paths and environment placeholders, never credential values.
 
 ## Static artifacts
 

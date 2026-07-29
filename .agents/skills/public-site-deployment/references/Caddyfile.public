@@ -1,0 +1,16 @@
+{
+	email hello@daltons.email
+	admin 127.0.0.1:2020
+	auto_https disable_redirects
+}
+
+(public_bind) {
+	bind 2.24.195.236 [2a02:4780:75:5d82::1]
+}
+
+import /etc/caddy/public-sites/*.caddy
+
+http:// {
+	import public_bind
+	abort
+}
