@@ -40,7 +40,7 @@ pnpm install
 pnpm init:project <name>
 ```
 
-The initializer removes the template's placeholder PRODUCT.md. Capture the real product context before product UI work; preserve DESIGN.md as a baseline until the real design system replaces it.
+The initializer resets PRODUCT.md to a project-named fill-in brief. Complete every TODO before product UI work; preserve DESIGN.md as a baseline until the real design system replaces it.
 
 For a clean official scaffold when the template is inappropriate:
 
