@@ -1,7 +1,8 @@
 onboarding = false
 
 [theme]
-name = "gruvbox"
+name = "kanagawa"
+auto_switch = false
 
 [theme.custom]
 panel_bg = "#222222"
@@ -13,19 +14,102 @@ yellow = "#c9a554"
 green = "#5f875f"
 mauve = "#685742"
 
+[ui]
+mouse_capture = true
+copy_on_select = true
+pane_borders = true
+pane_gaps = false
+agent_panel_sort = "spaces"
+
 [ui.toast]
 delivery = "herdr"
 
-[keys]
-previous_tab = "alt+["
-next_tab = "alt+]"
-focus_pane_left = "alt+h"
-focus_pane_down = "alt+j"
-focus_pane_up = "alt+k"
-focus_pane_right = "alt+l"
-
 [ui.sound]
-enabled = false
+enabled = true
 
-[ui]
-agent_panel_scope = "all"
+[keys]
+prefix = "ctrl+a"
+# Sessions/worktrees
+new_workspace = "prefix+ctrl+c"
+new_worktree = "prefix+shift+c"
+workspace_picker = "prefix+w"
+goto = ["prefix+shift+w", "prefix+g"]
+rename_workspace = "prefix+shift+n"
+# Tabs (tmux windows)
+previous_tab = ["alt+[", "prefix+ctrl+h", "prefix+p"]
+next_tab = ["alt+]", "prefix+ctrl+l", "prefix+n"]
+# Panes
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+split_vertical = "prefix+v"
+split_horizontal = "prefix+s"
+resize_mode = "prefix+r"
+copy_mode = "prefix+["
+edit_scrollback = "prefix+enter"
+# General tmux muscle memory
+reload_config = "prefix+shift+r"
+settings = "prefix+shift+s"
+toggle_sidebar = ["prefix+t", "prefix+b"]
+
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "daltonkyemiller.sesh.open-picker"
+description = "open Sesh picker"
+
+[[keys.command]]
+key = "alt+c"
+type = "popup"
+command = "$HOME/dev/herdr-plugin-switchboard/bin/herdr-switchboard toggle"
+description = "toggle last workspace agent"
+width = "48%"
+height = 12
+
+[[keys.command]]
+key = "alt+o"
+type = "popup"
+command = "$HOME/dev/herdr-plugin-switchboard/bin/herdr-switchboard picker"
+description = "start a new agent"
+width = "48%"
+height = 12
+
+[[keys.command]]
+key = "alt+h"
+type = "shell"
+command = "$HOME/dev/herdr-plugin-switchboard/bin/herdr-switchboard smart-nav-left"
+description = "smart navigate left"
+
+[[keys.command]]
+key = "alt+j"
+type = "shell"
+command = "$HOME/dev/herdr-plugin-switchboard/bin/herdr-switchboard smart-nav-down"
+description = "smart navigate down"
+
+[[keys.command]]
+key = "alt+k"
+type = "shell"
+command = "$HOME/dev/herdr-plugin-switchboard/bin/herdr-switchboard smart-nav-up"
+description = "smart navigate up"
+
+[[keys.command]]
+key = "alt+l"
+type = "shell"
+command = "$HOME/dev/herdr-plugin-switchboard/bin/herdr-switchboard smart-nav-right"
+description = "smart navigate right"
+
+[[keys.command]]
+key = "prefix+alt+1"
+type = "shell"
+command = "$HOME/dev/herdr-plugin-switchboard/bin/herdr-switchboard balance"
+description = "balance pane sizes"
+
+[terminal]
+new_cwd = "follow"
+
+[session]
+resume_agents_on_restore = true
+
+[experimental]
+pane_history = true

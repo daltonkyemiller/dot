@@ -11,6 +11,16 @@ readonly LAZYDOCKER_TARGET="$CONFIG_DIRECTORY/lazydocker"
 readonly SKILLS_SOURCE="$DOTFILES_DIR/.agents/skills"
 readonly AGENT_SKILLS_TARGET="$HOME/.agents/skills"
 readonly CLAUDE_SKILLS_TARGET="$HOME/.claude/skills"
+readonly HERDR_CONFIG_SOURCE="$DOTFILES_DIR/herdr/config.toml"
+readonly HERDR_CONFIG_TARGET="$CONFIG_DIRECTORY/herdr/config.toml"
+readonly HERDR_SWITCHBOARD_CONFIG_SOURCE="$DOTFILES_DIR/herdr/switchboard-config.toml"
+readonly HERDR_SWITCHBOARD_CONFIG_TARGET="$CONFIG_DIRECTORY/herdr/plugins/config/dalton.switchboard/config.toml"
+readonly HERDR_SWITCHBOARD_REPOSITORY="daltonkyemiller/herdr-plugin-switchboard"
+readonly HERDR_SWITCHBOARD_DIRECTORY="$HOME/dev/herdr-plugin-switchboard"
+readonly HERDR_SESH_REPOSITORY="daltonkyemiller/herdr-plugin-sesh"
+readonly HERDR_SESH_DIRECTORY="$HOME/dev/herdr-plugin-sesh"
+readonly SESH_CONFIG_SOURCE="$DOTFILES_DIR/sesh/sesh.toml"
+readonly SESH_CONFIG_TARGET="$CONFIG_DIRECTORY/sesh/sesh.toml"
 readonly MDX_REPOSITORY="daltonkyemiller/mdx-preview.nvim"
 readonly MDX_DIRECTORY="$HOME/dev/mdx-preview.nvim"
 readonly SWITCHBOARD_REPOSITORY="daltonkyemiller/switchboard"
@@ -161,6 +171,23 @@ install_terminal_tools() {
   fi
 }
 
+install_herdr() {
+  command -v herdr >/dev/null 2>&1 && return
+
+  if command -v brew >/dev/null 2>&1; then
+    brew install herdr
+    return
+  fi
+
+  curl -fsSL https://herdr.dev/install.sh | sh
+}
+
+install_gum() {
+  command -v gum >/dev/null 2>&1 && return
+  command -v go >/dev/null 2>&1 || { printf 'Go is required to install Gum. Re-run with --packages.\n' >&2; exit 1; }
+  GOBIN="$HOME/.local/bin" go install github.com/charmbracelet/gum@latest
+}
+
 link_directory() {
   local source_directory="$1"
   local target_directory="$2"
@@ -196,6 +223,37 @@ link_skills() {
     link_directory "$skill_directory" "$AGENT_SKILLS_TARGET/$skill_name"
     link_directory "$skill_directory" "$CLAUDE_SKILLS_TARGET/$skill_name"
   done
+}
+
+link_file() {
+  local source_file="$1"
+  local target_file="$2"
+
+  local source_parent
+  local target_parent
+  source_parent="$(dirname "$source_file")"
+  target_parent="$(dirname "$target_file")"
+  if [[ -L "$target_parent" && "$(readlink "$target_parent")" == "$source_parent" ]]; then
+    return
+  fi
+
+  if [[ -L "$target_file" && "$(readlink "$target_file")" == "$source_file" ]]; then
+    return
+  fi
+
+  if [[ -e "$target_file" || -L "$target_file" ]]; then
+    if [[ "$force" != true ]]; then
+      printf '%s already exists. Re-run with --force to back it up and replace it.\n' "$target_file" >&2
+      exit 1
+    fi
+
+    local backup_path="${target_file}.before-dotfiles.$(date +%Y%m%d%H%M%S)"
+    mv "$target_file" "$backup_path"
+    printf 'Backed up %s to %s\n' "$target_file" "$backup_path"
+  fi
+
+  mkdir -p "$(dirname "$target_file")"
+  ln -s "$source_file" "$target_file"
 }
 
 authenticate_github() {
@@ -244,6 +302,14 @@ install_switchboard() {
   export PATH="$HOME/.local/bin:$PATH"
 }
 
+install_herdr_plugins() {
+  clone_local_plugin "$HERDR_SWITCHBOARD_REPOSITORY" "$HERDR_SWITCHBOARD_DIRECTORY"
+  clone_local_plugin "$HERDR_SESH_REPOSITORY" "$HERDR_SESH_DIRECTORY"
+  herdr plugin link "$HERDR_SWITCHBOARD_DIRECTORY"
+  herdr plugin link "$HERDR_SESH_DIRECTORY"
+  herdr config check
+}
+
 while (( $# > 0 )); do
   case "$1" in
     --packages) install_packages=true ;;
@@ -274,9 +340,16 @@ install_bob
 install_tree_sitter
 install_terminal_tools
 install_neovim
+install_herdr
+install_gum
+install_neovim
 link_directory "$NVIM_SOURCE" "$NVIM_TARGET"
 link_directory "$DOTFILES_DIR/lazygit" "$LAZYGIT_TARGET"
 link_directory "$DOTFILES_DIR/lazydocker" "$LAZYDOCKER_TARGET"
+link_file "$HERDR_CONFIG_SOURCE" "$HERDR_CONFIG_TARGET"
+link_file "$HERDR_SWITCHBOARD_CONFIG_SOURCE" "$HERDR_SWITCHBOARD_CONFIG_TARGET"
+link_file "$SESH_CONFIG_SOURCE" "$SESH_CONFIG_TARGET"
+install_herdr_plugins
 clone_local_plugin "$MDX_REPOSITORY" "$MDX_DIRECTORY"
 clone_local_plugin "$SWITCHBOARD_REPOSITORY" "$SWITCHBOARD_DIRECTORY"
 install_switchboard

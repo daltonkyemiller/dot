@@ -22,6 +22,8 @@ The bootstrap script:
   existing Neovim if the update fails;
 - installs LazyGit and Lazydocker;
 - links the tracked LazyGit and Lazydocker themes into the XDG config directory;
+- links Herdr, Sesh, and the Switchboard agent-command configuration into the XDG config directory;
+- installs Herdr and Gum, then clones and links the tracked Sesh and Switchboard Herdr plugins;
 - offers GitHub CLI authentication when needed;
 - clones `~/dev/mdx-preview.nvim`, required by the Neovim MDX preview plugin;
 - clones `~/dev/switchboard`, installs its Linux CLI release, and loads its

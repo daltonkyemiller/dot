@@ -1,0 +1,3 @@
+[agents]
+codex = "codex --yolo"
+claude = "claude --dangerously-skip-permissions"
